@@ -46,8 +46,13 @@ wc = WordCloud(font_path=font_path,  # 设置字体
                height=860,
                margin=2,
 )
+
+#绘制图片
+fig, (ax0, ax1) = plt.subplots(nrows=1, ncols=2, figsize=(18, 10), gridspec_kw={'width_ratios': [5, 3]})
 #中文
 wc.generate(jieba_clear_text(chinese_text))
+ax0.imshow(wc)#彩图
+ax0.axis("off")
 wc.to_file(os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+"/image/example/cn_pic.png")
 #英文
 wc.generate(open(english_text_path,"r",encoding="UTF-8").read())
@@ -55,7 +60,7 @@ wc.to_file(os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+"/image
 
 #使用图片背景色绘制文字
 image_colors = ImageColorGenerator(background_img)
-plt.imshow(wc.recolor(color_func=image_colors))
-plt.axis("off")
+ax1.imshow(wc.recolor(color_func=image_colors))
+ax1.axis("off")
 plt.figure()
 plt.show()
