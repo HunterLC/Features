@@ -1,6 +1,6 @@
 # Features
 Fake news detection based on feature selection
-##项目树
+## 项目树
 ```
 Features
 │  .gitignore
