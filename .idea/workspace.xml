@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="15714133-8834-42cf-a36a-069dc63f951d" name="Default Changelist" comment="" />
+    <list default="true" id="15714133-8834-42cf-a36a-069dc63f951d" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -18,7 +21,9 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1V703A9rDzhWlv9CKRsrAOj7C2L" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -35,9 +40,9 @@
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="settings.editor.selected.configurable" value="vcs.Git" />
+    <property name="settings.editor.selected.configurable" value="kite.configurable" />
   </component>
-  <component name="RunManager" selected="Python.cloud">
+  <component name="RunManager" selected="Python.feature_extraction">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -64,6 +69,9 @@
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/example" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -71,6 +79,25 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/example/cloud.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="feature_extraction" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Features" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/work" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/work/feature_extraction.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -125,9 +152,10 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.feature_extraction" />
+        <item itemvalue="Python.statistics" />
         <item itemvalue="Python.cloud" />
         <item itemvalue="Python.wordcloud" />
-        <item itemvalue="Python.statistics" />
       </list>
     </recent_temporary>
   </component>
@@ -160,7 +188,12 @@
       <workItem from="1577606570946" duration="8068000" />
       <workItem from="1577628173600" duration="66000" />
       <workItem from="1577695439992" duration="152000" />
-      <workItem from="1577695663092" duration="1422000" />
+      <workItem from="1577695663092" duration="2661000" />
+      <workItem from="1578226511620" duration="128000" />
+      <workItem from="1578227768675" duration="67000" />
+      <workItem from="1578748928710" duration="111000" />
+      <workItem from="1578987086044" duration="733000" />
+      <workItem from="1578987882917" duration="4832000" />
     </task>
     <servers />
   </component>
@@ -204,18 +237,19 @@
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state width="1493" height="277" key="GridCell.Tab.1.right/0.0.1536.864@0.0.1536.864" timestamp="1577614891862" />
-    <state x="272" y="77" key="SettingsEditor" timestamp="1577697102843">
-      <screen x="0" y="0" width="1536" height="864" />
+    <state x="272" y="73" key="SettingsEditor" timestamp="1578987943117">
+      <screen x="0" y="0" width="1536" height="824" />
     </state>
+    <state x="272" y="73" key="SettingsEditor/0.0.1536.824@0.0.1536.824" timestamp="1578987943117" />
     <state x="272" y="77" key="SettingsEditor/0.0.1536.864@0.0.1536.864" timestamp="1577697102843" />
     <state width="775" height="439" key="XDebugger.FullValuePopup" timestamp="1577697143780">
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state width="775" height="439" key="XDebugger.FullValuePopup/0.0.1536.864@0.0.1536.864" timestamp="1577697143780" />
-    <state x="461" y="251" key="com.intellij.ide.util.TipDialog" timestamp="1577628183723">
-      <screen x="0" y="0" width="1536" height="864" />
+    <state x="461" y="239" key="com.intellij.ide.util.TipDialog" timestamp="1578987885754">
+      <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="461" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1577165179479" />
+    <state x="461" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1578987885754" />
     <state x="461" y="251" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1577628183723" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
