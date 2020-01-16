@@ -43,7 +43,7 @@
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="kite.configurable" />
   </component>
-  <component name="RunManager" selected="Python.test">
+  <component name="RunManager" selected="Python.feature_extraction">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -92,9 +92,6 @@
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/work" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -175,8 +172,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.test" />
         <item itemvalue="Python.feature_extraction" />
+        <item itemvalue="Python.test" />
         <item itemvalue="Python.statistics" />
         <item itemvalue="Python.cloud" />
         <item itemvalue="Python.wordcloud" />
@@ -222,6 +219,7 @@
       <workItem from="1579103968113" duration="951000" />
       <workItem from="1579151937449" duration="9626000" />
       <workItem from="1579173407960" duration="5140000" />
+      <workItem from="1579184919977" duration="5365000" />
     </task>
     <servers />
   </component>
@@ -274,10 +272,10 @@
       <screen x="0" y="0" width="1536" height="864" />
     </state>
     <state width="775" height="439" key="XDebugger.FullValuePopup/0.0.1536.864@0.0.1536.864" timestamp="1577697143780" />
-    <state x="461" y="239" key="com.intellij.ide.util.TipDialog" timestamp="1579173450265">
+    <state x="461" y="239" key="com.intellij.ide.util.TipDialog" timestamp="1579184949068">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="461" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1579173450265" />
+    <state x="461" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1579184949068" />
     <state x="461" y="251" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1577628183723" />
     <state x="431" y="145" width="672" height="678" key="search.everywhere.popup" timestamp="1579154648727">
       <screen x="0" y="0" width="1536" height="824" />

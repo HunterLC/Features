@@ -22,5 +22,5 @@ from snownlp import SnowNLP
 
 # sentiment.train(r'E:\PythonCode\Features\util\negative.txt',r'E:\PythonCode\Features\util\positive.txt')
 # sentiment.save(r'E:\PythonCode\Features\util\sentiment.marshal')
-s = SnowNLP('唐山一采石场违采致山体坍塌3人死亡')
+s = SnowNLP('那个人真让人不舒服 ')
 print(s.sentiments)

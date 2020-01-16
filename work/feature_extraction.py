@@ -1,8 +1,17 @@
 import numpy as np
 import pandas as pd
 import re
+import os
+import time
+import jieba
+from snownlp import sentiment
+from snownlp import SnowNLP
 
 train_csv_path = r'G:\毕设\数据集\微博\train.csv'
+train_negative_corpus_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+'/util/negative.txt'
+train_positive_corpus_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+'/util/positive.txt'
+sentiment_model_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+'/util/sentiment.marshal'
+stopwords_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+"/util/stopwords.txt"
 
 def train_data_read(train_csv_path):
     '''
@@ -31,7 +40,7 @@ def text_insert_cols(df_text):
     col_name = list(df_text.columns)
     new_features_name = ['text_length','contains_questmark','num_questmarks','contains_exclammark',
                          'num_exclammarks','contains_hashtag','num_hashtags','contains_URL',
-                         'num_URLs','contains_mention','num_mentions','num_possentiwords','num_negsentiwords']
+                         'num_URLs','contains_mention','num_mentions','sentiment_score']
     col_name = col_name[0:2]+ new_features_name +col_name[2:]
     df_text = df_text.reindex(columns=col_name, fill_value=0)
     print("文本新特征列扩展完成...")
@@ -41,6 +50,8 @@ def text_feature_extraction(df_text):
     print("开始文本特征提取...")
     #统计字符串长度
     df_text['text_length'] = df_text['text'].str.len()
+    #将情感分数列转为float
+    df_text['sentiment_score'] = df_text['sentiment_score'].astype(float)
     #其余数据统计
     i = 0
     for index, row in df_text.iterrows():
@@ -57,6 +68,8 @@ def text_feature_extraction(df_text):
         df_text.at[i, 'contains_URL'], df_text.at[i, 'num_URLs'] = text_url(text_content)
         #获得是否含有@以及@的数量
         df_text.at[i, 'contains_mention'], df_text.at[i, 'num_mentions'] = text_mention(text_content)
+        #获得文本情感分数
+        df_text.at[i, 'sentiment_score'] = text_sentiment_score(text_content)
         i += 1
     print("文本特征提取结束...")
     return df_text
@@ -73,6 +86,52 @@ def text_questmark(text_content):
         return 1,en_questmark_nums + cn_questmark_nums
     else:
         return 0,0
+
+def text_train_sentiment():
+    #微博语料训练
+    sentiment.train(train_negative_corpus_path,train_positive_corpus_path)
+    #保存模型，同时修改snownlp->sentiment->__init__.py->data_path
+    sentiment.save(sentiment_model_path)
+
+def text_sentiment_score(text_content):
+    '''
+    获得文本的情感分数
+    0<------------------>1
+    消极                积极
+    :param text_content: 处理对象文本
+    :return: sentiment_score.sentiments 情感分数
+    '''
+    #去除停用词
+    new_text_content = jieba_clear_text(text_content)
+    try:
+        sentiment_score = SnowNLP(new_text_content).sentiments
+    except:
+        return 0
+    return sentiment_score
+
+def jieba_clear_text(text):
+    '''
+    jieba分词，并使用自定义停用词表去除停用词以及长度为1的词
+    '''
+    raw_result = "/".join(jieba.cut(text))
+    myword_list = []
+    #去除停用词
+    for myword in raw_result.split('/'):
+        if myword not in stopwords and len(myword.strip())>1:
+            myword_list.append(myword)
+    return " ".join(myword_list)
+
+def get_stopwords_list():
+    '''
+    获得停用词的列表
+    :return: stopwords：停用词列表
+    '''
+    my_stopwords = []
+    fstop = open(stopwords_path, "r", encoding='UTF-8')
+    for eachWord in fstop.readlines():
+        my_stopwords.append(eachWord.strip())
+    fstop.close()
+    return my_stopwords
 
 def text_exclammark(text_content):
     '''
@@ -124,9 +183,17 @@ def text_mention(text_content):
     else:
         return 0,0
 
+start = time.time()
 df_text,df_user,df_image = train_data_read(train_csv_path)
 df_text = text_insert_cols(df_text)
+#情感分析语料模型训练
+# text_train_sentiment()
+# 读入停用词表
+stopwords = get_stopwords_list()
+
 df_text = text_feature_extraction(df_text)
 df_text.to_csv(r'G:\毕设\数据集\微博\text.csv',index=0)#不保留行索引
+end = time.time()
+print("运行时间：",end-start)
 # df_user.to_csv(r'G:\毕设\数据集\微博\user.csv',index=0)#不保留行索引
 # df_image.to_csv(r'G:\毕设\数据集\微博\image.csv',index=0)#不保留行索引
