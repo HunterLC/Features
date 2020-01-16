@@ -55,6 +55,8 @@ def text_feature_extraction(df_text):
         df_text.at[i, 'contains_hashtag'], df_text.at[i, 'num_hashtags'] = text_hashtag(text_content)
         #获得是否含有url以及url的数量
         df_text.at[i, 'contains_URL'], df_text.at[i, 'num_URLs'] = text_url(text_content)
+        #获得是否含有@以及@的数量
+        df_text.at[i, 'contains_mention'], df_text.at[i, 'num_mentions'] = text_mention(text_content)
         i += 1
     print("文本特征提取结束...")
     return df_text
@@ -107,6 +109,18 @@ def text_url(text_content):
     url = re.findall('https?://(?:[-\w.]|(?:%[\da-fA-F]{2}))+', text_content)
     if url:
         return 1,len(url)
+    else:
+        return 0,0
+
+def text_mention(text_content):
+    '''
+    处理微博正文中的用户@
+    :param text_content: 处理对象文本
+    :return: 是否含有@（1：有，0：无），@数量
+    '''
+    mention_nums = text_content.count("@")
+    if(mention_nums > 0):
+        return 1,mention_nums
     else:
         return 0,0
 
