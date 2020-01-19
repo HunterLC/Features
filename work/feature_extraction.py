@@ -7,6 +7,8 @@ import jieba
 from snownlp import sentiment
 from snownlp import SnowNLP
 import jieba.posseg as pseg
+from gensim.models import word2vec
+import logging
 
 
 train_csv_path = r'G:\毕设\数据集\微博\train.csv'
@@ -15,6 +17,8 @@ train_negative_corpus_path = os.path.abspath(os.path.dirname(os.getcwd())+os.pat
 train_positive_corpus_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+'/util/positive.txt'
 sentiment_model_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+'/util/sentiment.marshal'
 stopwords_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+"/util/stopwords.txt"
+word2vec_txt_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+"/util/word2vec_corpus.txt"
+word2vec_model_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+"/util/text8.model"
 
 def train_data_read(train_csv_path):
     '''
@@ -23,14 +27,14 @@ def train_data_read(train_csv_path):
     df_user  用户信息列
     df_image 图片信息列
     '''
-    print("正在载入数据中...")
+    logging.info("正在载入数据中...")
     #微博信息
     df_text = pd.read_csv(train_csv_path,usecols=['id','text','category','label'])   
     #用户信息
     df_user = pd.read_csv(train_csv_path,usecols=['id','userGender','userFollowCount','userFansCount','userWeiboCount','userLocation','userDescription'])
     #微博图片信息
     df_image = pd.read_csv(train_csv_path,usecols=['id','piclist'])
-    print("数据载入完成")
+    logging.info("数据载入完成")
     return df_text,df_user,df_image
 
 def text_data_read():
@@ -47,23 +51,25 @@ def text_insert_cols(df_text,new_features_list):
     :param df_text: 文本信息
     :return: df_text: 新文本信息dataframe
     '''
-    print("正在扩展文本新特征列...")
+    logging.info("正在扩展文本新特征列...")
     col_name = list(df_text.columns)
     col_name = col_name[0:-2]+ new_features_list +col_name[-2:]
     df_text = df_text.reindex(columns=col_name, fill_value=0)
-    print("文本新特征列扩展完成...")
+    logging.info("文本新特征列扩展完成")
     return df_text
 
 def text_feature_extraction(df_text):
-    print("开始文本特征提取...")
+    logging.info("开始文本特征提取...")
     # #统计字符串长度
     # df_text['text_length'] = df_text['text'].str.len()
     # #将情感分数列转为float
     # df_text['sentiment_score'] = df_text['sentiment_score'].astype(float)
+    for j in range(1,101):
+        df_text['word2vec_'+str(j)] = df_text['word2vec_'+str(j)].astype(float)
     # #其余数据统计
     i = 0
     for index, row in df_text.iterrows():
-        print("处理进度",i+1,"/",df_text.shape[0])
+        logging.info("处理进度"+str(i+1)+"/"+str(df_text.shape[0]))
         #获得需要处理的文本内容
         text_content = row['text']
         # #获得是否含有问号以及问号的数量
@@ -78,10 +84,12 @@ def text_feature_extraction(df_text):
         # df_text.at[i, 'contains_mention'], df_text.at[i, 'num_mentions'] = text_mention(text_content)
         # #获得文本情感分数
         # df_text.at[i, 'sentiment_score'] = text_sentiment_score(text_content)
-        #词性标注，统计名词、动词、代词数量并返回
-        df_text.at[i, 'num_noun'],df_text.at[i, 'num_verb'],df_text.at[i, 'num_pronoun'] = text_part_of_speech(text_content)
+        # #词性标注，统计名词、动词、代词数量并返回
+        # df_text.at[i, 'num_noun'],df_text.at[i, 'num_verb'],df_text.at[i, 'num_pronoun'] = text_part_of_speech(text_content)
+        #计算每条微博正文的词向量均值
+        df_text.at[i,-102:-2] = text_compute_word2vec(text_content).tolist()
         i += 1
-    print("文本特征提取结束...")
+    logging.info("文本特征提取结束...")
     return df_text
 
 def text_part_of_speech(text_content):
@@ -147,7 +155,7 @@ def jieba_clear_text(text):
     myword_list = []
     #去除停用词
     for myword in raw_result.split('/'):
-        if myword not in stopwords and len(myword.strip())>1:
+        if myword not in stopwords:
             myword_list.append(myword)
     return " ".join(myword_list)
 
@@ -213,8 +221,74 @@ def text_mention(text_content):
     else:
         return 0,0
 
+def text_train_word2vec_model(word2vec_txt_path,word2vec_model_path):
+    '''
+    训练word2vec词向量模型
+    :param word2vec_txt_path: 语料路径
+    :param word2vec_model_path: 模型保存路径
+    :return: 词向量模型
+    '''
+    sentences = word2vec.Text8Corpus(word2vec_txt_path)
+    model = word2vec.Word2Vec(sentences,size=100,workers=4)
+    # 1.sentences：可以是一个List，对于大语料集，建议使用BrownCorpus,Text8Corpus或·ineSentence构建。
+    # 2.sg： 用于设置训练算法，默认为0，对应CBOW算法；sg=1则采用skip-gram算法。
+    # 3.size：是指输出的词的向量维数，默认为100。大的size需要更多的训练数据,但是效果会更好. 推荐值为几十到几百。
+    # 4.window：为训练的窗口大小，8表示每个词考虑前8个词与后8个词（实际代码中还有一个随机选窗口的过程，窗口大小<=5)，默认值为5。
+    # 5.alpha: 是学习速率
+    # 6.seed：用于随机数发生器。与初始化词向量有关。
+    # 7.min_count: 可以对字典做截断. 词频少于min_count次数的单词会被丢弃掉, 默认值为5。
+    # 8.max_vocab_size: 设置词向量构建期间的RAM限制。如果所有独立单词个数超过这个，则就消除掉其中最不频繁的一个。每一千万个单词需要大约1GB的RAM。设置成None则没有限制。
+    # 9.sample: 表示 采样的阈值，如果一个词在训练样本中出现的频率越大，那么就越会被采样。默认为1e-3，范围是(0,1e-5)
+    # 10.workers:参数控制训练的并行数。
+    # 11.hs: 是否使用HS方法，0表示: Negative Sampling，1表示：Hierarchical Softmax 。默认为0
+    # 12.negative: 如果>0,则会采用negative samping，用于设置多少个noise words
+    # 13.cbow_mean: 如果为0，则采用上下文词向量的和，如果为1（default）则采用均值。只有使用CBOW的时候才起作用。
+    # 14.hashfxn： hash函数来初始化权重。默认使用python的hash函数
+    # 15.iter： 迭代次数，默认为5。
+    # 16.trim_rule： 用于设置词汇表的整理规则，指定那些单词要留下，哪些要被删除。可以设置为None（min_count会被使用）或者一个接受()并返回RU·E_DISCARD,uti·s.RU·E_KEEP或者uti·s.RU·E_DEFAU·T的函数。
+    # 17.sorted_vocab： 如果为1（defau·t），则在分配word index 的时候会先对单词基于频率降序排序。
+    # 18.batch_words：每一批的传递给线程的单词的数量，默认为10000
 
+    model.save(word2vec_model_path)
+    return model
+
+def text_load_word2vec_model(word2vec_model_path):
+    '''
+    加载训练完成的word2vec词向量模型
+    :param word2vec_model_path: 模型路径
+    :return: 词向量模型
+    '''
+    model = word2vec.Word2Vec.load(word2vec_model_path)
+    return model
+
+def text_get_clear_word2vec_corpus(word2vec_txt_path):
+    '''
+    从原始微博文本获得word2vec语料文本
+    :param word2vec_txt_path: 语料保存位置
+    :return: 0
+    '''
+    with open(word2vec_txt_path, 'a') as f:
+        for index, row in df_text.iterrows():
+            text_content = row['text']
+            raw_txt = jieba_clear_text("".join(re.findall(u"[\u4e00-\u9fa5]", text_content)))
+            f.write(raw_txt + "\n")
+    logging.info("清理word2vec语料文本结束")
+
+def text_compute_word2vec(text_content):
+    raw_txt_list = jieba_clear_text("".join(re.findall(u"[\u4e00-\u9fa5]", text_content))).split(' ')
+    text_word2vec_score_list = []
+    for word in raw_txt_list:
+        try:
+            text_word2vec_score_list.append(model_word2vec.wv[word])
+        except KeyError:
+            text_word2vec_score_list.append(np.zeros(100))
+    result_mean_array = np.mean(np.array(text_word2vec_score_list),axis=0)
+    return result_mean_array
+
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 # start = time.time()
+# # 读入停用词表
+# stopwords = get_stopwords_list()
 # #原始数据的读入
 # # df_text,df_user,df_image = train_data_read(train_csv_path)
 #
@@ -222,11 +296,17 @@ def text_mention(text_content):
 # # new_text_features_list = ['text_length', 'contains_questmark', 'num_questmarks', 'contains_exclammark',
 # #                      'num_exclammarks', 'contains_hashtag', 'num_hashtags', 'contains_URL',
 # #                      'num_URLs', 'contains_mention', 'num_mentions', 'sentiment_score','num_noun','num_verb','num_pronoun']
+# # for i in range(1,101):
+# #     new_text_features_list.append('word2vec_'+str(i))
 # df_text = text_insert_cols(df_text,new_text_features_list)
 # #情感分析语料模型训练
 # # text_train_sentiment()
-# # 读入停用词表
-# stopwords = get_stopwords_list()
+#获得词向量训练语料
+# text_get_clear_word2vec_corpus(word2vec_txt_path)
+# #训练word2vec模型
+# model_word2vec = text_train_word2vec_model(word2vec_txt_path,word2vec_model_path)
+#加载word2vec模型
+# model_word2vec = text_load_word2vec_model(word2vec_model_path)
 #
 # df_text = text_feature_extraction(df_text)
 # df_text.to_csv(text_csv_path,index=0)#不保留行索引
@@ -237,20 +317,30 @@ def text_mention(text_content):
 
 
 start = time.time()
+
+# 读入停用词表
+stopwords = get_stopwords_list()
 #原始数据的读入
 df_text = text_data_read()
 
 #微博文本扩展特征数据列
-# new_text_features_list = ['num_noun','num_verb','num_pronoun']
+# new_text_features_list = []
+# for i in range(1,101):
+#     new_text_features_list.append('word2vec_'+str(i))
 # df_text = text_insert_cols(df_text,new_text_features_list)
+
 #情感分析语料模型训练
 # text_train_sentiment()
-# 读入停用词表
-stopwords = get_stopwords_list()
+#获得词向量训练语料
+# text_get_clear_word2vec_corpus(word2vec_txt_path)
+# #训练word2vec模型
+# model_word2vec = text_train_word2vec_model(word2vec_txt_path,word2vec_model_path)
+#加载word2vec模型
+model_word2vec = text_load_word2vec_model(word2vec_model_path)
 
 df_text = text_feature_extraction(df_text)
 df_text.to_csv(text_csv_path,index=0)#不保留行索引
 end = time.time()
-print("运行时间：",end-start)
+logging.info("运行时间："+str(end-start))
 # df_user.to_csv(r'G:\毕设\数据集\微博\user.csv',index=0)#不保留行索引
 # df_image.to_csv(r'G:\毕设\数据集\微博\image.csv',index=0)#不保留行索引

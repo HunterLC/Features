@@ -34,3 +34,6 @@ Features
         feature_extraction.py
         __init__.py
 ```
+## 文本特征提取结果
+![文本特征截图1 ''文本内容''](https://github.com/HunterLC/Features/blob/master/image/feature/text_features_1.png)
+![文本特征截图2 ''词向量''](https://github.com/HunterLC/Features/blob/master/image/feature/text_features_2.png)
