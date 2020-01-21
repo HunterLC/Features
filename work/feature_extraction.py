@@ -13,6 +13,7 @@ import logging
 
 train_csv_path = r'G:\毕设\数据集\微博\train.csv'
 text_csv_path = r'G:\毕设\数据集\微博\text.csv'
+user_csv_path = r'G:\毕设\数据集\微博\user.csv'
 train_negative_corpus_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+'/util/negative.txt'
 train_positive_corpus_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+'/util/positive.txt'
 sentiment_model_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+'/util/sentiment.marshal'
@@ -285,7 +286,60 @@ def text_compute_word2vec(text_content):
     result_mean_array = np.mean(np.array(text_word2vec_score_list),axis=0)
     return result_mean_array
 
+
+def user_data_read():
+    '''
+    用户特征文件的读取
+    :return: 用户特征文件
+    '''
+    df_user = pd.read_csv(user_csv_path)
+    return df_user
+
+def user_insert_cols(df_user,new_features_list):
+    '''
+    增加用户新的特征列，方便后续提取并补充值
+    :param df_user: 用户信息
+    :return: df_user: 新用户信息dataframe
+    '''
+    logging.info("正在扩展用户新特征列...")
+    col_name = list(df_user.columns)
+    col_name = col_name + new_features_list
+    df_user = df_user.reindex(columns=col_name, fill_value=0)
+    logging.info("用户新特征列扩展完成")
+    return df_user
+
+def user_feature_extraction(df_user):
+    logging.info("开始用户特征提取...")
+    #将 关注/粉丝比 列转为float
+    df_user['folfans_ratio'] = df_user['folfans_ratio'].astype(float)
+    #其余数据统计
+    i = 0
+    for index, row in df_user.iterrows():
+        logging.info("处理进度"+str(i+1)+"/"+str(df_user.shape[0]))
+        #获得需要处理的文本内容
+        user_follow_count = row['user_follow_count']
+        user_fans_count = row['user_fans_count']
+        #计算 关注/粉丝比
+        df_user.at[i,'folfans_ratio'] = user_compute_folfans_ratio(user_follow_count,user_fans_count)
+        i += 1
+    logging.info("用户特征提取结束...")
+    return df_user
+
+def user_compute_folfans_ratio(user_follow_count,user_fans_count):
+    '''
+    计算关注/粉丝比
+    :param user_follow_count: 关注数
+    :param user_fans_count: 粉丝数
+    :return:
+    '''
+    if( user_fans_count == 0):
+        return 0
+    else:
+        return user_follow_count/user_fans_count
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+
+#*******************文本特征提取开始***************************
+#*******************版本1*************************************
 # start = time.time()
 # # 读入停用词表
 # stopwords = get_stopwords_list()
@@ -315,32 +369,50 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 # # df_user.to_csv(r'G:\毕设\数据集\微博\user.csv',index=0)#不保留行索引
 # # df_image.to_csv(r'G:\毕设\数据集\微博\image.csv',index=0)#不保留行索引
 
+#*******************版本2*************************************
+# start = time.time()
+#
+# # 读入停用词表
+# stopwords = get_stopwords_list()
+# #原始数据的读入
+# df_text = text_data_read()
+#
+# #微博文本扩展特征数据列
+# # new_text_features_list = []
+# # for i in range(1,101):
+# #     new_text_features_list.append('word2vec_'+str(i))
+# # df_text = text_insert_cols(df_text,new_text_features_list)
+#
+# #情感分析语料模型训练
+# # text_train_sentiment()
+# #获得词向量训练语料
+# # text_get_clear_word2vec_corpus(word2vec_txt_path)
+# # #训练word2vec模型
+# # model_word2vec = text_train_word2vec_model(word2vec_txt_path,word2vec_model_path)
+# #加载word2vec模型
+# model_word2vec = text_load_word2vec_model(word2vec_model_path)
+#
+# df_text = text_feature_extraction(df_text)
+# df_text.to_csv(text_csv_path,index=0)#不保留行索引
+# end = time.time()
+# logging.info("运行时间："+str(end-start))
+# # df_user.to_csv(r'G:\毕设\数据集\微博\user.csv',index=0)#不保留行索引
+# # df_image.to_csv(r'G:\毕设\数据集\微博\image.csv',index=0)#不保留行索引
+#*******************文本特征提取结束***************************
 
+
+#*******************用户特征提取开始***************************
 start = time.time()
+#原始数据读入
+df_user = user_data_read()
+#用户新特征列扩展
+# new_user_features_list = ['folfans_ratio']
+# df_user = user_insert_cols(df_user,new_user_features_list)
+#用户特征提取
+df_user = user_feature_extraction(df_user)
+#用户特征保存
+df_user.to_csv(user_csv_path,index=0)#不保留行索引
 
-# 读入停用词表
-stopwords = get_stopwords_list()
-#原始数据的读入
-df_text = text_data_read()
-
-#微博文本扩展特征数据列
-# new_text_features_list = []
-# for i in range(1,101):
-#     new_text_features_list.append('word2vec_'+str(i))
-# df_text = text_insert_cols(df_text,new_text_features_list)
-
-#情感分析语料模型训练
-# text_train_sentiment()
-#获得词向量训练语料
-# text_get_clear_word2vec_corpus(word2vec_txt_path)
-# #训练word2vec模型
-# model_word2vec = text_train_word2vec_model(word2vec_txt_path,word2vec_model_path)
-#加载word2vec模型
-model_word2vec = text_load_word2vec_model(word2vec_model_path)
-
-df_text = text_feature_extraction(df_text)
-df_text.to_csv(text_csv_path,index=0)#不保留行索引
 end = time.time()
 logging.info("运行时间："+str(end-start))
-# df_user.to_csv(r'G:\毕设\数据集\微博\user.csv',index=0)#不保留行索引
-# df_image.to_csv(r'G:\毕设\数据集\微博\image.csv',index=0)#不保留行索引
+#*******************用户特征提取开始***************************
