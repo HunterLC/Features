@@ -59,7 +59,7 @@ Features
 | contains_hashtag    | 微博正文是否包含话题   |    int   | 1：包含，0：不包含                                                                        |
 | num_hashtags        | 话题个数              |    int   | 新浪微博话题格式为两个#，例如 #春节#                                                       |
 | contains_URL        | 微博正文是否包含链接   |    int   | 1：包含，0：不包含                                                                        |
-| num_URLs            | 链接个数              |    int   | 链接需包含http头的，例如http://www.baidu.com计数1；不包含http头的例如www.baidu.com不计数     |
+| num_URLs            | 链接个数              |    int   | 链接需包含http头的，例如http://www.baidu.com计数1； 不包含http头的例如www.baidu.com不计数     |
 | contains_mention    | 微博正文是否包含提及@  |    int   | 1：包含，0：不包含                                                                        |
 | num_mentions        | @ 的个数             |    int    | 无                                                                                      |
 | sentiment_score     | 情感分数             |    float  | 使用snownlp打分，取值0~1之间，越接近0越消极，越接近1越积极                                   |
