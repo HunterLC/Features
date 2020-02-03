@@ -4,6 +4,8 @@
     <list default="true" id="15714133-8834-42cf-a36a-069dc63f951d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/work/feature_extraction.py" beforeDir="false" afterPath="$PROJECT_DIR$/work/feature_extraction.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -91,9 +93,6 @@
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/work" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -135,9 +134,6 @@
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/example" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -237,6 +233,7 @@
       <workItem from="1579587504601" duration="6488000" />
       <workItem from="1579594144361" duration="46000" />
       <workItem from="1579954167618" duration="117000" />
+      <workItem from="1580712780906" duration="13230000" />
     </task>
     <servers />
   </component>

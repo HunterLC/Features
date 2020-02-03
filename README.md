@@ -59,7 +59,7 @@ Features
 | contains_hashtag    | 微博正文是否包含话题   |    int   | 1：包含，0：不包含                                                                        |
 | num_hashtags        | 话题个数              |    int   | 新浪微博话题格式为两个#，例如 #春节#                                                       |
 | contains_URL        | 微博正文是否包含链接   |    int   | 1：包含，0：不包含                                                                        |
-| num_URLs            | 链接个数              |    int   | 链接需包含http头的，例如http://www.baidu.com计数1； 不包含http头的例如www.baidu.com不计数     |
+| num_URLs            | 链接个数              |    int   | 链接需包含http头的，例如http://www.baidu.com 计数1；不包含http头的例如www.baidu.com不计数     |
 | contains_mention    | 微博正文是否包含提及@  |    int   | 1：包含，0：不包含                                                                        |
 | num_mentions        | @ 的个数             |    int    | 无                                                                                      |
 | sentiment_score     | 情感分数             |    float  | 使用snownlp打分，取值0~1之间，越接近0越消极，越接近1越积极                                   |
@@ -86,3 +86,23 @@ Features
 | user_description  | 用户个性签名    |    float    | 无         |
 
 ![用户特征截图1](https://github.com/HunterLC/Features/blob/master/image/feature/user_features_1.png)
+
+## 图片特征提取
+### 颜色特征
+颜色矩 Color Moments
+> 在颜色特征方面，为减小运算量，采用颜色矩作为检索的特征，提取被检测图像的一、二、三阶矩。由于HSV颜色空间的色调、饱和度、明度与人眼对颜色的主观认识相对比较符合，与其他颜色空间相比HSV空间能更好的反映人类对颜色的感知。颜色信息集中在图像颜色的低阶矩中，主要是每种颜色分量的一阶矩(均值)、二阶矩(方差)、三阶矩(斜度)，可以有效地表示图像中的颜色分布。
+> 
+>hue（色相）、saturation（饱和度）、lightness（亮度）
+>
+ 特征名称            | 意义           |   类型      | 备注       |
+| -------------     |:--------------:| ----------:|:------     |
+| h_first_moment    | 色相一阶矩      |   float   | 无          |
+| s_first_moment    | 饱和度一阶矩    |    float   | 无          |
+| v_first_moment    | 亮度一阶矩      |    float    | 无         |
+| h_second_moment   | 色相二阶矩      |    float    | 无         |
+| s_second_moment   | 饱和度二阶矩    |    float    | 无         |
+| v_second_moment   | 亮度二阶矩      |    float    | 无         |
+| h_third_moment    | 色相三阶矩      |    float    | 无         |
+| s_third_moment    | 饱和度三阶矩    |    float    | 无         |
+| v_third_moment    | 亮度三阶矩      |    float    | 无         |
+![图片特征截图1](https://github.com/HunterLC/Features/blob/master/image/feature/image_features_color_moments.png)

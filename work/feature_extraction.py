@@ -4,6 +4,7 @@ import re
 import os
 import time
 import jieba
+import cv2
 from snownlp import sentiment
 from snownlp import SnowNLP
 import jieba.posseg as pseg
@@ -14,6 +15,7 @@ import logging
 train_csv_path = r'G:\毕设\数据集\微博\train.csv'
 text_csv_path = r'G:\毕设\数据集\微博\text.csv'
 user_csv_path = r'G:\毕设\数据集\微博\user.csv'
+image_csv_path = r'G:\毕设\数据集\微博\image.csv'
 train_negative_corpus_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+'/util/negative.txt'
 train_positive_corpus_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+'/util/positive.txt'
 sentiment_model_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+'/util/sentiment.marshal'
@@ -336,6 +338,86 @@ def user_compute_folfans_ratio(user_follow_count,user_fans_count):
         return 0
     else:
         return user_follow_count/user_fans_count
+
+def image_data_read():
+    '''
+    图片特征文件的读取
+    :return: 图片特征文件
+    '''
+    df_image = pd.read_csv(image_csv_path)
+    return df_image
+
+def image_insert_cols(df_image,new_features_list):
+    '''
+    增加图片新的特征列，方便后续提取并补充值
+    :param df_image: 图片信息
+    :return: df_image: 新图片信息dataframe
+    '''
+    logging.info("正在扩展图片新特征列...")
+    col_name = list(df_image.columns)
+    #插入新列之前列名去重
+    col_name = col_name + sorted(set(new_features_list) - set(col_name), key = new_features_list.index)
+    df_image = df_image.reindex(columns=col_name, fill_value=0)
+    logging.info("图片新特征列扩展完成")
+    return df_image
+
+def image_feature_extraction(df_image):
+    logging.info("开始图片特征提取...")
+    #将第三列到最后列转为float
+    df_image.iloc[:,2:] = df_image.iloc[:,2:].astype(float)
+    #其余数据统计
+    i = 0
+    for index, row in df_image.iterrows():
+        logging.info("处理进度"+str(i+1)+"/"+str(df_image.shape[0]))
+        #获得需要处理的文本内容
+        if (pd.isna(df_image.iloc[i,1])):
+            i += 1
+            continue
+        else:
+            image_list = row['piclist'].split('\t')
+            # 计算 颜色矩
+            filename1 = 'G:/train/rumor_pic/' + image_list[0]
+            filename2 = 'G:/train/truth_pic/' + image_list[0]
+            if (os.path.isfile(filename1)):
+                df_image.at[i, 2:] = image_color_moments(filename1)
+            else:
+                df_image.at[i, 2:] = image_color_moments(filename2)
+            i += 1
+    logging.info("图片特征提取结束...")
+    return df_image
+
+def image_color_moments(filename):
+    img = cv2.imread(filename)
+    if img is None:
+        return
+    # Convert BGR to HSV colorspace  OpenCV 默认的颜色空间是 BGR，类似于RGB，但不是RGB
+    # HSV颜色空间的色调、饱和度、明度与人眼对颜色的主观认识相对比较符合，与其他颜色空间相比HSV空间能更好的反映人类对颜色的感知
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    # Split the channels - h,s,v
+    h, s, v = cv2.split(hsv)
+    # Initialize the color feature
+    color_feature = []
+    # N = h.shape[0] * h.shape[1]
+    # The first central moment - average 一阶矩(均值)
+    h_mean = np.mean(h)  # np.sum(h)/float(N)
+    s_mean = np.mean(s)  # np.sum(s)/float(N)
+    v_mean = np.mean(v)  # np.sum(v)/float(N)
+    color_feature.extend([h_mean, s_mean, v_mean])
+    # The second central moment - standard deviation 二阶矩(方差)
+    h_std = np.std(h)  # np.sqrt(np.mean(abs(h - h.mean())**2))
+    s_std = np.std(s)  # np.sqrt(np.mean(abs(s - s.mean())**2))
+    v_std = np.std(v)  # np.sqrt(np.mean(abs(v - v.mean())**2))
+    color_feature.extend([h_std, s_std, v_std])
+    # The third central moment - the third root of the skewness 三阶矩(斜度)
+    h_skewness = np.mean(abs(h - h.mean())**3)
+    s_skewness = np.mean(abs(s - s.mean())**3)
+    v_skewness = np.mean(abs(v - v.mean())**3)
+    h_thirdMoment = h_skewness**(1./3)
+    s_thirdMoment = s_skewness**(1./3)
+    v_thirdMoment = v_skewness**(1./3)
+    color_feature.extend([h_thirdMoment, s_thirdMoment, v_thirdMoment])
+    return color_feature
+
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 #*******************文本特征提取开始***************************
@@ -369,7 +451,7 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 # # df_user.to_csv(r'G:\毕设\数据集\微博\user.csv',index=0)#不保留行索引
 # # df_image.to_csv(r'G:\毕设\数据集\微博\image.csv',index=0)#不保留行索引
 
-#*******************版本2*************************************
+# # *******************版本2*************************************
 # start = time.time()
 #
 # # 读入停用词表
@@ -398,21 +480,39 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 # logging.info("运行时间："+str(end-start))
 # # df_user.to_csv(r'G:\毕设\数据集\微博\user.csv',index=0)#不保留行索引
 # # df_image.to_csv(r'G:\毕设\数据集\微博\image.csv',index=0)#不保留行索引
-#*******************文本特征提取结束***************************
+# #*******************文本特征提取结束***************************
+#
+#
+# #*******************用户特征提取开始***************************
+# start = time.time()
+# #原始数据读入
+# df_user = user_data_read()
+# #用户新特征列扩展
+# # new_user_features_list = ['folfans_ratio']
+# # df_user = user_insert_cols(df_user,new_user_features_list)
+# #用户特征提取
+# df_user = user_feature_extraction(df_user)
+# #用户特征保存
+# df_user.to_csv(user_csv_path,index=0)#不保留行索引
+#
+# end = time.time()
+# logging.info("运行时间："+str(end-start))
+# #*******************用户特征提取结束***************************
 
+#*******************图片特征提取开始***************************
 
-#*******************用户特征提取开始***************************
 start = time.time()
 #原始数据读入
-df_user = user_data_read()
-#用户新特征列扩展
-# new_user_features_list = ['folfans_ratio']
-# df_user = user_insert_cols(df_user,new_user_features_list)
-#用户特征提取
-df_user = user_feature_extraction(df_user)
-#用户特征保存
-df_user.to_csv(user_csv_path,index=0)#不保留行索引
-
+df_image = image_data_read()
+#图片新特征列扩展
+new_image_features_list = ['h_first_moment','s_first_moment','v_first_moment',
+                           'h_second_moment','s_second_moment','v_second_moment',
+                           'h_third_moment','s_third_moment','v_third_moment']
+df_image = image_insert_cols(df_image,new_image_features_list)
+#图片特征提取
+df_image = image_feature_extraction(df_image)
+#图片特征保存
+df_image.to_csv(image_csv_path,index=0)#不保留行索引
 end = time.time()
 logging.info("运行时间："+str(end-start))
-#*******************用户特征提取开始***************************
+#*******************图片特征提取结束***************************
