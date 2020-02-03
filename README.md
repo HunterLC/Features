@@ -27,6 +27,7 @@ Features
 │          text_features_1.png
 │          text_features_2.png
 │          user_features_1.png
+│          image_features_color_moments.png
 │          
 ├─test
 │  └─example
@@ -105,4 +106,5 @@ Features
 | h_third_moment    | 色相三阶矩      |    float    | 无         |
 | s_third_moment    | 饱和度三阶矩    |    float    | 无         |
 | v_third_moment    | 亮度三阶矩      |    float    | 无         |
+
 ![图片特征截图1](https://github.com/HunterLC/Features/blob/master/image/feature/image_features_color_moments.png)
