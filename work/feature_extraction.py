@@ -10,6 +10,11 @@ from snownlp import SnowNLP
 import jieba.posseg as pseg
 from gensim.models import word2vec
 import logging
+import torch
+import torch.nn as nn
+from torch.autograd import Variable
+from torchvision import models, transforms
+from PIL import Image
 
 
 train_csv_path = r'G:\毕设\数据集\微博\train.csv'
@@ -378,15 +383,28 @@ def image_feature_extraction(df_image):
             # 计算 颜色矩
             filename1 = 'G:/train/rumor_pic/' + image_list[0]
             filename2 = 'G:/train/truth_pic/' + image_list[0]
+            filename= ''
             if (os.path.isfile(filename1)):
-                df_image.at[i, 2:] = image_color_moments(filename1)
+                filename = filename1
             else:
-                df_image.at[i, 2:] = image_color_moments(filename2)
+                filename = filename2
+            #计算颜色矩
+            # df_image.at[i, 2:11] = image_color_moments(filename)
+            #计算深度学习特征 ---PyTorch ResNet50 CNN
+            try:
+                df_image.at[i, 11:] = image_resnet_cnn(filename,model_resnet50)
+            except Exception as e:
+                logging.info("图片有问题"+str(e))
             i += 1
     logging.info("图片特征提取结束...")
     return df_image
 
 def image_color_moments(filename):
+    '''
+    提取图像颜色矩
+    :param filename: 文件路径名
+    :return: color_feature：颜色矩特征
+    '''
     img = cv2.imread(filename)
     if img is None:
         return
@@ -417,6 +435,52 @@ def image_color_moments(filename):
     v_thirdMoment = v_skewness**(1./3)
     color_feature.extend([h_thirdMoment, s_thirdMoment, v_thirdMoment])
     return color_feature
+
+class net(nn.Module):
+    def __init__(self):
+        super(net, self).__init__()
+        # resnet50
+        self.net = models.resnet50(pretrained=True)
+
+    def forward(self, input):
+        output = self.net.conv1(input)
+        output = self.net.bn1(output)
+        output = self.net.relu(output)
+        output = self.net.maxpool(output)
+        output = self.net.layer1(output)
+        output = self.net.layer2(output)
+        output = self.net.layer3(output)
+        output = self.net.layer4(output)
+        output = self.net.avgpool(output)
+        return output
+
+def image_resnet_cnn(img_path, net):
+    transform = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        #将图片转成Tensor张量
+        transforms.ToTensor()]
+    )
+
+    img = Image.open(img_path)
+    img = transform(img)
+    logging.info(img.shape)
+
+    x = Variable(torch.unsqueeze(img, dim=0).float(), requires_grad=False)
+    logging.info(x.shape)
+
+    #启用GPU加速
+    if torch.cuda.is_available():
+        x = x.cuda()
+        net = net.cuda()
+
+    #转回CPU，不然可能出错
+    y = net(x).cpu()
+    y = torch.squeeze(y)
+    cnn_features = y.data.numpy().tolist()
+    logging.info(y.shape)
+
+    return cnn_features
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -508,7 +572,14 @@ df_image = image_data_read()
 new_image_features_list = ['h_first_moment','s_first_moment','v_first_moment',
                            'h_second_moment','s_second_moment','v_second_moment',
                            'h_third_moment','s_third_moment','v_third_moment']
+for i in range(1,2049):
+    new_image_features_list.append('resnet_'+str(i))
 df_image = image_insert_cols(df_image,new_image_features_list)
+#ResNet 50网络
+model_resnet50 = net()
+model_resnet50.eval()
+model_resnet50 = model_resnet50.cuda()
+
 #图片特征提取
 df_image = image_feature_extraction(df_image)
 #图片特征保存

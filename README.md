@@ -108,3 +108,8 @@ Features
 | v_third_moment    | 亮度三阶矩      |    float    | 无         |
 
 ![图片特征截图1](https://github.com/HunterLC/Features/blob/master/image/feature/image_features_color_moments.png)
+
+### 深度学习特征
+基于PyTorch的ResNet50
+> 稍后更新，这块不太会
+>
