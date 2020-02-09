@@ -369,7 +369,8 @@ def image_insert_cols(df_image,new_features_list):
 def image_feature_extraction(df_image):
     logging.info("开始图片特征提取...")
     #将第三列到最后列转为float
-    df_image.iloc[:,2:] = df_image.iloc[:,2:].astype(float)
+    # df_image.iloc[:,2:] = df_image.iloc[:,2:].astype(float)
+    # return df_image
     #其余数据统计
     i = 0
     for index, row in df_image.iterrows():
@@ -456,12 +457,15 @@ class net(nn.Module):
 
 def image_resnet_cnn(img_path, net):
     transform = transforms.Compose([
-        transforms.Resize(256),
-        transforms.CenterCrop(224),
+        #图片变换为256*256
+        transforms.Resize((256,256)),
+        #用来将图片从中心裁剪成224*224
+        transforms.CenterCrop((224,224)),
         #将图片转成Tensor张量
         transforms.ToTensor()]
     )
 
+    #读入图片并进行统一转换
     img = Image.open(img_path)
     img = transform(img)
     logging.info(img.shape)
@@ -587,3 +591,4 @@ df_image.to_csv(image_csv_path,index=0)#不保留行索引
 end = time.time()
 logging.info("运行时间："+str(end-start))
 #*******************图片特征提取结束***************************
+# 2020-02-09 19:30:23,551 : INFO : 图片有问题Given groups=1, weight of size 64 3 7 7, expected input[1, 1, 224, 224] to have 3 channels, but got 1 channels instead

@@ -113,3 +113,8 @@ Features
 基于PyTorch的ResNet50
 > 稍后更新，这块不太会
 >
+ 特征名称            | 意义           |   类型      | 备注       |
+| -------------     |:--------------:| ----------:|:------     |
+| resnet_1~2048    | resnet50特征      |   float   | 无          |
+
+![图片特征截图1](https://github.com/HunterLC/Features/blob/master/image/feature/image_features_resnet50.png)
