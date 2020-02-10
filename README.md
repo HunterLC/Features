@@ -118,3 +118,8 @@ Features
 | resnet_1~2048    | resnet50特征      |   float   | 无          |
 
 ![图片特征截图1](https://github.com/HunterLC/Features/blob/master/image/feature/image_features_resnet50.png)
+
+## 预测结果
+由于内存小，跑完数据集会爆，所以选了真假新闻各2000个
+跑了下K-近邻分类算法，没有对数据集做任何预处理和特征选择的结果如下
+![预测截图1](https://github.com/HunterLC/Features/blob/master/image/feature/result.png)
