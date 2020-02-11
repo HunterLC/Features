@@ -123,3 +123,7 @@ Features
 由于内存小，跑完数据集会爆，所以选了真假新闻各2000个
 跑了下K-近邻分类算法，没有对数据集做任何预处理和特征选择的结果如下
 ![预测截图1](https://github.com/HunterLC/Features/blob/master/image/feature/result.png)
+没有对数据集做任何预处理和特征选择的决策树效果如下
+> model_dt = DecisionTreeClassifier(max_depth=6, min_samples_leaf=4,min_samples_split=6)
+>
+![预测截图2](https://github.com/HunterLC/Features/blob/master/image/feature/result_dt.png)

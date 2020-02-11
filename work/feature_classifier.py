@@ -3,6 +3,9 @@ import pandas as pd
 from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import LinearSVC
+from sklearn.model_selection import KFold,GridSearchCV
+from sklearn.tree import DecisionTreeClassifier
 from sklearn import metrics
 import matplotlib.pyplot as plt
 
@@ -12,9 +15,43 @@ def knn_classifier(X_train, y_train):
     '''
     k最近邻分类
     '''
-    model_knn = KNeighborsClassifier(n_neighbors = 2, weights = 'distance')
+    # model_knn = KNeighborsClassifier(n_neighbors = 6, weights = 'distance')
+    # model_knn = LinearSVC(C=0.1)
+    model_knn = decision_tree_classifier(X_train, y_train)
     model_knn.fit(X_train, y_train)
     return model_knn
+
+def decision_tree_classifier(X_train, y_train):
+    '''
+    决策树分类
+    '''
+    # params = dt_search_best(X_train, y_train)
+    # print(params['max_depth'],params['min_samples_leaf'],params['min_samples_split'])
+    # model_dt = DecisionTreeClassifier(max_depth=params['max_depth'],min_samples_leaf=params['min_samples_leaf'],min_samples_split=params['min_samples_split'])
+    model_dt = DecisionTreeClassifier(max_depth=6, min_samples_leaf=4,
+                                      min_samples_split=6)
+    model_dt.fit(X_train, y_train)
+    return model_dt
+
+def dt_search_best(X_train, y_train):
+    '''
+    采用网格搜索法确定决策树最佳组合参数值
+    '''
+    #预设各参数的不同选项值
+    max_depth = [2, 3, 4, 5, 6]
+    min_samples_split = [2, 4, 6, 8]
+    min_samples_leaf = [2, 4, 8, 10, 12]
+    #将各参数值以字典形式组织起来
+    parameters = {'max_depth': max_depth, 'min_samples_split': min_samples_split,
+                  'min_samples_leaf': min_samples_leaf}
+    # 网格搜索法,测试不同的参数值
+    grid_dtcateg= GridSearchCV(estimator = DecisionTreeClassifier(),
+                               param_grid = parameters, cv = 10)
+    #模型拟合
+    grid_dtcateg.fit(X_train, y_train)
+    #返回最佳组合的参数值
+    print(grid_dtcateg.best_params_)
+    return grid_dtcateg.best_params_
 
 def classifier(data_file):
     '''
@@ -26,7 +63,7 @@ def classifier(data_file):
     feature_attr = [i for i in df.columns if i not in ['label']]
     label_attr = 'label'
     df.fillna(0, inplace=True)
-    df = df[17200:21200]
+    df = df[15200:23200]
     # 特征预处理
     obj_attrs = []
     for attr in feature_attr:
