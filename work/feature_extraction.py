@@ -80,20 +80,20 @@ def text_feature_extraction(df_text):
         logging.info("处理进度"+str(i+1)+"/"+str(df_text.shape[0]))
         #获得需要处理的文本内容
         text_content = row['text']
-        # #获得是否含有问号以及问号的数量
-        # df_text.at[i,'contains_questmark'], df_text.at[i,'num_questmarks'] = text_questmark(text_content)
-        # #获得是否含有感叹号以及感叹号的数量
-        # df_text.at[i, 'contains_exclammark'], df_text.at[i, 'num_exclammarks'] = text_exclammark(text_content)
-        # #获得是否含有hashtag以及hashtag的数量
-        # df_text.at[i, 'contains_hashtag'], df_text.at[i, 'num_hashtags'] = text_hashtag(text_content)
-        # #获得是否含有url以及url的数量
-        # df_text.at[i, 'contains_URL'], df_text.at[i, 'num_URLs'] = text_url(text_content)
-        # #获得是否含有@以及@的数量
-        # df_text.at[i, 'contains_mention'], df_text.at[i, 'num_mentions'] = text_mention(text_content)
-        # #获得文本情感分数
-        # df_text.at[i, 'sentiment_score'] = text_sentiment_score(text_content)
-        # #词性标注，统计名词、动词、代词数量并返回
-        # df_text.at[i, 'num_noun'],df_text.at[i, 'num_verb'],df_text.at[i, 'num_pronoun'] = text_part_of_speech(text_content)
+        #获得是否含有问号以及问号的数量
+        df_text.at[i,'contains_questmark'], df_text.at[i,'num_questmarks'] = text_questmark(text_content)
+        #获得是否含有感叹号以及感叹号的数量
+        df_text.at[i, 'contains_exclammark'], df_text.at[i, 'num_exclammarks'] = text_exclammark(text_content)
+        #获得是否含有hashtag以及hashtag的数量
+        df_text.at[i, 'contains_hashtag'], df_text.at[i, 'num_hashtags'] = text_hashtag(text_content)
+        #获得是否含有url以及url的数量
+        df_text.at[i, 'contains_URL'], df_text.at[i, 'num_URLs'] = text_url(text_content)
+        #获得是否含有@以及@的数量
+        df_text.at[i, 'contains_mention'], df_text.at[i, 'num_mentions'] = text_mention(text_content)
+        #获得文本情感分数
+        df_text.at[i, 'sentiment_score'] = text_sentiment_score(text_content)
+        #词性标注，统计名词、动词、代词数量并返回
+        df_text.at[i, 'num_noun'],df_text.at[i, 'num_verb'],df_text.at[i, 'num_pronoun'] = text_part_of_speech(text_content)
         #计算每条微博正文的词向量均值
         df_text.at[i,-102:-2] = text_compute_word2vec(text_content).tolist()
         i += 1
