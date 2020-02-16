@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import json
+import pandas_profiling
+
 
 # #数据集读入
 # news_data = pd.read_csv(r'G:\毕设\数据集\微博\train.csv')
@@ -34,7 +36,7 @@ def user_data_read():
     df_user = pd.read_csv(user_csv_path)
     return df_user
 
-def get_user_location_json(df_user):
+def get_user_location(df_user):
     unknown = 0 #未知
     others = 0  #其他
     overseas = 0 #海外
@@ -44,6 +46,7 @@ def get_user_location_json(df_user):
     CQ = 0  #重庆
     HE = 0  #河北
     SX = 0  #山西
+    SD = 0  #山东
     NM = 0  #内蒙古
     LN = 0  #辽宁
     JL = 0  #吉林
@@ -91,6 +94,8 @@ def get_user_location_json(df_user):
             HE += 1
         elif (user_location[0:2] == '山西'):
             SX += 1
+        elif (user_location[0:2] == '山东'):
+            SD += 1
         elif (user_location[0:2] == '内蒙'):
             NM += 1
         elif (user_location[0:2] == '辽宁'):
@@ -145,44 +150,66 @@ def get_user_location_json(df_user):
             Macao += 1
         elif (user_location[0:2] == '台湾'):
             Taiwan += 1
-    map = {"北京":BJ,
-           "天津":TJ,
-           "上海":SH,
-           "重庆":CQ,
-           "河北":HE,
-           "山西":SX,
-           "内蒙古":NM,
-           "辽宁":LN,
-           "吉林":JL,
-           "黑龙江":HL,
-           "江苏":JS,
-           "浙江":ZJ,
-           "安徽":AH,
-           "福建":FJ,
-           "江西":JX,
-           "河南":HA,
-           "湖北":HB,
-           "湖南":HN,
-           "广东":GD,
-           "广西":GX,
-           "海南":HI,
-           "四川":SC,
-           "贵州":GZ,
-           "云南":YN,
-           "西藏":XZ,
-           "陕西":SN,
-           "甘肃":GS,
-           "青海":QH,
-           "宁夏":NX,
-           "新疆":XJ,
-           "香港":HongKong,
-           "澳门":Macao,
-           "台湾":Taiwan,
-           "未知":unknown,
-           "海外":overseas,
-           "其他":others
-    }
-    return json.dumps(map, separators=(',', ':'), ensure_ascii=False)
+    map = [{"name":"北京","value":BJ},
+           {"name":"天津","value":TJ},
+           {"name":"上海","value":SH},
+           {"name":"重庆","value":CQ},
+           {"name":"河北","value":HE},
+           {"name":"山西","value":SX},
+           {"name": "山东", "value": SD},
+           {"name":"内蒙古","value":NM},
+           {"name":"辽宁","value":LN},
+           {"name":"吉林","value":JL},
+           {"name":"黑龙江","value":HL},
+           {"name":"江苏","value":JS},
+           {"name":"浙江","value":ZJ},
+           {"name":"安徽","value":AH},
+           {"name":"福建","value":FJ},
+           {"name":"江西","value":JX},
+           {"name":"河南","value":HA},
+           {"name":"湖北","value":HB},
+           {"name":"湖南","value":HN},
+           {"name":"广东","value":GD},
+           {"name":"广西","value":GX},
+           {"name":"海南","value":HI},
+           {"name":"四川","value":SC},
+           {"name":"贵州","value":GZ},
+           {"name":"云南","value":YN},
+           {"name":"西藏","value":XZ},
+           {"name":"陕西","value":SN},
+           {"name":"甘肃","value":GS},
+           {"name":"青海","value":QH},
+           {"name":"宁夏","value":NX},
+           {"name":"新疆","value":XJ},
+           {"name":"香港","value":HongKong},
+           {"name":"澳门","value":Macao},
+           {"name":"台湾","value":Taiwan},
+           {"name": "南海诸岛", "value": 0},
+           {"name":"未知","value":unknown},
+           {"name":"海外","value":overseas},
+           {"name":"其他","value":others}]
+    return map
+
+def get_user_gender(df_user):
+    unknown = 0 #未知
+    male = 0 #男性
+    female = 0 #女性
+    for index, row in df_user.iterrows():
+        user_gender = row['user_gender']
+        if (pd.isna(user_gender)):
+            unknown += 1
+        elif (user_gender == '男'):
+            male += 1
+        elif (user_gender == '女'):
+            female += 1
+    list_gender = [male, female, unknown]
+    list_gender = map(lambda x: str(x), list_gender)
+    response = {"status": 200,
+                "gender": ','.join(list_gender)}
+    return response
 
 df_user = user_data_read()
-print(get_user_location_json(df_user))
+
+# 数据集分析函数
+profile = df_user.profile_report(title='Titanic Dataset')
+profile.to_file(output_file='G:/report.html')

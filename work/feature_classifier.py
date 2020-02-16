@@ -4,12 +4,33 @@ from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import LinearSVC
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import KFold,GridSearchCV
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import metrics
 import matplotlib.pyplot as plt
 
 fusion_csv_path = r'G:\毕设\数据集\微博\fusion_news_features.csv'
+text_csv_path = r'G:\毕设\数据集\微博\text.csv'
+user_csv_path = r'G:\毕设\数据集\微博\user.csv'
+
+def get_save_index():
+    df_user = pd.read_csv(user_csv_path, usecols='user_gender')
+    # 保留user_gender列中的非空行，非空为True，空行为False
+    save_index = df_user.isnull().sum(axis=1) == 0
+    # 使用删除行之后的数据
+    df_user_new = df_user[save_index]
+    return save_index
+def features_preprocessor(df):
+    #获取需要保留的index行
+    save_index = get_save_index()
+    #剔除 455 行用户特征缺少严重的行
+    df = df[save_index]
+    #文本数据预处理
+
+    #用户数据预处理
+    #图片数据预处理
+    return df
 
 def knn_classifier(X_train, y_train):
     '''
@@ -17,7 +38,10 @@ def knn_classifier(X_train, y_train):
     '''
     # model_knn = KNeighborsClassifier(n_neighbors = 6, weights = 'distance')
     # model_knn = LinearSVC(C=0.1)
-    model_knn = decision_tree_classifier(X_train, y_train)
+    # model_knn = decision_tree_classifier(X_train, y_train)
+    model_knn = RandomForestClassifier(n_estimators=100,
+                                   bootstrap=True,
+                                   max_features='sqrt')
     model_knn.fit(X_train, y_train)
     return model_knn
 
@@ -101,6 +125,9 @@ def classifier(data_file):
 
         # 结果汇总
         knn_hist.append(knn_f1)
+    feature_importances = knn_model.feature_importances_
+    features_list = df.columns.values.tolist()
+    sorted_idx = np.argsort(feature_importances)
 
     # 绘图
 
@@ -128,4 +155,25 @@ def classifier(data_file):
     plt.xticks(np.arange(len(x_names)), x_names, fontsize=12)
     plt.show()
 
-classifier(fusion_csv_path)
+    # plt.figure(figsize=(5, 7))
+    # plt.barh(range(len(sorted_idx)), feature_importances[sorted_idx], align='center')
+    # plt.yticks(range(len(sorted_idx)), np.array(features_list)[sorted_idx])
+    # plt.xlabel('Importance')
+    # plt.title('Feature importances')
+    # plt.draw()
+    # plt.show()
+
+# classifier(fusion_csv_path)
+df_text = pd.read_csv(text_csv_path)
+df_user = pd.read_csv(user_csv_path,usecols='user_gender')
+# 保留user_gender列中的非空行，非空为True，空行为False
+save_index = df_user.isnull().sum(axis=1) == 0
+num = 0
+for a in save_index:
+    if(a==True):
+        num += 1
+print(num)
+df_user_new = df_user[save_index]
+# df_user.dropna(how='all',axis=0,inplace=True)
+# df_user.apply(lambda x:np.sum(x.isnull()))
+# df_text.drop(index=drop_index[1],inplace=True)

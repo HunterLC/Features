@@ -33,6 +33,8 @@ def features_fusion(df_text,df_user,df_image):
     logging.info(df_result.shape)
     return df_result
 
+
+
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 start = time.time()
 #原始数据的读入
