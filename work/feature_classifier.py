@@ -14,6 +14,7 @@ fusion_csv_path = r'G:\毕设\数据集\微博\fusion_news_features.csv'
 text_csv_path = r'G:\毕设\数据集\微博\text.csv'
 user_csv_path = r'G:\毕设\数据集\微博\user.csv'
 
+
 def get_save_index():
     df_user = pd.read_csv(user_csv_path, usecols='user_gender')
     # 保留user_gender列中的非空行，非空为True，空行为False
@@ -138,13 +139,13 @@ def classifier(data_file):
     fig, (ax0, ax1) = plt.subplots(nrows=1, ncols=2, figsize=(18, 10), gridspec_kw={'width_ratios': [5, 3]})
     # 绘制每轮计算的F1值折线图
     ax0.set_title('每轮F1值', color='black')
-    ax0.plot(knn_hist, linestyle=':', color='black', label='k最近邻')
+    ax0.plot(knn_hist, linestyle=':', color='black', label='随机森林')
     # 添加图例
     ax0.legend()
 
     # 绘制平均F1值直方图
     ax1.set_title('平均F1值', color='black')
-    x_names = ['k最近邻']
+    x_names = ['随机森林']
     y_data = [np.mean(knn_hist),]
     # print(np.mean(dt_hist), np.mean(knn_hist), np.mean(nb_hist))
     ax1.bar(x=np.arange(len(x_names)), height=y_data)
@@ -163,17 +164,17 @@ def classifier(data_file):
     # plt.draw()
     # plt.show()
 
-# classifier(fusion_csv_path)
-df_text = pd.read_csv(text_csv_path)
-df_user = pd.read_csv(user_csv_path,usecols='user_gender')
-# 保留user_gender列中的非空行，非空为True，空行为False
-save_index = df_user.isnull().sum(axis=1) == 0
-num = 0
-for a in save_index:
-    if(a==True):
-        num += 1
-print(num)
-df_user_new = df_user[save_index]
+classifier(fusion_csv_path)
+# df_text = pd.read_csv(text_csv_path)
+# df_user = pd.read_csv(user_csv_path,usecols='user_gender')
+# # 保留user_gender列中的非空行，非空为True，空行为False
+# save_index = df_user.isnull().sum(axis=1) == 0
+# num = 0
+# for a in save_index:
+#     if(a==True):
+#         num += 1
+# print(num)
+# df_user_new = df_user[save_index]
 # df_user.dropna(how='all',axis=0,inplace=True)
 # df_user.apply(lambda x:np.sum(x.isnull()))
 # df_text.drop(index=drop_index[1],inplace=True)

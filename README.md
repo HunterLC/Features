@@ -93,7 +93,7 @@ Features
 颜色矩 Color Moments
 > 在颜色特征方面，为减小运算量，采用颜色矩作为检索的特征，提取被检测图像的一、二、三阶矩。由于HSV颜色空间的色调、饱和度、明度与人眼对颜色的主观认识相对比较符合，与其他颜色空间相比HSV空间能更好的反映人类对颜色的感知。颜色信息集中在图像颜色的低阶矩中，主要是每种颜色分量的一阶矩(均值)、二阶矩(方差)、三阶矩(斜度)，可以有效地表示图像中的颜色分布。
 > 
->hue（色相）、saturation（饱和度）、lightness（亮度）
+>hue（色调）、saturation（饱和度）、value（明度）
 >
  特征名称            | 意义           |   类型      | 备注       |
 | -------------     |:--------------:| ----------:|:------     |
@@ -120,10 +120,18 @@ Features
 ![图片特征截图1](https://github.com/HunterLC/Features/blob/master/image/feature/image_features_resnet50.png)
 
 ## 预测结果
-由于内存小，跑完数据集会爆，所以选了真假新闻各2000个
+由于内存小，跑完数据集会爆，所以选了真假新闻各4000个
 跑了下K-近邻分类算法，没有对数据集做任何预处理和特征选择的结果如下
 ![预测截图1](https://github.com/HunterLC/Features/blob/master/image/feature/result.png)
+
 没有对数据集做任何预处理和特征选择的决策树效果如下
 > model_dt = DecisionTreeClassifier(max_depth=6, min_samples_leaf=4,min_samples_split=6)
 >
 ![预测截图2](https://github.com/HunterLC/Features/blob/master/image/feature/result_dt.png)
+
+没有对数据集做任何预处理和特征选择的随机森林效果如下
+> RandomForestClassifier(n_estimators=100,
+                                   bootstrap=True,
+                                   max_features='sqrt')
+>
+![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
