@@ -70,6 +70,8 @@ Features
 | word2vec_1~100      | 词向量列1~100        |    float  | 采用word2vec构建词向量，每个正文利用jieba分词后计算词矩阵之和，并取平均值作为文本的词向量       |
 | category            | 微博新闻类属         |    object | 无                                                                                      |
 | label               | 真假新闻标签         |    int    | 0：真新闻 ，1:假新闻                                                                      |
+| num_possentiwords   | 积极词汇个数         |    int    | 无                                                                                      |
+| num_negsentiwords   | 消极词汇个数         |    int    | 无                                                                                      |
 
 ![文本特征截图1 ''文本内容''](https://github.com/HunterLC/Features/blob/master/image/feature/text_features_1.png)
 ![文本特征截图2 ''词向量''](https://github.com/HunterLC/Features/blob/master/image/feature/text_features_2.png)
@@ -135,3 +137,10 @@ Features
                                    max_features='sqrt')
 >
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
+
+## 更新日志
+### 2020-02-19
+由于snownlp的情感分数效果不太理想，故采取方案a来补充情感分数部分(b方案需要标记数据集语料，同时过于复杂，暂时舍弃)
+>a.增加诸如积极词汇数量，消极词汇数量这类统计特征，对文本的情感信息进行提取，补充文本特征集。
+b.尝试其他nlp模型，例如结合循环神经网络的情感分析模型可能具有较好的效果。
+>

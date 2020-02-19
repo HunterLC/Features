@@ -27,6 +27,8 @@ sentiment_model_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+
 stopwords_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+"/util/stopwords.txt"
 word2vec_txt_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+"/util/word2vec_corpus.txt"
 word2vec_model_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+"/util/text8.model"
+possentiwords_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+"/util/possentiwords.txt"
+negsentiwords_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+"/util/negsentiwords.txt"
 
 def train_data_read(train_csv_path):
     '''
@@ -61,10 +63,12 @@ def text_insert_cols(df_text,new_features_list):
     '''
     logging.info("正在扩展文本新特征列...")
     col_name = list(df_text.columns)
-    col_name = col_name[0:-2]+ new_features_list +col_name[-2:]
+    # 插入新列之前列名去重
+    col_name = col_name + sorted(set(new_features_list) - set(col_name), key=new_features_list.index)
     df_text = df_text.reindex(columns=col_name, fill_value=0)
     logging.info("文本新特征列扩展完成")
     return df_text
+
 
 def text_feature_extraction(df_text):
     logging.info("开始文本特征提取...")
@@ -72,33 +76,52 @@ def text_feature_extraction(df_text):
     # df_text['text_length'] = df_text['text'].str.len()
     # #将情感分数列转为float
     # df_text['sentiment_score'] = df_text['sentiment_score'].astype(float)
-    for j in range(1,101):
-        df_text['word2vec_'+str(j)] = df_text['word2vec_'+str(j)].astype(float)
+    # for j in range(1,101):
+    #     df_text['word2vec_'+str(j)] = df_text['word2vec_'+str(j)].astype(float)
     # #其余数据统计
     i = 0
     for index, row in df_text.iterrows():
         logging.info("处理进度"+str(i+1)+"/"+str(df_text.shape[0]))
         #获得需要处理的文本内容
         text_content = row['text']
-        #获得是否含有问号以及问号的数量
-        df_text.at[i,'contains_questmark'], df_text.at[i,'num_questmarks'] = text_questmark(text_content)
-        #获得是否含有感叹号以及感叹号的数量
-        df_text.at[i, 'contains_exclammark'], df_text.at[i, 'num_exclammarks'] = text_exclammark(text_content)
-        #获得是否含有hashtag以及hashtag的数量
-        df_text.at[i, 'contains_hashtag'], df_text.at[i, 'num_hashtags'] = text_hashtag(text_content)
-        #获得是否含有url以及url的数量
-        df_text.at[i, 'contains_URL'], df_text.at[i, 'num_URLs'] = text_url(text_content)
-        #获得是否含有@以及@的数量
-        df_text.at[i, 'contains_mention'], df_text.at[i, 'num_mentions'] = text_mention(text_content)
-        #获得文本情感分数
-        df_text.at[i, 'sentiment_score'] = text_sentiment_score(text_content)
-        #词性标注，统计名词、动词、代词数量并返回
-        df_text.at[i, 'num_noun'],df_text.at[i, 'num_verb'],df_text.at[i, 'num_pronoun'] = text_part_of_speech(text_content)
-        #计算每条微博正文的词向量均值
-        df_text.at[i,-102:-2] = text_compute_word2vec(text_content).tolist()
+        # #获得是否含有问号以及问号的数量
+        # df_text.at[i,'contains_questmark'], df_text.at[i,'num_questmarks'] = text_questmark(text_content)
+        # #获得是否含有感叹号以及感叹号的数量
+        # df_text.at[i, 'contains_exclammark'], df_text.at[i, 'num_exclammarks'] = text_exclammark(text_content)
+        # #获得是否含有hashtag以及hashtag的数量
+        # df_text.at[i, 'contains_hashtag'], df_text.at[i, 'num_hashtags'] = text_hashtag(text_content)
+        # #获得是否含有url以及url的数量
+        # df_text.at[i, 'contains_URL'], df_text.at[i, 'num_URLs'] = text_url(text_content)
+        # #获得是否含有@以及@的数量
+        # df_text.at[i, 'contains_mention'], df_text.at[i, 'num_mentions'] = text_mention(text_content)
+        # #获得文本情感分数
+        # df_text.at[i, 'sentiment_score'] = text_sentiment_score(text_content)
+        # #词性标注，统计名词、动词、代词数量并返回
+        # df_text.at[i, 'num_noun'],df_text.at[i, 'num_verb'],df_text.at[i, 'num_pronoun'] = text_part_of_speech(text_content)
+        # #计算每条微博正文的词向量均值
+        # df_text.at[i,-104:-4] = text_compute_word2vec(text_content).tolist()
+        # 获得每条微博的积极词汇数、消极词汇数
+        df_text.at[i, 'num_possentiwords'], df_text.at[i, 'num_negsentiwords'] = text_pos_neg_sentiwords(text_content)
         i += 1
     logging.info("文本特征提取结束...")
     return df_text
+
+def text_pos_neg_sentiwords(text_content):
+    # 去除停用词的分词String
+    new_text_content = jieba_clear_text(text_content)
+    #将词组转成list
+    list_new_text_content = new_text_content.split(' ')
+    #统计积极词、消极词
+    num_pos = 0
+    num_neg = 0
+    for word in list_new_text_content:
+        if word in possentiwords:
+            num_pos += 1
+        elif word in negsentiwords:
+            num_neg += 1
+    return num_pos,num_neg
+
+
 
 def text_part_of_speech(text_content):
     '''
@@ -159,10 +182,10 @@ def jieba_clear_text(text):
     '''
     jieba分词，并使用自定义停用词表去除停用词以及长度为1的词
     '''
-    raw_result = "/".join(jieba.cut(text))
+    raw_result = "$".join(jieba.cut(text))
     myword_list = []
     #去除停用词
-    for myword in raw_result.split('/'):
+    for myword in raw_result.split('$'):
         if myword not in stopwords:
             myword_list.append(myword)
     return " ".join(myword_list)
@@ -178,6 +201,30 @@ def get_stopwords_list():
         my_stopwords.append(eachWord.strip())
     fstop.close()
     return my_stopwords
+
+def get_possentiwords_list():
+    '''
+    获得积极词汇列表
+    :return:
+    '''
+    my_possentiwords = []
+    fp = open(possentiwords_path, "r", encoding='UTF-8')
+    for eachWord in fp.readlines():
+        my_possentiwords.append(eachWord.strip())
+    fp.close()
+    return my_possentiwords
+
+def get_negsentiwords_list():
+    '''
+    获得消极词汇列表
+    :return:
+    '''
+    my_negsentiwords = []
+    fn = open(negsentiwords_path, "r", encoding='UTF-8')
+    for eachWord in fn.readlines():
+        my_negsentiwords.append(eachWord.strip())
+    fn.close()
+    return my_negsentiwords
 
 def text_exclammark(text_content):
     '''
@@ -489,68 +536,56 @@ def image_resnet_cnn(img_path, net):
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 #*******************文本特征提取开始***************************
-#*******************版本1*************************************
-# start = time.time()
-# # 读入停用词表
-# stopwords = get_stopwords_list()
-# #原始数据的读入
-# # df_text,df_user,df_image = train_data_read(train_csv_path)
-#
-# #微博文本扩展特征数据列
-# # new_text_features_list = ['text_length', 'contains_questmark', 'num_questmarks', 'contains_exclammark',
-# #                      'num_exclammarks', 'contains_hashtag', 'num_hashtags', 'contains_URL',
-# #                      'num_URLs', 'contains_mention', 'num_mentions', 'sentiment_score','num_noun','num_verb','num_pronoun']
-# # for i in range(1,101):
-# #     new_text_features_list.append('word2vec_'+str(i))
-# df_text = text_insert_cols(df_text,new_text_features_list)
-# #情感分析语料模型训练
-# # text_train_sentiment()
-#获得词向量训练语料
-# text_get_clear_word2vec_corpus(word2vec_txt_path)
-# #训练word2vec模型
-# model_word2vec = text_train_word2vec_model(word2vec_txt_path,word2vec_model_path)
-#加载word2vec模型
-# model_word2vec = text_load_word2vec_model(word2vec_model_path)
-#
-# df_text = text_feature_extraction(df_text)
-# df_text.to_csv(text_csv_path,index=0)#不保留行索引
-# end = time.time()
-# print("运行时间：",end-start)
-# # df_user.to_csv(r'G:\毕设\数据集\微博\user.csv',index=0)#不保留行索引
-# # df_image.to_csv(r'G:\毕设\数据集\微博\image.csv',index=0)#不保留行索引
+#原始数据的读入
+#df_text,df_user,df_image = train_data_read(train_csv_path)
 
-# # *******************版本2*************************************
-# start = time.time()
-#
-# # 读入停用词表
-# stopwords = get_stopwords_list()
-# #原始数据的读入
-# df_text = text_data_read()
-#
-# #微博文本扩展特征数据列
-# # new_text_features_list = []
-# # for i in range(1,101):
-# #     new_text_features_list.append('word2vec_'+str(i))
-# # df_text = text_insert_cols(df_text,new_text_features_list)
-#
-# #情感分析语料模型训练
-# # text_train_sentiment()
-# #获得词向量训练语料
-# # text_get_clear_word2vec_corpus(word2vec_txt_path)
-# # #训练word2vec模型
-# # model_word2vec = text_train_word2vec_model(word2vec_txt_path,word2vec_model_path)
-# #加载word2vec模型
-# model_word2vec = text_load_word2vec_model(word2vec_model_path)
-#
-# df_text = text_feature_extraction(df_text)
-# df_text.to_csv(text_csv_path,index=0)#不保留行索引
-# end = time.time()
-# logging.info("运行时间："+str(end-start))
-# # df_user.to_csv(r'G:\毕设\数据集\微博\user.csv',index=0)#不保留行索引
-# # df_image.to_csv(r'G:\毕设\数据集\微博\image.csv',index=0)#不保留行索引
-# #*******************文本特征提取结束***************************
-#
-#
+start = time.time()
+
+# 读入停用词表、积极词汇表、消极词汇表
+stopwords = get_stopwords_list()
+possentiwords = get_possentiwords_list()
+negsentiwords = get_negsentiwords_list()
+
+#文本的读入
+df_text = text_data_read()
+
+#微博文本扩展特征数据列
+new_text_features_list = ['text_length', 'contains_questmark', 'num_questmarks', 'contains_exclammark',
+                     'num_exclammarks', 'contains_hashtag', 'num_hashtags', 'contains_URL',
+                     'num_URLs', 'contains_mention', 'num_mentions', 'sentiment_score','num_noun','num_verb','num_pronoun','num_possentiwords','num_negsentiwords']
+# 浪费时间
+# for i in range(1,101):
+#     new_text_features_list.append('word2vec_'+str(i))
+df_text = text_insert_cols(df_text,new_text_features_list)
+
+#加载sentiment model
+if not os.path.isfile(sentiment_model_path + '.3'):
+    # 情感分析语料模型训练
+    text_train_sentiment()
+else:
+    logging.info("sentiment model is ready!")
+
+#加载word2vec model
+if not os.path.isfile(word2vec_model_path):
+    # 获得词向量训练语料
+    text_get_clear_word2vec_corpus(word2vec_txt_path)
+    # 训练word2vec模型
+    model_word2vec = text_train_word2vec_model(word2vec_txt_path, word2vec_model_path)
+else:
+    # 加载word2vec模型
+    #model_word2vec = text_load_word2vec_model(word2vec_model_path)
+    remember_delete = 1
+
+#文本特征提取
+df_text = text_feature_extraction(df_text)
+#文本特征保存
+df_text.to_csv(text_csv_path,index=0)#不保留行索引
+
+end = time.time()
+logging.info("运行时间："+str(end-start))
+#*******************文本特征提取结束***************************
+
+
 # #*******************用户特征提取开始***************************
 # start = time.time()
 # #原始数据读入
@@ -569,26 +604,26 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 
 #*******************图片特征提取开始***************************
 
-start = time.time()
-#原始数据读入
-df_image = image_data_read()
-#图片新特征列扩展
-new_image_features_list = ['h_first_moment','s_first_moment','v_first_moment',
-                           'h_second_moment','s_second_moment','v_second_moment',
-                           'h_third_moment','s_third_moment','v_third_moment']
-for i in range(1,2049):
-    new_image_features_list.append('resnet_'+str(i))
-df_image = image_insert_cols(df_image,new_image_features_list)
-#ResNet 50网络
-model_resnet50 = net()
-model_resnet50.eval()
-model_resnet50 = model_resnet50.cuda()
-
-#图片特征提取
-df_image = image_feature_extraction(df_image)
-#图片特征保存
-df_image.to_csv(image_csv_path,index=0)#不保留行索引
-end = time.time()
-logging.info("运行时间："+str(end-start))
+# start = time.time()
+# #原始数据读入
+# df_image = image_data_read()
+# #图片新特征列扩展
+# new_image_features_list = ['h_first_moment','s_first_moment','v_first_moment',
+#                            'h_second_moment','s_second_moment','v_second_moment',
+#                            'h_third_moment','s_third_moment','v_third_moment']
+# for i in range(1,2049):
+#     new_image_features_list.append('resnet_'+str(i))
+# df_image = image_insert_cols(df_image,new_image_features_list)
+# #ResNet 50网络
+# model_resnet50 = net()
+# model_resnet50.eval()
+# model_resnet50 = model_resnet50.cuda()
+#
+# #图片特征提取
+# df_image = image_feature_extraction(df_image)
+# #图片特征保存
+# df_image.to_csv(image_csv_path,index=0)#不保留行索引
+# end = time.time()
+# logging.info("运行时间："+str(end-start))
 #*******************图片特征提取结束***************************
 # 2020-02-09 19:30:23,551 : INFO : 图片有问题Given groups=1, weight of size 64 3 7 7, expected input[1, 1, 224, 224] to have 3 channels, but got 1 channels instead
