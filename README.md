@@ -142,10 +142,12 @@ Features
 ### 2020-02-23
 1.添加图片的宽度、高度、物理大小
 
-2.这几天拟采用tensorflow的vgg19进行图片分类，但是还有bug
+2.添加tensorflow的vgg19、resnet50进行图片分类
 
  特征名称         | 意义          |   类型     | 备注       |
 | :------------:  |:------------:| :------------:|:------:|
+| tf_vgg19_class | vgg19分类     |   object     | 无          |
+| tf_resnet_class| resnet50分类  |   object     | 无          |
 | image_width    | 图片宽度      |   int     | 无          |
 | image_height   | 图片高度      |   int     | 无          |
 | image_kb       | 图片物理大小  |   float   | 单位为kb     |

@@ -15,13 +15,13 @@ import argparse
 # 初始化vgg19模型，weights参数指的是使用ImageNet图片集训练的模型
 # 每种模型第一次使用的时候都会自网络下载保存的h5文件
 # vgg19的数据文件约为584M
-model = vgg19.VGG19(weights='imagenet')
-# model = resnet50.ResNet50(weights='imagenet')
+# model = vgg19.VGG19(weights='imagenet')
+model = resnet50.ResNet50(weights='imagenet')
 
 def image_feature_extraction(df_image):
     #将第三列到最后列转为float
     # df_image.iloc[:,2:] = df_image.iloc[:,2:].astype(float)
-    df_image.iloc[:, -2:] = df_image.iloc[:, -2:].astype(object)
+    # df_image.iloc[:, -5:-3] = df_image.iloc[:, -5:-3].astype(object)
     # return df_image
     #其余数据统计
     i = 0
@@ -52,12 +52,13 @@ def image_feature_extraction(df_image):
             # df_image.at[i, 'tf_vgg19_class'] = image_get_class(filename)
             image_name.append(filename)
             i += 1
-    df_image['tf_vgg19_class'] = main(image_name)
+    df_image['tf_resnet50_class'] = main(image_name)
     return df_image
 
 def main(imgPath):
     # 载入命令行参数指定的图片文件, 载入时变形为224x224，这是模型规范数据要求的
     img_array = []
+    j = 0
     for i in imgPath:
         if (i == 'nothing'):
             img_array.append('no')
@@ -71,22 +72,31 @@ def main(imgPath):
             img = np.expand_dims(img, axis=0)
             predict_class = model.predict(img)
             # 获取图片识别可能性最高的3个结果
-            desc = vgg19.decode_predictions(predict_class, top=1)
-            # desc = resnet50.decode_predictions(predict_class, top=3)
+            # desc = vgg19.decode_predictions(predict_class, top=1)
+            desc = resnet50.decode_predictions(predict_class, top=3)
             # 我们的预测队列中只有一张图片，所以结果也只有第一个有效，显示出来
             img_array.append(desc[0][0][1])
-
-        print(i)
+        j += 1
+        print(str(j))
     # x = np.array(img_array)
 
     # 使用模型预测（识别）
-
     return img_array
+
+def image_insert_cols(df_image,new_features_list):
+    '''
+    增加图片新的特征列，方便后续提取并补充值
+    :param df_image: 图片信息
+    :return: df_image: 新图片信息dataframe
+    '''
+    col_name = list(df_image.columns)
+    #插入新列之前列名去重
+    col_name = col_name + sorted(set(new_features_list) - set(col_name), key = new_features_list.index)
+    df_image = df_image.reindex(columns=col_name, fill_value=0)
+    return df_image
 
 image_csv_path = r'G:\毕设\数据集\微博\image.csv'
 if __name__ == '__main__':
     df_image = pd.read_csv(image_csv_path)
-    # df_image = image_feature_extraction(df_image)
-    haha = ['aa','bb']
-    df_image['tf_vgg19_class'] = haha
+    df_image = image_feature_extraction(df_image)
     df_image.to_csv(image_csv_path, index=0)  # 不保留行索引
