@@ -209,7 +209,8 @@ def get_user_gender(df_user):
     return response
 
 df_user = user_data_read()
+print("hah")
 
 # 数据集分析函数
 profile = df_user.profile_report(title='Titanic Dataset')
-profile.to_file(output_file='G:/report.html')
+profile.to_file(output_file='G:/report2.html')

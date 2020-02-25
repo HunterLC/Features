@@ -16,11 +16,9 @@ user_csv_path = r'G:\毕设\数据集\微博\user.csv'
 
 
 def get_save_index():
-    df_user = pd.read_csv(user_csv_path, usecols='user_gender')
+    df_user = pd.read_csv(user_csv_path, usecols=['user_gender'])
     # 保留user_gender列中的非空行，非空为True，空行为False
     save_index = df_user.isnull().sum(axis=1) == 0
-    # 使用删除行之后的数据
-    df_user_new = df_user[save_index]
     return save_index
 def features_preprocessor(df):
     #获取需要保留的index行
@@ -84,7 +82,7 @@ def classifier(data_file):
     '''
     df = pd.read_csv(data_file)
     df.drop('id', axis=1, inplace=True)  # 删除列（axis=1指定，默认为行），并将原数据置换为新数据（inplace=True指定，默认为False）
-
+    df = features_preprocessor(df)
     feature_attr = [i for i in df.columns if i not in ['label']]
     label_attr = 'label'
     df.fillna(0, inplace=True)

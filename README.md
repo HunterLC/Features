@@ -139,6 +139,19 @@ Features
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
 
 ## 更新日志
+### 2020-02-25
+1.新增文本特征，统计新闻是否出现第一人称、第二人称、第三人称
+
+ 特征名称                  | 意义             |   类型    | 备注                 |
+| :--------------------:  |:---------------:| :--------:|:-------------------:|
+| contains_firstorderpron | 是否包含第一人称  |   int     | 1:有，0：无          |
+| contains_secondorderpron| 是否包含第二人称  |   int     | 1:有，0：无          |
+| contains_thirdorderpron | 是否包含第三人称  |   int     | 1:有，0：无          |
+
+2.测试新增加的特征，同时删除了400+行数据缺失严重的行，结果显示10轮平均F1在0.91，最后稳定在0.86附近
+![预测截图4](https://github.com/HunterLC/Features/blob/master/image/feature/result_20200225.png)
+
+
 ### 2020-02-23
 1.添加图片的宽度、高度、物理大小
 
