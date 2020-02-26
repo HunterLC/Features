@@ -15,8 +15,8 @@ import argparse
 # 初始化vgg19模型，weights参数指的是使用ImageNet图片集训练的模型
 # 每种模型第一次使用的时候都会自网络下载保存的h5文件
 # vgg19的数据文件约为584M
-# model = vgg19.VGG19(weights='imagenet')
-model = resnet50.ResNet50(weights='imagenet')
+model = vgg19.VGG19(weights='imagenet')
+# model = resnet50.ResNet50(weights='imagenet')
 
 def image_feature_extraction(df_image):
     #将第三列到最后列转为float
@@ -52,16 +52,18 @@ def image_feature_extraction(df_image):
             # df_image.at[i, 'tf_vgg19_class'] = image_get_class(filename)
             image_name.append(filename)
             i += 1
-    df_image['tf_resnet50_class'] = main(image_name)
-    return df_image
+    df_image['tf_vgg19_class'], img_score = main(image_name)
+    return df_image, img_score
 
 def main(imgPath):
     # 载入命令行参数指定的图片文件, 载入时变形为224x224，这是模型规范数据要求的
     img_array = []
+    img_score = []
     j = 0
     for i in imgPath:
         if (i == 'nothing'):
             img_array.append('no')
+            img_score.append(0)
         else:
             img = image.load_img(i, target_size=(224, 224))
             # 将图片转换为(224,224,3)数组，最后的3是因为RGB三色彩图
@@ -72,16 +74,18 @@ def main(imgPath):
             img = np.expand_dims(img, axis=0)
             predict_class = model.predict(img)
             # 获取图片识别可能性最高的3个结果
-            # desc = vgg19.decode_predictions(predict_class, top=1)
-            desc = resnet50.decode_predictions(predict_class, top=3)
+            desc = vgg19.decode_predictions(predict_class, top=1)
+            # desc = resnet50.decode_predictions(predict_class, top=3)
             # 我们的预测队列中只有一张图片，所以结果也只有第一个有效，显示出来
             img_array.append(desc[0][0][1])
+            img_score.append(desc[0][0][2])
+            print(desc[0][0][2])
         j += 1
         print(str(j))
     # x = np.array(img_array)
 
     # 使用模型预测（识别）
-    return img_array
+    return img_array, img_score
 
 def image_insert_cols(df_image,new_features_list):
     '''
@@ -98,5 +102,9 @@ def image_insert_cols(df_image,new_features_list):
 image_csv_path = r'G:\毕设\数据集\微博\image.csv'
 if __name__ == '__main__':
     df_image = pd.read_csv(image_csv_path)
-    df_image = image_feature_extraction(df_image)
-    df_image.to_csv(image_csv_path, index=0)  # 不保留行索引
+    df_image, img_score = image_feature_extraction(df_image)
+    # df_image.to_csv(image_csv_path, index=0)  # 不保留行索引
+    str = " ".join('%s' %id for id in img_score)
+    file_object = open(r'G:\毕设\数据集\微博\image_class_vgg19.txt', 'w')
+    file_object.write(str)
+    file_object.close( )

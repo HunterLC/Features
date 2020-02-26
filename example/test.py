@@ -379,11 +379,85 @@
 # print('recall ', recall)
 # print('F1 score ', 2 * accuracy * recall / (accuracy + recall))  # 计算F1值
 
-from PIL import Image
-import os
-filename = r'G:\train\rumor_pic\0afa91cdde95373b8e4e88daeae7f815.jpg'
-im = Image.open(filename)#返回一个Image对象
-print('宽：%d,高：%d'%(im.size[0],im.size[1]))
-fsize = os.path.getsize(filename)
-fsize = fsize / float(1024)
-print(round(fsize,2))
+# from PIL import Image
+# import os
+# filename = r'G:\train\rumor_pic\0afa91cdde95373b8e4e88daeae7f815.jpg'
+# im = Image.open(filename)#返回一个Image对象
+# print('宽：%d,高：%d'%(im.size[0],im.size[1]))
+# fsize = os.path.getsize(filename)
+# fsize = fsize / float(1024)
+# print(round(fsize,2))
+# import hashlib
+# import time
+# import urllib
+# import random
+#
+# from gensim.models import word2vec
+# import gensim
+# import jieba
+# import numpy as np
+# from scipy.linalg import norm
+# from translate import Translator
+# import json
+#
+# # model_file = r'G:\毕设\数据集\微博\news_12g_baidubaike_20g_novel_90g_embedding_64.bin'
+# # model = gensim.models.KeyedVectors.load_word2vec_format(model_file, binary=True)
+# # translator= Translator(from_lang="english",to_lang="chinese")
+# # translation = translator.translate(dic[str(i)][1])
+# #
+# appid = '20190716000318328'
+# secretKey = '7pjdBCkaUodI5eNqsBWB'
+# url_baidu = 'http://api.fanyi.baidu.com/api/trans/vip/translate'
+# def translateBaidu(text, f='en', t='zh'):
+#     salt = random.randint(32768, 65536)
+#     sign = appid + text + str(salt) + secretKey
+#     sign = hashlib.md5(sign.encode()).hexdigest()
+#     url = url_baidu + '?appid=' + appid + '&q=' + urllib.parse.quote(text) + '&from=' + f + '&to=' + t + '&salt=' + str(salt) + '&sign=' + sign
+#     response = urllib.request.urlopen(url)
+#     content = response.read().decode('utf-8')
+#     data = json.loads(content)
+#     result = str(data['trans_result'][0]['dst'])
+#     return result
+#
+# fn = open(r'G:\毕设\数据集\微博\imagenet_class_cn.json', "r", encoding='UTF-8')
+# j = fn.read()
+# dic = json.loads(j)
+# fn.close()
+# print(dic)
+# txt_dic = {}
+# for i in range(0,1000):
+#     try:
+#         start = time.time()
+#         txt_dic[dic[str(i)][1]] = translateBaidu(dic[str(i)][1])
+#         end = time.time()
+#         if end - start < 1:
+#             time.sleep(1) #api接口限制，每秒调用1次
+#     except Exception as e:
+#         print(e)
+# json_str = json.dumps(txt_dic)
+# file_object = open(r'G:\毕设\数据集\微博\imagenet_class_cn.json', 'w')
+# file_object.write(json_str)
+# file_object.close( )
+# # translateBaidu('borzoi')
+
+# list = [0,1.02365666,2.66666]
+# str = " ".join('%s' %id for id in list)
+# print(str)
+
+import pandas as pd
+# text_csv_path = r'G:\毕设\数据集\微博\text.csv'
+# df_text = pd.read_csv(text_csv_path, usecols=['text']) #只加载text列，提升速度，减小不必要的内存损耗
+# dict={"a":"apple","b":"banana","o":"orange"}
+# for (k,v) in dict.items():
+#     print("dict[%s]=" % k,v)
+
+import numpy as np
+a = np.zeros(64)
+if(np.all(a != 0)):
+    print(max(a.tolist()))
+else:
+    print("jaja")
+
+
+
+

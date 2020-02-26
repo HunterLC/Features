@@ -139,6 +139,27 @@ Features
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
 
 ## 更新日志
+### 2020-02-26
+1.新增图文相似度特征，用以表示图像和文本的相似度
+>similarity_score = arg max{ log( f_i * c_j * swv(term_i,term_j) ) }
+>
+>    1 ≤ i ≤ n, 1 ≤ j ≤m
+>
+>    swv(term_i,term_j)即term_i和term_j词向量的余弦相似度
+>
+>    f_i即第i个词汇(微博正文)的词频
+>
+>    c_j即第j个词汇(图片分类名)的可信度
+>
+ 特征名称                  | 意义             |   类型    | 备注                 |
+| :--------------------:  |:---------------:| :--------:|:-------------------:|
+| sim_image_word          | 图文相似度  |   float        |采用词嵌入方式，减少中英翻译误差中的影响|
+
+![图文相似度](https://github.com/HunterLC/Features/blob/master/image/feature/sim_image_word.png)
+
+目前看还存在一些问题，利用log(x)计算，当x趋近0时，整个值趋于负无穷，超出float的范围，值被存储为nan
+
+
 ### 2020-02-25
 1.新增文本特征，统计新闻是否出现第一人称、第二人称、第三人称
 

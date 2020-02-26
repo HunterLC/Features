@@ -1,3 +1,4 @@
+import gensim
 import numpy as np
 import pandas as pd
 import re
@@ -5,6 +6,10 @@ import os
 import time
 import jieba
 import cv2
+import json
+import urllib
+import random
+import hashlib
 from snownlp import sentiment
 from snownlp import SnowNLP
 import jieba.posseg as pseg
@@ -18,12 +23,18 @@ from PIL import Image
 from tensorflow.keras.applications import vgg19
 from tensorflow.keras.applications import resnet50
 from tensorflow.keras.preprocessing import image
+from collections import Counter
+from scipy.linalg import norm
 
 
 train_csv_path = r'G:\毕设\数据集\微博\train.csv'
 text_csv_path = r'G:\毕设\数据集\微博\text.csv'
 user_csv_path = r'G:\毕设\数据集\微博\user.csv'
 image_csv_path = r'G:\毕设\数据集\微博\image.csv'
+en_imagenet_class_path = r'G:\毕设\数据集\微博\imagenet_class_index.json'
+cn_imagenet_class_path = r'G:\毕设\数据集\微博\imagenet_class_cn.json'
+image_class_vgg19_score_path = r'G:\毕设\数据集\微博\image_class_vgg19.txt'
+image_class_resnet50_score_path = r'G:\毕设\数据集\微博\image_class_resnet50.txt'
 train_negative_corpus_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+'/util/negative.txt'
 train_positive_corpus_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+'/util/positive.txt'
 sentiment_model_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+'/util/sentiment.marshal'
@@ -32,6 +43,9 @@ word2vec_txt_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+"."
 word2vec_model_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+"/util/text8.model"
 possentiwords_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+"/util/possentiwords.txt"
 negsentiwords_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")+"/util/negsentiwords.txt"
+appid = '20190716000318328'
+secretKey = '7pjdBCkaUodI5eNqsBWB'
+url_baidu = 'http://api.fanyi.baidu.com/api/trans/vip/translate'
 
 def train_data_read(train_csv_path):
     '''
@@ -442,7 +456,7 @@ def image_feature_extraction(df_image):
     # df_image.iloc[:,2:] = df_image.iloc[:,2:].astype(float)
     # df_image.iloc[:, -2:] = df_image.iloc[:, -2:].astype(object)
     # return df_image
-    df_image['image_kb'] = df_image['image_kb'].astype(float)
+    df_image['sim_image_word'] = df_image['sim_image_word'].astype(float)
     #其余数据统计
     i = 0
     image_name = []
@@ -453,15 +467,15 @@ def image_feature_extraction(df_image):
             i += 1
             continue
         else:
-            image_list = row['piclist'].split('\t')
-            # 计算 颜色矩
-            filename1 = 'G:/train/rumor_pic/' + image_list[0]
-            filename2 = 'G:/train/truth_pic/' + image_list[0]
-            filename= ''
-            if (os.path.isfile(filename1)):
-                filename = filename1
-            else:
-                filename = filename2
+            # image_list = row['piclist'].split('\t')
+            # # 计算 颜色矩
+            # filename1 = 'G:/train/rumor_pic/' + image_list[0]
+            # filename2 = 'G:/train/truth_pic/' + image_list[0]
+            # filename= ''
+            # if (os.path.isfile(filename1)):
+            #     filename = filename1
+            # else:
+            #     filename = filename2
             #计算颜色矩
             # df_image.at[i, 2:11] = image_color_moments(filename)
             #计算深度学习特征 ---PyTorch ResNet50 CNN
@@ -470,11 +484,87 @@ def image_feature_extraction(df_image):
             # except Exception as e:
             #     logging.info("图片有问题"+str(e))
             # df_image['tf_vgg19_class'] = image_get_class(filename)
-            df_image.at[i, 'image_width'], df_image.at[i, 'image_height'], df_image.at[i, 'image_kb'] = image_get_width_height_kb(filename)
+            # 获得图片的宽度、高度、k物理大小kb
+            # df_image.at[i, 'image_width'], df_image.at[i, 'image_height'], df_image.at[i, 'image_kb'] = image_get_width_height_kb(filename)
+            #计算图文相似度，当存在多张图片的时候采用第一张图片作为该博文的代表图片
+            df_image.at[i, 'sim_image_word'] = image_get_img_word_sim(i, row['tf_vgg19_class'], row['tf_resnet50_class'])
             i += 1
-    # df_image.at[i, 'tf_vgg19_class'] = image_get_class(image_name)
     logging.info("图片特征提取结束...")
     return df_image
+
+def image_get_img_word_sim(index, vgg19_class_name, resnet50_class_name):
+    '''
+    similarity_score = arg max{ log( f_i * c_j * swv(term_i,term_j) ) }
+    1 ≤ i ≤ n, 1 ≤ j ≤m
+    swv(term_i,term_j)即term_i和term_j词向量的余弦相似度
+    f_i即第i个词汇(微博正文)的词频
+    c_j即第j个词汇(图片分类名)的可信度
+    '''
+    #微博正文
+    text_content = df_text['text'][index] 
+    #去除停用词和英文单词并分词为list
+    list_clear_weibo_text = jieba_clear_text("".join(re.findall(u"[\u4e00-\u9fa5]", text_content))).split(' ')
+    #获得微博正文的词频
+    dict_weibo_text = Counter(list_clear_weibo_text)
+    #获得分类的词向量
+    try:
+        #获取单词的词向量
+        term_vgg19_class_name = model_word2vec[dict_image_class[vgg19_class_name]]
+    except Exception:
+        #word2vec中不存在这个词汇，以64位0补充
+        term_vgg19_class_name = np.zeros(64)
+    try:
+        #获取单词的词向量
+        term_resnet50_class_name = model_word2vec[dict_image_class[resnet50_class_name]]
+    except Exception:
+        #word2vec中不存在这个词汇，以64位0补充
+        term_resnet50_class_name = np.zeros(64)
+
+    list_vgg19_sim = []
+    list_resnet50_sim = []
+    #遍历微博正文词频表
+    for(word, frequency) in dict_weibo_text.items():
+        try:
+            #获取单词的词向量
+            term_i = model_word2vec[word]
+        except Exception:
+            #word2vec中不存在这个词汇，以64位0补充
+            term_i = np.zeros(64)
+        if np.all(term_i == 0):
+            list_vgg19_sim.append(0)
+            list_resnet50_sim.append(0)
+            continue
+        if np.all(term_vgg19_class_name == 0):
+            list_vgg19_sim.append(0)
+        if np.all(term_resnet50_class_name == 0):
+            list_resnet50_sim.append(0)
+        if np.all(term_vgg19_class_name != 0):
+            # 计算余弦相似度
+            swv_vgg19 = np.dot(term_i, term_vgg19_class_name) / (norm(term_i) * norm(term_vgg19_class_name))
+            # 计算图文相似度
+            list_vgg19_sim.append(np.log(frequency * float(list_vgg19_score[index]) * swv_vgg19))
+        if np.all(term_resnet50_class_name != 0):
+            #计算余弦相似度
+            swv_resnet50 = np.dot(term_i, term_resnet50_class_name) / (norm(term_i) * norm(term_resnet50_class_name))
+            #计算图文相似度
+            list_resnet50_sim.append(np.log(frequency*float(list_resnet50_score[index])*swv_resnet50))
+
+    similarity_score = (max(list_vgg19_sim,default=0) + max(list_resnet50_sim,default=0)) / 2
+    return similarity_score
+
+def image_get_score_list(image_class_vgg19_score_path, image_class_resnet50_score_path):
+    #获得vgg19和resnet50分类时的可信度
+    with open(image_class_vgg19_score_path, "r", encoding='UTF-8') as f1:
+        str_vgg19_score = f1.read()
+        #分数以空格分开，将str转成list
+        list_vgg19_score = str_vgg19_score.split(" ")
+    
+    with open(image_class_resnet50_score_path, "r", encoding='UTF-8') as f2:
+        str_resnet50_score = f2.read()
+        #分数以空格分开，将str转成list
+        list_resnet50_score = str_resnet50_score.split(" ")
+    
+    return list_vgg19_score, list_resnet50_score
 
 def image_get_width_height_kb(img_path):
     im = Image.open(img_path)  # 返回一个Image对象
@@ -592,58 +682,101 @@ def image_get_class(img_path):
     # 使用模型预测（识别）
     return img_array
 
+def translateBaidu(text, f='en', t='zh'):
+    salt = random.randint(32768, 65536)
+    sign = appid + text + str(salt) + secretKey
+    sign = hashlib.md5(sign.encode()).hexdigest()
+    url = url_baidu + '?appid=' + appid + '&q=' + urllib.parse.quote(text) + '&from=' + f + '&to=' + t + '&salt=' + str(salt) + '&sign=' + sign
+    response = urllib.request.urlopen(url)
+    content = response.read().decode('utf-8')
+    data = json.loads(content)
+    result = str(data['trans_result'][0]['dst'])
+    return result
+
+def get_cn_json_class(en_imagenet_class_path, cn_imagenet_class_path):
+    fn = open(en_imagenet_class_path, "r", encoding='UTF-8')
+    j = fn.read()
+    dic = json.loads(j) #英文原版
+    fn.close()
+    txt_dic = {}  #中文
+    for i in range(0, 1000):
+        try:
+            start = time.time()
+            txt_dic[dic[str(i)][1]] = translateBaidu(dic[str(i)][1])
+            end = time.time()
+            if end - start < 1:
+                time.sleep(1)  # api接口限制，每秒调用1次
+        except Exception as e:
+            print(e)
+    json_str = json.dumps(txt_dic)
+    file_object = open(cn_imagenet_class_path, 'w')
+    file_object.write(json_str)
+    file_object.close()
+
+def image_get_class_cn_dict(cn_imagenet_class_path):
+    '''
+    获得分类的中文对照词典
+    :param cn_imagenet_class_path:
+    :return:
+    '''
+    fn = open(cn_imagenet_class_path, "r", encoding='UTF-8')
+    str_json = fn.read()
+    dic = json.loads(str_json)
+    fn.close()
+    return dic
+
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-#*******************文本特征提取开始***************************
-#原始数据的读入
-#df_text,df_user,df_image = train_data_read(train_csv_path)
-
-start = time.time()
-
-# 读入停用词表、积极词汇表、消极词汇表
+# #*******************文本特征提取开始***************************
+# #原始数据的读入
+# #df_text,df_user,df_image = train_data_read(train_csv_path)
+#
+# start = time.time()
+#
+# # 读入停用词表、积极词汇表、消极词汇表
 stopwords = get_stopwords_list()
-possentiwords = get_possentiwords_list()
-negsentiwords = get_negsentiwords_list()
-
-#文本的读入
-df_text = text_data_read()
-
-#微博文本扩展特征数据列
-new_text_features_list = ['text_length', 'contains_questmark', 'num_questmarks', 'contains_exclammark',
-                     'num_exclammarks', 'contains_hashtag', 'num_hashtags', 'contains_URL',
-                     'num_URLs', 'contains_mention', 'num_mentions', 'sentiment_score',
-                     'num_noun','num_verb','num_pronoun','num_possentiwords','num_negsentiwords',
-                     'contains_firstorderpron','contains_secondorderpron','contains_thirdorderpron']
-# 浪费时间
-# for i in range(1,101):
-#     new_text_features_list.append('word2vec_'+str(i))
-df_text = text_insert_cols(df_text,new_text_features_list)
-
-#加载sentiment model
-if not os.path.isfile(sentiment_model_path + '.3'):
-    # 情感分析语料模型训练
-    text_train_sentiment()
-else:
-    logging.info("sentiment model is ready!")
-
-#加载word2vec model
-if not os.path.isfile(word2vec_model_path):
-    # 获得词向量训练语料
-    text_get_clear_word2vec_corpus(word2vec_txt_path)
-    # 训练word2vec模型
-    model_word2vec = text_train_word2vec_model(word2vec_txt_path, word2vec_model_path)
-else:
-    # 加载word2vec模型
-    #model_word2vec = text_load_word2vec_model(word2vec_model_path)
-    remember_delete = 1
-
-#文本特征提取
-df_text = text_feature_extraction(df_text)
-#文本特征保存
-df_text.to_csv(text_csv_path,index=0)#不保留行索引
-
-end = time.time()
-logging.info("运行时间："+str(end-start))
+# possentiwords = get_possentiwords_list()
+# negsentiwords = get_negsentiwords_list()
+#
+# #文本的读入
+# df_text = text_data_read()
+#
+# #微博文本扩展特征数据列
+# new_text_features_list = ['text_length', 'contains_questmark', 'num_questmarks', 'contains_exclammark',
+#                      'num_exclammarks', 'contains_hashtag', 'num_hashtags', 'contains_URL',
+#                      'num_URLs', 'contains_mention', 'num_mentions', 'sentiment_score',
+#                      'num_noun','num_verb','num_pronoun','num_possentiwords','num_negsentiwords',
+#                      'contains_firstorderpron','contains_secondorderpron','contains_thirdorderpron']
+# # 浪费时间
+# # for i in range(1,101):
+# #     new_text_features_list.append('word2vec_'+str(i))
+# df_text = text_insert_cols(df_text,new_text_features_list)
+#
+# #加载sentiment model
+# if not os.path.isfile(sentiment_model_path + '.3'):
+#     # 情感分析语料模型训练
+#     text_train_sentiment()
+# else:
+#     logging.info("sentiment model is ready!")
+#
+# #加载word2vec model
+# if not os.path.isfile(word2vec_model_path):
+#     # 获得词向量训练语料
+#     text_get_clear_word2vec_corpus(word2vec_txt_path)
+#     # 训练word2vec模型
+#     model_word2vec = text_train_word2vec_model(word2vec_txt_path, word2vec_model_path)
+# else:
+#     # 加载word2vec模型
+#     #model_word2vec = text_load_word2vec_model(word2vec_model_path)
+#     remember_delete = 1
+#
+# #文本特征提取
+# df_text = text_feature_extraction(df_text)
+# #文本特征保存
+# df_text.to_csv(text_csv_path,index=0)#不保留行索引
+#
+# end = time.time()
+# logging.info("运行时间："+str(end-start))
 #*******************文本特征提取结束***************************
 
 
@@ -665,32 +798,42 @@ logging.info("运行时间："+str(end-start))
 
 #*******************图片特征提取开始***************************
 
-# start = time.time()
-# #原始数据读入
-# df_image = image_data_read()
-# #图片新特征列扩展
-# new_image_features_list = ['h_first_moment','s_first_moment','v_first_moment',
-#                            'h_second_moment','s_second_moment','v_second_moment',
-#                            'h_third_moment','s_third_moment','v_third_moment',
-#                            'tf_vgg19_class','tf_resnet50_class','image_width','image_height','image_kb']
-# # for i in range(1,2049):
-# #     new_image_features_list.append('resnet_'+str(i))
-# df_image = image_insert_cols(df_image,new_image_features_list)
-# #pytorch ResNet 50网络
-# # model_resnet50 = net()
-# # model_resnet50.eval()
-# # model_resnet50 = model_resnet50.cuda()
-#
-# #tensorflow vgg19和resnet50模型
-# # model_tf_vgg19 = vgg19.VGG19(weights='imagenet')
-# # model_tf_resnet50 = resnet50.ResNet50(weights='imagenet')
-#
-# #图片特征提取
-# df_image = image_feature_extraction(df_image)
-# #图片特征保存
-# df_image.to_csv(image_csv_path,index=0)#不保留行索引
-# end = time.time()
-# logging.info("运行时间："+str(end-start))
+start = time.time()
+#原始数据读入
+df_image = image_data_read()
+#图片新特征列扩展
+new_image_features_list = ['h_first_moment','s_first_moment','v_first_moment',
+                           'h_second_moment','s_second_moment','v_second_moment',
+                           'h_third_moment','s_third_moment','v_third_moment',
+                           'tf_vgg19_class','tf_resnet50_class','image_width','image_height','image_kb','sim_image_word']
+# for i in range(1,2049):
+#     new_image_features_list.append('resnet_'+str(i))
+df_image = image_insert_cols(df_image,new_image_features_list)
+#pytorch ResNet 50网络
+# model_resnet50 = net()
+# model_resnet50.eval()
+# model_resnet50 = model_resnet50.cuda()
+
+#tensorflow vgg19和resnet50模型
+# model_tf_vgg19 = vgg19.VGG19(weights='imagenet')
+# model_tf_resnet50 = resnet50.ResNet50(weights='imagenet')
+model_word2vec = gensim.models.KeyedVectors.load_word2vec_format(r'G:\毕设\数据集\微博\news_12g_baidubaike_20g_novel_90g_embedding_64.bin', binary=True)
+
+#获得vgg19和resnet50分类的图片top1可信度list
+list_vgg19_score, list_resnet50_score = image_get_score_list(image_class_vgg19_score_path, image_class_resnet50_score_path)
+#获得中文对照词典
+dict_image_class = image_get_class_cn_dict(cn_imagenet_class_path)
+
+
+#获得文本特征中的微博原文
+df_text = pd.read_csv(text_csv_path, usecols=['text']) #只加载text列，提升速度，减小不必要的内存损耗
+
+#图片特征提取
+df_image = image_feature_extraction(df_image)
+#图片特征保存
+df_image.to_csv(image_csv_path,index=0)#不保留行索引
+end = time.time()
+logging.info("运行时间："+str(end-start))
 #*******************图片特征提取结束***************************
 # 2020-02-09 19:30:23,551 : INFO : 图片有问题Given groups=1, weight of size 64 3 7 7, expected input[1, 1, 224, 224] to have 3 channels, but got 1 channels instead
 # Loaded runtime CuDNN library: 7.5.1 but source was compiled with: 7.6.5.  CuDNN library major and minor version needs to match or have higher minor version in case of CuDNN 7.0 or later version. If using a binary install, upgrade your CuDNN library.  If building from sources, make sure the library loaded at runtime is compatible with the version specified during compile configuration.
