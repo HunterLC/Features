@@ -542,14 +542,15 @@ def image_get_img_word_sim(index, vgg19_class_name, resnet50_class_name):
             # 计算余弦相似度
             swv_vgg19 = np.dot(term_i, term_vgg19_class_name) / (norm(term_i) * norm(term_vgg19_class_name))
             # 计算图文相似度
-            list_vgg19_sim.append(np.log(frequency * float(list_vgg19_score[index]) * swv_vgg19))
+            list_vgg19_sim.append(np.log(1 + frequency * float(list_vgg19_score[index]) * swv_vgg19))
         if np.all(term_resnet50_class_name != 0):
             #计算余弦相似度
             swv_resnet50 = np.dot(term_i, term_resnet50_class_name) / (norm(term_i) * norm(term_resnet50_class_name))
             #计算图文相似度
-            list_resnet50_sim.append(np.log(frequency*float(list_resnet50_score[index])*swv_resnet50))
+            list_resnet50_sim.append(np.log(1 + frequency*float(list_resnet50_score[index])*swv_resnet50))
 
     similarity_score = (max(list_vgg19_sim,default=0) + max(list_resnet50_sim,default=0)) / 2
+    print(similarity_score)
     return similarity_score
 
 def image_get_score_list(image_class_vgg19_score_path, image_class_resnet50_score_path):

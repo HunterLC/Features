@@ -139,6 +139,10 @@ Features
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
 
 ## 更新日志
+### 2020-02-27
+1.解决图文相似度特征部分结果为nan的bug,原因在于计算向量的余弦相似度swv时存在负值，导致log计算出现非法参数
+
+![图文相似度1](https://github.com/HunterLC/Features/blob/master/image/feature/sim_image_word_1.png)
 ### 2020-02-26
 1.新增图文相似度特征，用以表示图像和文本的相似度
 >similarity_score = arg max{ log( f_i * c_j * swv(term_i,term_j) ) }
@@ -157,7 +161,7 @@ Features
 
 ![图文相似度](https://github.com/HunterLC/Features/blob/master/image/feature/sim_image_word.png)
 
-目前看还存在一些问题，利用log(x)计算，当x趋近0时，整个值趋于负无穷，超出float的范围，值被存储为nan
+目前看还存在一些问题，利用log(x)计算，部分值被存储为nan
 
 
 ### 2020-02-25

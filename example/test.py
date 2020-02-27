@@ -445,19 +445,11 @@
 # print(str)
 
 import pandas as pd
-# text_csv_path = r'G:\毕设\数据集\微博\text.csv'
-# df_text = pd.read_csv(text_csv_path, usecols=['text']) #只加载text列，提升速度，减小不必要的内存损耗
-# dict={"a":"apple","b":"banana","o":"orange"}
-# for (k,v) in dict.items():
-#     print("dict[%s]=" % k,v)
-
 import numpy as np
-a = np.zeros(64)
-if(np.all(a != 0)):
-    print(max(a.tolist()))
-else:
-    print("jaja")
-
+# text_csv_path = r'G:\毕设\数据集\微博\image.csv'
+# df_text = pd.read_csv(text_csv_path, usecols=['sim_image_word']) #只加载text列，提升速度，减小不必要的内存损耗
+# print(df_text.apply(lambda x:np.sum(x.isnull())))
+print(np.log(0.000000000000000000000000000000000005))
 
 
 
