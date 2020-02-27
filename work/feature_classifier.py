@@ -7,12 +7,13 @@ from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import KFold,GridSearchCV
 from sklearn.tree import DecisionTreeClassifier
-from sklearn import metrics
+from sklearn import metrics, model_selection
 import matplotlib.pyplot as plt
 
 fusion_csv_path = r'G:\毕设\数据集\微博\fusion_news_features.csv'
 text_csv_path = r'G:\毕设\数据集\微博\text.csv'
 user_csv_path = r'G:\毕设\数据集\微博\user.csv'
+image_csv_path = r'G:\毕设\数据集\微博\image.csv'
 
 
 def get_save_index():
@@ -20,6 +21,7 @@ def get_save_index():
     # 保留user_gender列中的非空行，非空为True，空行为False
     save_index = df_user.isnull().sum(axis=1) == 0
     return save_index
+
 def features_preprocessor(df):
     #获取需要保留的index行
     save_index = get_save_index()
@@ -76,12 +78,44 @@ def dt_search_best(X_train, y_train):
     print(grid_dtcateg.best_params_)
     return grid_dtcateg.best_params_
 
+def rf_classifier(data_file, label='label'):
+    df = pd.read_csv(data_file)
+    df_user = pd.read_csv(user_csv_path).drop(columns = ['id'], axis = 1)
+    df = pd.concat([df, df_user], axis=1)
+    df.drop(['id'], axis=1, inplace=True)  # 删除列（axis=1指定，默认为行），并将原数据置换为新数据（inplace=True指定，默认为False）
+    df = features_preprocessor(df)
+    feature_attr = [i for i in df.columns if i not in [label]]
+    label_attr = label
+    df.fillna(0, inplace=True)
+    # 特征预处理
+    obj_attrs = []
+    for attr in feature_attr:
+        if df.dtypes[attr] == np.dtype(object):  # 添加离散数据列
+            obj_attrs.append(attr)
+    if len(obj_attrs) > 0:
+        df = pd.get_dummies(df, columns=obj_attrs)  # 转为哑变量
+    # df = df[15200:23200]
+    X_train, X_test, y_train, y_test = model_selection.train_test_split(df.drop(label_attr, axis=1),
+                                                                        df.label,
+                                                                        test_size=0.25,
+                                                                        random_state=1234)
+    model_rf = RandomForestClassifier(n_estimators=100,
+                                       bootstrap=True,
+                                       max_features='sqrt')
+    model_rf.fit(X_train, y_train)
+    rf_pred = model_rf.predict(X_test)
+    print('随机森林准确率：\n', metrics.accuracy_score(y_test, rf_pred))
+
+
 def classifier(data_file):
     '''
     data_file : CSV文件
     '''
     df = pd.read_csv(data_file)
-    df.drop('id', axis=1, inplace=True)  # 删除列（axis=1指定，默认为行），并将原数据置换为新数据（inplace=True指定，默认为False）
+    df_user = pd.read_csv(user_csv_path).drop(columns=['id'], axis=1)
+    df_image = pd.read_csv(image_csv_path).drop(columns=['piclist','tf_vgg19_class','tf_resnet50_class'], axis=1)
+    df = pd.concat([df['label'], df_user, df_image], axis=1)
+    df.drop(['id'], axis=1, inplace=True)  # 删除列（axis=1指定，默认为行），并将原数据置换为新数据（inplace=True指定，默认为False）
     df = features_preprocessor(df)
     feature_attr = [i for i in df.columns if i not in ['label']]
     label_attr = 'label'
@@ -162,7 +196,7 @@ def classifier(data_file):
     # plt.draw()
     # plt.show()
 
-classifier(fusion_csv_path)
+classifier(text_csv_path)
 # df_text = pd.read_csv(text_csv_path)
 # df_user = pd.read_csv(user_csv_path,usecols='user_gender')
 # # 保留user_gender列中的非空行，非空为True，空行为False

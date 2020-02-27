@@ -143,6 +143,45 @@ Features
 1.解决图文相似度特征部分结果为nan的bug,原因在于计算向量的余弦相似度swv时存在负值，导致log计算出现非法参数
 
 ![图文相似度1](https://github.com/HunterLC/Features/blob/master/image/feature/sim_image_word_1.png)
+
+2.测试( 文本 + 用户 + 图片 )特征预测结果
+
+![预测结果0227](https://github.com/HunterLC/Features/blob/master/image/feature/rf_0227_all.png)
+
+>随机森林准确率：
+ 0.941306405806248
+>
+3.测试( 文本 )特征预测结果
+
+![预测结果0227](https://github.com/HunterLC/Features/blob/master/image/feature/rf_0227_text.png)
+
+>随机森林准确率：
+ 0.9510886715052067
+>
+4.测试( 用户 )特征预测结果
+
+![预测结果0227](https://github.com/HunterLC/Features/blob/master/image/feature/rf_0227_user.png)
+
+>随机森林准确率：
+ 0.8982854738613653
+>
+4.测试( 文本 + 用户 )特征预测结果
+
+![预测结果0227](https://github.com/HunterLC/Features/blob/master/image/feature/rf_0227_text_user.png)
+
+5.测试( 图片 )特征预测结果
+包含两个分类'tf_vgg19_class','tf_resnet50_class'时
+
+![预测结果0227](https://github.com/HunterLC/Features/blob/master/image/feature/rf_0227_image_1.png)
+
+不包含两个分类'tf_vgg19_class','tf_resnet50_class'时
+
+![预测结果0227](https://github.com/HunterLC/Features/blob/master/image/feature/rf_0227_image_2.png)
+
+6.测试( 用户 + 图片 )特征预测结果 
+
+![预测结果0227](https://github.com/HunterLC/Features/blob/master/image/feature/rf_0227_user_image.png)
+
 ### 2020-02-26
 1.新增图文相似度特征，用以表示图像和文本的相似度
 >similarity_score = arg max{ log( f_i * c_j * swv(term_i,term_j) ) }

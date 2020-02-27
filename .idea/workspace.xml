@@ -4,8 +4,7 @@
     <list default="true" id="15714133-8834-42cf-a36a-069dc63f951d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/work/feature_extraction.py" beforeDir="false" afterPath="$PROJECT_DIR$/work/feature_extraction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/work/feature_classifier.py" beforeDir="false" afterPath="$PROJECT_DIR$/work/feature_classifier.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,7 +58,7 @@
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="kite.configurable" />
   </component>
-  <component name="RunManager" selected="Python.feature_extraction">
+  <component name="RunManager" selected="Python.feature_classifier">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -86,9 +85,6 @@
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/work" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -127,9 +123,6 @@
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/work" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -188,11 +181,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.feature_classifier" />
+        <item itemvalue="Python.feature_fusion" />
         <item itemvalue="Python.feature_extraction" />
         <item itemvalue="Python.test" />
         <item itemvalue="Python.imagetoword" />
-        <item itemvalue="Python.feature_classifier" />
-        <item itemvalue="Python.feature_fusion" />
       </list>
     </recent_temporary>
   </component>
@@ -287,7 +280,7 @@
       <workItem from="1582637356207" duration="5448000" />
       <workItem from="1582700987129" duration="560000" />
       <workItem from="1582704262688" duration="6344000" />
-      <workItem from="1582782341854" duration="6263000" />
+      <workItem from="1582782341854" duration="14951000" />
     </task>
     <servers />
   </component>
