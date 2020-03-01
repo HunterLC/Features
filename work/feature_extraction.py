@@ -116,11 +116,11 @@ def text_feature_extraction(df_text):
         # #词性标注，统计名词、动词、代词数量并返回
         # df_text.at[i, 'num_noun'],df_text.at[i, 'num_verb'],df_text.at[i, 'num_pronoun'] = text_part_of_speech(text_content)
         # #计算每条微博正文的词向量均值
-        # df_text.at[i,-104:-4] = text_compute_word2vec(text_content).tolist()
+        df_text.at[i,-107:-7] = text_compute_word2vec(text_content).tolist()
         # #获得每条微博的积极词汇数、消极词汇数
         # df_text.at[i, 'num_possentiwords'], df_text.at[i, 'num_negsentiwords'] = text_pos_neg_sentiwords(text_content)
         #获取新闻是否含有第一人称、第二人称、第三人称
-        df_text.at[i, 'contains_firstorderpron'], df_text.at[i, 'contains_secondorderpron'], df_text.at[i, 'contains_thirdorderpron'] = text_get_fir_sec_thi_orderpron(text_content)
+        # df_text.at[i, 'contains_firstorderpron'], df_text.at[i, 'contains_secondorderpron'], df_text.at[i, 'contains_thirdorderpron'] = text_get_fir_sec_thi_orderpron(text_content)
         i += 1
     logging.info("文本特征提取结束...")
     return df_text
@@ -371,7 +371,9 @@ def text_compute_word2vec(text_content):
     text_word2vec_score_list = []
     for word in raw_txt_list:
         try:
-            text_word2vec_score_list.append(model_word2vec.wv[word])
+            #自己训练的词库用这一句
+            # text_word2vec_score_list.append(model_word2vec.wv[word])
+            text_word2vec_score_list.append(model_word2vec[word])
         except KeyError:
             text_word2vec_score_list.append(np.zeros(100))
     result_mean_array = np.mean(np.array(text_word2vec_score_list),axis=0)
@@ -728,56 +730,57 @@ def image_get_class_cn_dict(cn_imagenet_class_path):
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-# #*******************文本特征提取开始***************************
-# #原始数据的读入
-# #df_text,df_user,df_image = train_data_read(train_csv_path)
-#
-# start = time.time()
-#
-# # 读入停用词表、积极词汇表、消极词汇表
+#*******************文本特征提取开始***************************
+#原始数据的读入
+#df_text,df_user,df_image = train_data_read(train_csv_path)
+
+start = time.time()
+
+# 读入停用词表、积极词汇表、消极词汇表
 stopwords = get_stopwords_list()
 # possentiwords = get_possentiwords_list()
 # negsentiwords = get_negsentiwords_list()
-#
-# #文本的读入
-# df_text = text_data_read()
-#
-# #微博文本扩展特征数据列
-# new_text_features_list = ['text_length', 'contains_questmark', 'num_questmarks', 'contains_exclammark',
-#                      'num_exclammarks', 'contains_hashtag', 'num_hashtags', 'contains_URL',
-#                      'num_URLs', 'contains_mention', 'num_mentions', 'sentiment_score',
-#                      'num_noun','num_verb','num_pronoun','num_possentiwords','num_negsentiwords',
-#                      'contains_firstorderpron','contains_secondorderpron','contains_thirdorderpron']
-# # 浪费时间
-# # for i in range(1,101):
-# #     new_text_features_list.append('word2vec_'+str(i))
-# df_text = text_insert_cols(df_text,new_text_features_list)
-#
-# #加载sentiment model
-# if not os.path.isfile(sentiment_model_path + '.3'):
-#     # 情感分析语料模型训练
-#     text_train_sentiment()
-# else:
-#     logging.info("sentiment model is ready!")
-#
-# #加载word2vec model
-# if not os.path.isfile(word2vec_model_path):
-#     # 获得词向量训练语料
-#     text_get_clear_word2vec_corpus(word2vec_txt_path)
-#     # 训练word2vec模型
-#     model_word2vec = text_train_word2vec_model(word2vec_txt_path, word2vec_model_path)
-# else:
-#     # 加载word2vec模型
-#     #model_word2vec = text_load_word2vec_model(word2vec_model_path)
-#     remember_delete = 1
-#
-# #文本特征提取
-# df_text = text_feature_extraction(df_text)
-# #文本特征保存
-# df_text.to_csv(text_csv_path,index=0)#不保留行索引
-#
-# end = time.time()
-# logging.info("运行时间："+str(end-start))
+
+#文本的读入
+df_text = text_data_read()
+
+#微博文本扩展特征数据列
+new_text_features_list = ['text_length', 'contains_questmark', 'num_questmarks', 'contains_exclammark',
+                     'num_exclammarks', 'contains_hashtag', 'num_hashtags', 'contains_URL',
+                     'num_URLs', 'contains_mention', 'num_mentions', 'sentiment_score',
+                     'num_noun','num_verb','num_pronoun','num_possentiwords','num_negsentiwords',
+                     'contains_firstorderpron','contains_secondorderpron','contains_thirdorderpron']
+# 浪费时间
+# for i in range(1,101):
+#     new_text_features_list.append('word2vec_'+str(i))
+df_text = text_insert_cols(df_text,new_text_features_list)
+
+#加载sentiment model
+if not os.path.isfile(sentiment_model_path + '.3'):
+    # 情感分析语料模型训练
+    text_train_sentiment()
+else:
+    logging.info("sentiment model is ready!")
+
+#加载word2vec model
+if not os.path.isfile(word2vec_model_path):
+    # 获得词向量训练语料
+    text_get_clear_word2vec_corpus(word2vec_txt_path)
+    # 训练word2vec模型
+    model_word2vec = text_train_word2vec_model(word2vec_txt_path, word2vec_model_path)
+else:
+    # 加载word2vec模型
+    #model_word2vec = text_load_word2vec_model(word2vec_model_path)
+    model_word2vec = gensim.models.KeyedVectors.load_word2vec_format(r'G:\毕设\数据集\微博\news_12g_baidubaike_20g_novel_90g_embedding_64.bin', binary=True)
+    remember_delete = 1
+
+#文本特征提取
+df_text = text_feature_extraction(df_text)
+#文本特征保存
+df_text.to_csv(text_csv_path,index=0)#不保留行索引
+
+end = time.time()
+logging.info("运行时间："+str(end-start))
 #*******************文本特征提取结束***************************
 
 
@@ -797,44 +800,44 @@ stopwords = get_stopwords_list()
 # logging.info("运行时间："+str(end-start))
 # #*******************用户特征提取结束***************************
 
-#*******************图片特征提取开始***************************
-
-start = time.time()
-#原始数据读入
-df_image = image_data_read()
-#图片新特征列扩展
-new_image_features_list = ['h_first_moment','s_first_moment','v_first_moment',
-                           'h_second_moment','s_second_moment','v_second_moment',
-                           'h_third_moment','s_third_moment','v_third_moment',
-                           'tf_vgg19_class','tf_resnet50_class','image_width','image_height','image_kb','sim_image_word']
-# for i in range(1,2049):
-#     new_image_features_list.append('resnet_'+str(i))
-df_image = image_insert_cols(df_image,new_image_features_list)
-#pytorch ResNet 50网络
-# model_resnet50 = net()
-# model_resnet50.eval()
-# model_resnet50 = model_resnet50.cuda()
-
-#tensorflow vgg19和resnet50模型
-# model_tf_vgg19 = vgg19.VGG19(weights='imagenet')
-# model_tf_resnet50 = resnet50.ResNet50(weights='imagenet')
-model_word2vec = gensim.models.KeyedVectors.load_word2vec_format(r'G:\毕设\数据集\微博\news_12g_baidubaike_20g_novel_90g_embedding_64.bin', binary=True)
-
-#获得vgg19和resnet50分类的图片top1可信度list
-list_vgg19_score, list_resnet50_score = image_get_score_list(image_class_vgg19_score_path, image_class_resnet50_score_path)
-#获得中文对照词典
-dict_image_class = image_get_class_cn_dict(cn_imagenet_class_path)
-
-
-#获得文本特征中的微博原文
-df_text = pd.read_csv(text_csv_path, usecols=['text']) #只加载text列，提升速度，减小不必要的内存损耗
-
-#图片特征提取
-df_image = image_feature_extraction(df_image)
-#图片特征保存
-df_image.to_csv(image_csv_path,index=0)#不保留行索引
-end = time.time()
-logging.info("运行时间："+str(end-start))
-#*******************图片特征提取结束***************************
+# #*******************图片特征提取开始***************************
+#
+# start = time.time()
+# #原始数据读入
+# df_image = image_data_read()
+# #图片新特征列扩展
+# new_image_features_list = ['h_first_moment','s_first_moment','v_first_moment',
+#                            'h_second_moment','s_second_moment','v_second_moment',
+#                            'h_third_moment','s_third_moment','v_third_moment',
+#                            'tf_vgg19_class','tf_resnet50_class','image_width','image_height','image_kb','sim_image_word']
+# # for i in range(1,2049):
+# #     new_image_features_list.append('resnet_'+str(i))
+# df_image = image_insert_cols(df_image,new_image_features_list)
+# #pytorch ResNet 50网络
+# # model_resnet50 = net()
+# # model_resnet50.eval()
+# # model_resnet50 = model_resnet50.cuda()
+#
+# #tensorflow vgg19和resnet50模型
+# # model_tf_vgg19 = vgg19.VGG19(weights='imagenet')
+# # model_tf_resnet50 = resnet50.ResNet50(weights='imagenet')
+# model_word2vec = gensim.models.KeyedVectors.load_word2vec_format(r'G:\毕设\数据集\微博\news_12g_baidubaike_20g_novel_90g_embedding_64.bin', binary=True)
+#
+# #获得vgg19和resnet50分类的图片top1可信度list
+# list_vgg19_score, list_resnet50_score = image_get_score_list(image_class_vgg19_score_path, image_class_resnet50_score_path)
+# #获得中文对照词典
+# dict_image_class = image_get_class_cn_dict(cn_imagenet_class_path)
+#
+#
+# #获得文本特征中的微博原文
+# df_text = pd.read_csv(text_csv_path, usecols=['text']) #只加载text列，提升速度，减小不必要的内存损耗
+#
+# #图片特征提取
+# df_image = image_feature_extraction(df_image)
+# #图片特征保存
+# df_image.to_csv(image_csv_path,index=0)#不保留行索引
+# end = time.time()
+# logging.info("运行时间："+str(end-start))
+# #*******************图片特征提取结束***************************
 # 2020-02-09 19:30:23,551 : INFO : 图片有问题Given groups=1, weight of size 64 3 7 7, expected input[1, 1, 224, 224] to have 3 channels, but got 1 channels instead
 # Loaded runtime CuDNN library: 7.5.1 but source was compiled with: 7.6.5.  CuDNN library major and minor version needs to match or have higher minor version in case of CuDNN 7.0 or later version. If using a binary install, upgrade your CuDNN library.  If building from sources, make sure the library loaded at runtime is compatible with the version specified during compile configuration.

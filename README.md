@@ -139,6 +139,9 @@ Features
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
 
 ## 更新日志
+### 2020-03-01
+1.对数据集进行初步的预处理
+
 ### 2020-02-27
 1.解决图文相似度特征部分结果为nan的bug,原因在于计算向量的余弦相似度swv时存在负值，导致log计算出现非法参数
 

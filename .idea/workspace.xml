@@ -4,7 +4,9 @@
     <list default="true" id="15714133-8834-42cf-a36a-069dc63f951d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/work/feature_classifier.py" beforeDir="false" afterPath="$PROJECT_DIR$/work/feature_classifier.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/work/feature_extraction.py" beforeDir="false" afterPath="$PROJECT_DIR$/work/feature_extraction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/work/feature_selection.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/feature_selection.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,7 +60,12 @@
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="settings.editor.selected.configurable" value="kite.configurable" />
   </component>
-  <component name="RunManager" selected="Python.feature_classifier">
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\PythonCode\Features\example" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.feature_selection">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -81,29 +88,13 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="feature_classifier" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Features" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/work" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/work/feature_classifier.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="true" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="feature_extraction" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/work" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -123,6 +114,9 @@
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/work" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -138,7 +132,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="imagetoword" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="feature_preprocessing" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -146,12 +140,31 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/example" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/work" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/example/imagetoword.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/work/feature_preprocessing.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="feature_selection" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Features" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/work" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/work/feature_selection.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -164,6 +177,9 @@
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/example" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -181,11 +197,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.feature_classifier" />
+        <item itemvalue="Python.feature_selection" />
+        <item itemvalue="Python.feature_preprocessing" />
         <item itemvalue="Python.feature_fusion" />
-        <item itemvalue="Python.feature_extraction" />
         <item itemvalue="Python.test" />
-        <item itemvalue="Python.imagetoword" />
+        <item itemvalue="Python.feature_extraction" />
       </list>
     </recent_temporary>
   </component>
@@ -280,7 +296,11 @@
       <workItem from="1582637356207" duration="5448000" />
       <workItem from="1582700987129" duration="560000" />
       <workItem from="1582704262688" duration="6344000" />
-      <workItem from="1582782341854" duration="14951000" />
+      <workItem from="1582782341854" duration="15012000" />
+      <workItem from="1582876914382" duration="1430000" />
+      <workItem from="1582961338352" duration="826000" />
+      <workItem from="1583042606302" duration="9462000" />
+      <workItem from="1583052634204" duration="952000" />
     </task>
     <servers />
   </component>
@@ -305,6 +325,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="361" y="74" key="#Notifications/0.0.1536.824@0.0.1536.824" timestamp="1579363067031" />
+    <state x="498" y="256" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1582961369064">
+      <screen x="0" y="30" width="1536" height="834" />
+    </state>
+    <state x="498" y="256" key="#com.intellij.fileTypes.FileTypeChooser/0.30.1536.834@0.30.1536.834" timestamp="1582961369064" />
     <state x="549" y="213" key="FileChooserDialogImpl" timestamp="1582471489565">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
@@ -364,12 +388,12 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="289" y="121" key="com.intellij.execution.console.ConsoleHistoryController$MyBrowseAction$1/0.0.1536.824@0.0.1536.824" timestamp="1579366437431" />
-    <state x="461" y="272" key="com.intellij.ide.util.TipDialog" timestamp="1582783322610">
+    <state x="461" y="272" key="com.intellij.ide.util.TipDialog" timestamp="1583052756142">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
     <state x="461" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1582266772177" />
     <state x="461" y="251" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1577628183723" />
-    <state x="461" y="272" key="com.intellij.ide.util.TipDialog/0.30.1536.834@0.30.1536.834" timestamp="1582783322610" />
+    <state x="461" y="272" key="com.intellij.ide.util.TipDialog/0.30.1536.834@0.30.1536.834" timestamp="1583052756142" />
     <state x="431" y="178" width="672" height="687" key="search.everywhere.popup" timestamp="1582788934531">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
