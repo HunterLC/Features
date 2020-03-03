@@ -2,12 +2,45 @@ from sklearn.feature_selection import RFECV
 import pandas as pd
 import numpy as np
 from sklearn import metrics, model_selection
+from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 
 fusion_csv_path = r'G:\毕设\数据集\微博\fusion_news_features.csv'
 text_csv_path = r'G:\毕设\数据集\微博\text.csv'
 user_csv_path = r'G:\毕设\数据集\微博\user.csv'
 image_csv_path = r'G:\毕设\数据集\微博\image.csv'
+
+def decision_tree_classifier(X_train, y_train):
+    '''
+    决策树分类
+    '''
+    # params = dt_search_best(X_train, y_train)
+    # print(params['max_depth'],params['min_samples_leaf'],params['min_samples_split'])
+    # model_dt = DecisionTreeClassifier(max_depth=params['max_depth'],min_samples_leaf=params['min_samples_leaf'],min_samples_split=params['min_samples_split'])
+    model_dt = DecisionTreeClassifier(max_depth=6, min_samples_leaf=4,
+                                      min_samples_split=6)
+    model_dt.fit(X_train, y_train)
+    return model_dt
+
+def rf_search_best(X_train, y_train):
+    '''
+    采用网格搜索法确定随机森林最佳组合参数值
+    '''
+    #预设各参数的不同选项值
+    max_depth = [18, 19, 20, 21, 22] #数据量小在10左右，数据量大在20左右
+    min_samples_split = [2, 4, 6, 8]
+    min_samples_leaf = [2, 4, 8, 10, 12]
+    #将各参数值以字典形式组织起来
+    parameters = {'max_depth': max_depth, 'min_samples_split': min_samples_split,
+                  'min_samples_leaf': min_samples_leaf}
+    # 网格搜索法,测试不同的参数值
+    grid_dtcateg= GridSearchCV(estimator = RandomForestClassifier(),
+                               param_grid = parameters, cv = 10)
+    #模型拟合
+    grid_dtcateg.fit(X_train, y_train)
+    #返回最佳组合的参数值
+    print(grid_dtcateg.best_params_)
+    return grid_dtcateg.best_params_
 
 def rf_classifier(data_file, label='label'):
     df = pd.read_csv(data_file)
@@ -28,9 +61,14 @@ def rf_classifier(data_file, label='label'):
                                                                         df.label,
                                                                         test_size=0.25,
                                                                         random_state=1234)
-    estimator = RandomForestClassifier(n_estimators=100,
+    estimator = RandomForestClassifier(max_depth=20,
+                                       min_samples_leaf=4,
+                                       min_samples_split=6,
+                                       n_estimators=100,
                                        bootstrap=True,
-                                       max_features='sqrt')
+                                       max_features='sqrt',
+                                       verbose=1,
+                                       n_jobs=-1)
 
     '''
     estimator：该参数传入用于递归构建模型的有监督型基学习器，要求该基学习器具有fit方法，且其输出含有coef_或feature_importances_这种结果；
@@ -47,6 +85,8 @@ def rf_classifier(data_file, label='label'):
 
 　　　　2.正整数，这时即指定了交叉验证中分裂的子集个数，即k折中的k；
 
+   verbose:指定计算过程中是否生成日志信息，默认为0，不输出
+
 　　n_jobs：控制并行运算中利用到的CPU核心数，默认为1，即单核工作，若设置为-1，则启用所有核心进行运算；
 
 　　函数返回值：　
@@ -59,10 +99,20 @@ def rf_classifier(data_file, label='label'):
 
 　　estimator_：利用剩下的特征训练出的模型；
     '''
-    rfe_model_rf = RFECV(estimator, step=1, cv=10, scoring=None, verbose=0, n_jobs=-1)
-    rfe_model_rf = rfe_model_rf.fit(X_train, y_train)
-    rf_pred = rfe_model_rf.predict(X_test)
+    # rfe_model_rf = RFECV(estimator, step=1000, cv=10, scoring=None, verbose=1, n_jobs=-1)
+    # rfe_model_rf = rfe_model_rf.fit(X_train, y_train)
+    # rf_pred = rfe_model_rf.predict(X_test)
+    # print('随机森林准确率：\n', metrics.accuracy_score(y_test, rf_pred))
+    # return rfe_model_rf
+    estimator = estimator.fit(X_train, y_train)
+    rf_pred = estimator.predict(X_test)
     print('随机森林准确率：\n', metrics.accuracy_score(y_test, rf_pred))
-    return rfe_model_rf
+    return estimator
 
 model = rf_classifier(fusion_csv_path)
+
+# i = 0
+# for item in dd:
+#     if model.support_.tolist()[i] == True:
+#         print(item)
+#     i += 1
