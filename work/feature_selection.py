@@ -4,6 +4,8 @@ import numpy as np
 from sklearn import metrics, model_selection
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 fusion_csv_path = r'G:\毕设\数据集\微博\fusion_news_features.csv'
 text_csv_path = r'G:\毕设\数据集\微博\text.csv'
@@ -17,10 +19,8 @@ def decision_tree_classifier(X_train, y_train):
     # params = dt_search_best(X_train, y_train)
     # print(params['max_depth'],params['min_samples_leaf'],params['min_samples_split'])
     # model_dt = DecisionTreeClassifier(max_depth=params['max_depth'],min_samples_leaf=params['min_samples_leaf'],min_samples_split=params['min_samples_split'])
-    model_dt = DecisionTreeClassifier(max_depth=6, min_samples_leaf=4,
-                                      min_samples_split=6)
-    model_dt.fit(X_train, y_train)
-    return model_dt
+
+    return
 
 def rf_search_best(X_train, y_train):
     '''
@@ -106,8 +106,39 @@ def rf_classifier(data_file, label='label'):
     # return rfe_model_rf
     estimator = estimator.fit(X_train, y_train)
     rf_pred = estimator.predict(X_test)
-    print('随机森林准确率：\n', metrics.accuracy_score(y_test, rf_pred))
+    print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
+    print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
+    print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
+    # 绘制ROC曲线，一般认为AUC大于0.8即算较好效果
+    draw_auc(y_test, rf_pred)
+    # 绘制混淆矩阵热力图
+    draw_confusion_matrix_heat_map(y_test, rf_pred)
     return estimator
+
+def draw_auc(y_test, rf_pred):
+    # 计算绘图数据
+    fpr, tpr, threshold = metrics.roc_curve(y_test, rf_pred)
+    roc_auc = metrics.auc(fpr, tpr)
+    # 绘图
+    plt.stackplot(fpr, tpr, color='steelblue', alpha=0.5, edgecolor='black')
+    plt.plot(fpr, tpr, color='black', lw=1)
+    plt.plot([0, 1], [0, 1], color='red', linestyle='--')
+    plt.text(0.5, 0.3, 'ROC Curve (area = %0.2f)' % roc_auc)
+    plt.xlabel('specificity')
+    plt.ylabel('sensitivity')
+    plt.show()
+
+def draw_confusion_matrix_heat_map(y_test, rf_pred):
+    # 构建混淆矩阵
+    cm = pd.crosstab(rf_pred, y_test)
+    # 将混淆矩阵构造成数据框，并加上字段名和行名称，用于行和列的含义说明
+    # cm = pd.DataFrame(cm, columns=['fake', 'true'], index=['fake', 'true'])
+    # 绘制热力图
+    sns.heatmap(cm, annot=True, cmap='GnBu', fmt='d')
+    # 添加x轴和y轴的标签
+    plt.xlabel('Real Label')
+    plt.ylabel('Predict Label')
+    plt.show()
 
 model = rf_classifier(fusion_csv_path)
 

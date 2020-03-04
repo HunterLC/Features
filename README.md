@@ -139,6 +139,39 @@ Features
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
 
 ## 更新日志
+### 2020-03-04
+以目前的数据集为主：
+
+1.新增分类指标AUC，目前分类指标有三个：ACC、AUC、F1
+>[Parallel(n_jobs=-1)]: Using backend ThreadingBackend with 4 concurrent workers.
+>
+>[Parallel(n_jobs=-1)]: Done  42 tasks      | elapsed:    8.1s
+>
+>[Parallel(n_jobs=-1)]: Done 100 out of 100 | elapsed:   18.9s finished
+>
+>[Parallel(n_jobs=4)]: Using backend ThreadingBackend with 4 concurrent workers.
+>
+>[Parallel(n_jobs=4)]: Done  42 tasks      | elapsed:    0.0s
+>
+>[Parallel(n_jobs=4)]: Done 100 out of 100 | elapsed:    0.0s finished
+>
+>随机森林ACC：
+> 0.9392026927527085
+>
+>随机森林F 1：
+> 0.9390816421867911
+>
+>随机森林AUC：
+> 0.940097542719596
+>
+2.新增ROC曲线绘制，用于直观展示AUC值
+
+![ROC_AUC](https://github.com/HunterLC/Features/blob/master/image/feature/roc_0304.png)
+
+3.新增分类结果的混淆矩阵热力图绘制
+
+![heatmap](https://github.com/HunterLC/Features/blob/master/image/feature/heatmap_0304.png)
+
 ### 2020-03-01
 1.对数据集进行初步的预处理
 
