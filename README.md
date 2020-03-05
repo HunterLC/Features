@@ -139,6 +139,33 @@ Features
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
 
 ## 更新日志
+### 2020-03-05
+1.采用pca（主成分分析法），将imagenet50特征从2048维降至10，将Color Moment从9降至2，删除特征列'tf_vgg19_class','tf_resnet50_class'时
+>[Parallel(n_jobs=-1)]: Using backend ThreadingBackend with 4 concurrent workers.
+>
+>[Parallel(n_jobs=-1)]: Done  42 tasks      | elapsed:    3.4s
+>
+>[Parallel(n_jobs=-1)]: Done 100 out of 100 | elapsed:    7.9s finished
+>
+>[Parallel(n_jobs=4)]: Using backend ThreadingBackend with 4 concurrent workers.
+>
+>[Parallel(n_jobs=4)]: Done  42 tasks      | elapsed:    0.0s
+>
+>[Parallel(n_jobs=4)]: Done 100 out of 100 | elapsed:    0.0s finished
+>
+>随机森林ACC：
+> 0.9573998106658251
+>随机森林F 1：
+> 0.9573829561575022
+>随机森林AUC：
+> 0.9580041019681674
+>
+准确度从0.93提高至0.95
+
+![ROC_AUC](https://github.com/HunterLC/Features/blob/master/image/feature/roc_0305.png)
+
+![heatmap](https://github.com/HunterLC/Features/blob/master/image/feature/heatmap_0305.png)
+
 ### 2020-03-04
 以目前的数据集为主：
 
