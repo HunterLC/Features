@@ -139,6 +139,18 @@ Features
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
 
 ## 更新日志
+### 2020-03-06
+1.采用RFE，step=10,目前特征降至128维，速度更快，准确率在0.957左右
+>随机森林ACC：
+ 0.9571894393604712
+>
+>随机森林F 1：
+ 0.9571682040998659
+>
+>随机森林AUC：
+ 0.9577241764479276
+>
+2.存在问题，用户地址和用户性别之类的object在运算过程中转为独热码，特征列会被删除，同时效果感觉一般
 ### 2020-03-05
 1.采用pca（主成分分析法），将imagenet50特征从2048维降至10，将Color Moment从9降至2，删除特征列'tf_vgg19_class','tf_resnet50_class'时
 >[Parallel(n_jobs=-1)]: Using backend ThreadingBackend with 4 concurrent workers.
@@ -154,9 +166,11 @@ Features
 >[Parallel(n_jobs=4)]: Done 100 out of 100 | elapsed:    0.0s finished
 >
 >随机森林ACC：
-> 0.9573998106658251
+ 0.9573998106658251
+>
 >随机森林F 1：
-> 0.9573829561575022
+ 0.9573829561575022
+>
 >随机森林AUC：
 > 0.9580041019681674
 >

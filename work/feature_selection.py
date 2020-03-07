@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 fusion_csv_path = r'G:\毕设\数据集\微博\fusion_news_features.csv'
+new_fusion_csv_path = r'G:\毕设\数据集\微博\fusion_features_0306.csv'
 text_csv_path = r'G:\毕设\数据集\微博\text.csv'
 user_csv_path = r'G:\毕设\数据集\微博\user.csv'
 image_csv_path = r'G:\毕设\数据集\微博\image.csv'
@@ -54,11 +55,13 @@ def read_data_frame(data_file, use_cols=None, drop_cols=None):
 
 
 def rf_classifier(df, label='label'):
-    df.drop(['id','tf_vgg19_class','tf_resnet50_class'], axis=1, inplace=True)  # 删除列（axis=1指定，默认为行），并将原数据置换为新数据（inplace=True指定，默认为False）
-    df_1 = pd.read_csv('colorf.csv', names=['pca_color_moment1', 'pca_color_moment2'])
-    df_2 = pd.read_csv('10_resnet.csv', names=['pca_net1', 'pca_net2', 'pca_net3', 'pca_net4', 'pca_net5',
-                                              'pca_net6', 'pca_net7', 'pca_net8', 'pca_net9', 'pca_net10'])
-    df = pd.concat([df, df_1, df_2], axis=1)
+    # 删除列（axis=1指定，默认为行），并将原数据置换为新数据（inplace=True指定，默认为False）
+    # df.drop(['id', 'tf_vgg19_class', 'tf_resnet50_class'], axis=1,inplace=True)
+    # df_1 = pd.read_csv('colorf.csv', names=['pca_color_moment1', 'pca_color_moment2'])
+    # df_2 = pd.read_csv('10_resnet.csv', names=['pca_net1', 'pca_net2', 'pca_net3', 'pca_net4', 'pca_net5',
+    #                                            'pca_net6', 'pca_net7', 'pca_net8', 'pca_net9', 'pca_net10'])
+    # df = pd.concat([df, df_1, df_2], axis=1)
+    # df.to_csv(new_fusion_csv_path, index=0)  # 不保留行索引
     feature_attr = [i for i in df.columns if i not in [label]]
     label_attr = label
     # df['user_description'] = df['user_description'].astype(float)
@@ -75,7 +78,7 @@ def rf_classifier(df, label='label'):
                                                                         df['label'],
                                                                         test_size=0.25,
                                                                         random_state=1234)
-    #构造随机森林的分类器
+    # 构造随机森林的分类器
     estimator = RandomForestClassifier(max_depth=20,
                                        min_samples_leaf=4,
                                        min_samples_split=6,
@@ -84,7 +87,7 @@ def rf_classifier(df, label='label'):
                                        max_features='sqrt',
                                        verbose=1,
                                        n_jobs=-1)
-    #RFE递归特征消除算法进行特征选择
+    # RFE递归特征消除算法进行特征选择
     # rfe_model_rf = selection_rfe(estimator, X_train, y_train)
     estimator = estimator.fit(X_train, y_train)
     rf_pred = estimator.predict(X_test)
@@ -92,7 +95,7 @@ def rf_classifier(df, label='label'):
     print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
     print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
     # 绘制ROC曲线，一般认为AUC大于0.8即算较好效果
-    draw_auc(y_test, rf_pred)
+    draw_auc(estimator, X_test, y_test)
     # 绘制混淆矩阵热力图
     draw_confusion_matrix_heat_map(y_test, rf_pred)
     return df, estimator
@@ -105,10 +108,11 @@ def selection_pca(df):
     low_dimensionality = pca.transform(df)
     return pca, pd.DataFrame(low_dimensionality)
 
-
-def draw_auc(y_test, rf_pred):
+def draw_auc(estimator, X_test, y_test):
     # 计算绘图数据
-    fpr, tpr, threshold = metrics.roc_curve(y_test, rf_pred)
+    y_score = estimator.predict_proba(X_test)[:, 1]
+    # roc_curve函数的第二个参数代表正例的预测概率，而不是实际的预测值
+    fpr, tpr, threshold = metrics.roc_curve(y_test, y_score)
     roc_auc = metrics.auc(fpr, tpr)
     # 绘图
     plt.stackplot(fpr, tpr, color='steelblue', alpha=0.5, edgecolor='black')
@@ -119,7 +123,6 @@ def draw_auc(y_test, rf_pred):
     plt.ylabel('sensitivity')
     plt.show()
 
-
 def selection_rfe(estimator, X_train, y_train):
     """
     Wrapper类特征选择方法——RFE
@@ -128,7 +131,7 @@ def selection_rfe(estimator, X_train, y_train):
     :param y_train: 训练集分类数据
     :return: 分类器模型
     """
-    rfe_model_rf = RFECV(estimator, step=1000, cv=10, scoring=None, verbose=1, n_jobs=-1)
+    rfe_model_rf = RFECV(estimator, step=10, cv=10, scoring=None, verbose=1, n_jobs=-1)
     '''
         estimator：该参数传入用于递归构建模型的有监督型基学习器，要求该基学习器具有fit方法，且其输出含有coef_或feature_importances_这种结果；
 
@@ -161,7 +164,6 @@ def selection_rfe(estimator, X_train, y_train):
     rfe_model_rf = rfe_model_rf.fit(X_train, y_train)
     return rfe_model_rf
 
-
 def draw_confusion_matrix_heat_map(y_test, rf_pred):
     # 构建混淆矩阵
     cm = pd.crosstab(rf_pred, y_test)
@@ -174,26 +176,55 @@ def draw_confusion_matrix_heat_map(y_test, rf_pred):
     plt.ylabel('Predict Label')
     plt.show()
 
+def save_selected_features(df, estimator):
+    i = 0
+    j = 0
+    aa = []
+    for item in df.columns:
+        try:
+            if estimator.support_[i]:
+                aa.append(item + '\n')
+                j += 1
+        except:
+            print('error')
+        i += 1
+    print(str(j))
+    with open("data_selection.txt", 'w+') as f:
+        f.writelines(aa)
 
-#需要处理的列
-features_list = []
-useless_list = ['h_first_moment','s_first_moment','v_first_moment',
-                           'h_second_moment','s_second_moment','v_second_moment',
-                           'h_third_moment','s_third_moment','v_third_moment']
-for i in range(1,2049):
-    useless_list.append('resnet_'+str(i))
-#数据读取
-df = read_data_frame(fusion_csv_path, drop_cols=useless_list)
-#pca处理
-# df = (df-df.mean())/(df.std()) # z-score标准化
-# pca, df_new = selection_pca(df)
-# print(list(pca.explained_variance_ratio_))
-# print(pca.n_components_)
-# df = read_data_frame(fusion_csv_path)
+def get_selected_features():
+    my_words = []
+    f = open('data_selection.txt', "r", encoding='UTF-8')
+    for eachWord in f.readlines():
+        my_words.append(eachWord.strip())
+    f.close()
+    return my_words
+
+# #*********************************PCA处理之前******************************************
+# # 需要处理的列
+# features_list = []
+# # pca处理
+# # df = (df-df.mean())/(df.std()) # z-score标准化
+# # pca, df_new = selection_pca(df)
+# # print(list(pca.explained_variance_ratio_))
+# # print(pca.n_components_)
+# # df = read_data_frame(fusion_csv_path)
+#
+# # 不需要加载的列
+# useless_list = ['h_first_moment', 's_first_moment', 'v_first_moment',
+#                 'h_second_moment', 's_second_moment', 'v_second_moment',
+#                 'h_third_moment', 's_third_moment', 'v_third_moment']
+# for i in range(1, 2049):
+#     useless_list.append('resnet_' + str(i))
+#
+# # 数据读取
+# df = read_data_frame(fusion_csv_path, drop_cols=useless_list)
+# df, estimator = rf_classifier(df)
+
+#*********************************PCA处理之后******************************************
+selected_features = get_selected_features()
+selected_features.append('label')
+df = read_data_frame(new_fusion_csv_path, use_cols=selected_features)
 df, estimator = rf_classifier(df)
+# save_selected_features(df, estimator)
 
-# i = 0
-# for item in dd:
-#     if model.support_.tolist()[i] == True:
-#         print(item)
-#     i += 1
