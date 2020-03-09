@@ -191,6 +191,11 @@ def get_user_location(df_user):
     return map
 
 def get_user_gender(df_user):
+    """
+    df_user['user_gender'].value_counts()一句就搞定了，我真沙雕
+    :param df_user:
+    :return:
+    """
     unknown = 0 #未知
     male = 0 #男性
     female = 0 #女性

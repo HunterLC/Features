@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 
 fusion_csv_path = r'G:\毕设\数据集\微博\fusion_news_features.csv'
+fusion_no_object_csv_path = r'G:\毕设\数据集\微博\fusion_features_0306_no_object.csv'
+new_fusion_csv_path = r'G:\毕设\数据集\微博\fusion_features_0306.csv'
 text_csv_path = r'G:\毕设\数据集\微博\text.csv'
 user_csv_path = r'G:\毕设\数据集\微博\user.csv'
 image_csv_path = r'G:\毕设\数据集\微博\image.csv'
@@ -39,6 +41,33 @@ def features_preprocessor(df):
     # #图片数据预处理(暂无)
     return df
 
-df = pd.read_csv(fusion_csv_path)
-df = features_preprocessor(df)
-df.to_csv(fusion_csv_path,index=0)#不保留行索引
+def delete_df_object(df):
+    gender_map = {'男': 1, '女': 0}
+
+    category_map = {'社会生活': 1, '医药健康': 2, '文体娱乐': 3, '财经商业': 4,
+                    '政治': 5, '教育考试': 6, '军事': 7, '科技': 8}
+
+    location_map = {'北京': 1, '广东': 2, '其他': 3, '江苏': 4,
+                    '上海': 5, '浙江': 6, '四川': 7, '山东': 8,
+                    '河南': 9, '陕西': 10, '海外': 11, '福建': 12,
+                    '湖北': 13, '辽宁': 14, '河北': 15, '安徽': 16,
+                    '湖南': 17, '重庆': 18, '天津': 19, '江西': 20,
+                    '广西': 21, '山西': 22, '黑龙': 23, '吉林': 24,
+                    '云南': 25, '贵州': 26, '甘肃': 27, '内蒙': 28,
+                    '香港': 29, '海南': 30, '新疆': 31, '台湾': 32,
+                    '无': 33, '青海': 34, '宁夏': 35, '西藏': 36,
+                    '澳门': 37}
+    df['user_gender'] = df['user_gender'].map(gender_map)
+    df['category'] = df['category'].map(category_map)
+    df['user_location'] = df['user_location'].map(location_map)
+    return df
+
+# 特征的预处理
+# df = pd.read_csv(fusion_csv_path)
+# df = features_preprocessor(df)
+# df.to_csv(fusion_csv_path,index=0)#不保留行索引
+
+#特征去除object
+df = pd.read_csv(new_fusion_csv_path)
+df = delete_df_object(df)
+df.to_csv(fusion_no_object_csv_path,index=0)#不保留行索引

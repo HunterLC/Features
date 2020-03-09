@@ -444,12 +444,14 @@
 # str = " ".join('%s' %id for id in list)
 # print(str)
 
-import pandas as pd
-import numpy as np
-text_csv_path = r'C:\Backup\桌面\test.csv'
-df = pd.read_csv(text_csv_path) #只加载text列，提升速度，减小不必要的内存损耗
+# import pandas as pd
+# import numpy as np
+# text_csv_path = r'C:\Backup\桌面\test.csv'
+# df = pd.read_csv(text_csv_path) #只加载text列，提升速度，减小不必要的内存损耗
 
-
+aa = ['a','b','label']
+df_list = [x for x in aa if x not in ['label']]
+print(df_list)
 
 
 

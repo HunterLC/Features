@@ -4,8 +4,10 @@
     <list default="true" id="15714133-8834-42cf-a36a-069dc63f951d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/work/10_resnet.csv" beforeDir="false" afterPath="$PROJECT_DIR$/work/10_resnet.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/work/colorf.csv" beforeDir="false" afterPath="$PROJECT_DIR$/work/colorf.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_statistics/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_statistics/statistics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/work/data_selection.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/work/feature_preprocessing.py" beforeDir="false" afterPath="$PROJECT_DIR$/work/feature_preprocessing.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/work/feature_selection.py" beforeDir="false" afterPath="$PROJECT_DIR$/work/feature_selection.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -26,6 +28,9 @@
     </option>
     <expand />
     <select />
+  </component>
+  <component name="ExportToHTMLSettings">
+    <option name="OUTPUT_DIRECTORY" value="$PROJECT_DIR$/../Features\exportToHTML" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -136,9 +141,6 @@
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/work" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -158,9 +160,6 @@
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/work" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -180,9 +179,6 @@
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/example" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -201,9 +197,9 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.feature_selection" />
+        <item itemvalue="Python.test" />
         <item itemvalue="Python.feature_preprocessing" />
         <item itemvalue="Python.feature_fusion" />
-        <item itemvalue="Python.test" />
         <item itemvalue="Python.feature_extraction" />
       </list>
     </recent_temporary>
@@ -309,6 +305,8 @@
       <workItem from="1583300375636" duration="18626000" />
       <workItem from="1583388505019" duration="13919000" />
       <workItem from="1583470875989" duration="12158000" />
+      <workItem from="1583561250795" duration="3415000" />
+      <workItem from="1583736238181" duration="6057000" />
     </task>
     <servers />
   </component>
@@ -337,6 +335,10 @@
       <screen x="0" y="30" width="1536" height="834" />
     </state>
     <state x="498" y="256" key="#com.intellij.fileTypes.FileTypeChooser/0.30.1536.834@0.30.1536.834" timestamp="1582961369064" />
+    <state x="499" y="194" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1583744039374">
+      <screen x="0" y="30" width="1536" height="834" />
+    </state>
+    <state x="499" y="194" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.30.1536.834@0.30.1536.834" timestamp="1583744039374" />
     <state x="549" y="213" key="FileChooserDialogImpl" timestamp="1582471489565">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
@@ -397,12 +399,12 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="289" y="121" key="com.intellij.execution.console.ConsoleHistoryController$MyBrowseAction$1/0.0.1536.824@0.0.1536.824" timestamp="1579366437431" />
-    <state x="461" y="272" key="com.intellij.ide.util.TipDialog" timestamp="1583561256552">
+    <state x="461" y="272" key="com.intellij.ide.util.TipDialog" timestamp="1583736255677">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
     <state x="461" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1582266772177" />
     <state x="461" y="251" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1577628183723" />
-    <state x="461" y="272" key="com.intellij.ide.util.TipDialog/0.30.1536.834@0.30.1536.834" timestamp="1583561256552" />
+    <state x="461" y="272" key="com.intellij.ide.util.TipDialog/0.30.1536.834@0.30.1536.834" timestamp="1583736255677" />
     <state x="431" y="178" width="672" height="687" key="search.everywhere.popup" timestamp="1583393675160">
       <screen x="0" y="30" width="1536" height="834" />
     </state>

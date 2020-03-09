@@ -10,6 +10,7 @@ import seaborn as sns
 
 fusion_csv_path = r'G:\毕设\数据集\微博\fusion_news_features.csv'
 new_fusion_csv_path = r'G:\毕设\数据集\微博\fusion_features_0306.csv'
+fusion_no_object_csv_path = r'G:\毕设\数据集\微博\fusion_features_0306_no_object.csv'
 text_csv_path = r'G:\毕设\数据集\微博\text.csv'
 user_csv_path = r'G:\毕设\数据集\微博\user.csv'
 image_csv_path = r'G:\毕设\数据集\微博\image.csv'
@@ -64,7 +65,6 @@ def rf_classifier(df, label='label'):
     # df.to_csv(new_fusion_csv_path, index=0)  # 不保留行索引
     feature_attr = [i for i in df.columns if i not in [label]]
     label_attr = label
-    # df['user_description'] = df['user_description'].astype(float)
     df.fillna(0, inplace=True)
     # 特征预处理
     obj_attrs = []
@@ -88,17 +88,18 @@ def rf_classifier(df, label='label'):
                                        verbose=1,
                                        n_jobs=-1)
     # RFE递归特征消除算法进行特征选择
-    # rfe_model_rf = selection_rfe(estimator, X_train, y_train)
-    estimator = estimator.fit(X_train, y_train)
-    rf_pred = estimator.predict(X_test)
+    rfe_model_rf = selection_rfe(estimator, X_train, y_train)
+    # estimator = estimator.fit(X_train, y_train)
+    rf_pred = rfe_model_rf.predict(X_test)
     print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
     print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
     print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
     # 绘制ROC曲线，一般认为AUC大于0.8即算较好效果
-    draw_auc(estimator, X_test, y_test)
+    draw_auc(rfe_model_rf, X_test, y_test)
     # 绘制混淆矩阵热力图
     draw_confusion_matrix_heat_map(y_test, rf_pred)
-    return df, estimator
+    save_selected_features(df, rfe_model_rf)
+    return df, rfe_model_rf
 
 
 def selection_pca(df):
@@ -180,7 +181,8 @@ def save_selected_features(df, estimator):
     i = 0
     j = 0
     aa = []
-    for item in df.columns:
+    df_list = [x for x in df.columns if x not in ['label']]
+    for item in df_list:
         try:
             if estimator.support_[i]:
                 aa.append(item + '\n')
@@ -222,9 +224,9 @@ def get_selected_features():
 # df, estimator = rf_classifier(df)
 
 #*********************************PCA处理之后******************************************
-selected_features = get_selected_features()
-selected_features.append('label')
-df = read_data_frame(new_fusion_csv_path, use_cols=selected_features)
-df, estimator = rf_classifier(df)
+# selected_features = get_selected_features()
+# selected_features.append('label')
+df = read_data_frame(fusion_no_object_csv_path, use_cols=None)
+# df, estimator = rf_classifier(df)
 # save_selected_features(df, estimator)
 
