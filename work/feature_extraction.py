@@ -730,114 +730,149 @@ def image_get_class_cn_dict(cn_imagenet_class_path):
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-#*******************文本特征提取开始***************************
-#原始数据的读入
-#df_text,df_user,df_image = train_data_read(train_csv_path)
+# #*******************文本特征提取开始***************************
+# #原始数据的读入
+# #df_text,df_user,df_image = train_data_read(train_csv_path)
 
-start = time.time()
+# start = time.time()
 
-# 读入停用词表、积极词汇表、消极词汇表
-stopwords = get_stopwords_list()
-possentiwords = get_possentiwords_list()
-negsentiwords = get_negsentiwords_list()
+# # 读入停用词表、积极词汇表、消极词汇表
+# stopwords = get_stopwords_list()
+# possentiwords = get_possentiwords_list()
+# negsentiwords = get_negsentiwords_list()
 
-#文本的读入
-df_text = text_data_read()
+# #文本的读入
+# df_text = text_data_read()
 
-#微博文本扩展特征数据列
-new_text_features_list = ['text_length', 'contains_questmark', 'num_questmarks', 'contains_exclammark',
-                     'num_exclammarks', 'contains_hashtag', 'num_hashtags', 'contains_URL',
-                     'num_URLs', 'contains_mention', 'num_mentions', 'sentiment_score',
-                     'num_noun','num_verb','num_pronoun','num_possentiwords','num_negsentiwords',
-                     'contains_firstorderpron','contains_secondorderpron','contains_thirdorderpron']
-# 浪费时间
-for i in range(1,101):
-    new_text_features_list.append('word2vec_'+str(i))
-df_text = text_insert_cols(df_text,new_text_features_list)
+# #微博文本扩展特征数据列
+# new_text_features_list = ['text_length', 'contains_questmark', 'num_questmarks', 'contains_exclammark',
+#                      'num_exclammarks', 'contains_hashtag', 'num_hashtags', 'contains_URL',
+#                      'num_URLs', 'contains_mention', 'num_mentions', 'sentiment_score',
+#                      'num_noun','num_verb','num_pronoun','num_possentiwords','num_negsentiwords',
+#                      'contains_firstorderpron','contains_secondorderpron','contains_thirdorderpron']
+# # 浪费时间
+# for i in range(1,101):
+#     new_text_features_list.append('word2vec_'+str(i))
+# df_text = text_insert_cols(df_text,new_text_features_list)
 
-#加载sentiment model
-if not os.path.isfile(sentiment_model_path + '.3'):
-    # 情感分析语料模型训练
-    text_train_sentiment()
-else:
-    logging.info("sentiment model is ready!")
+# #加载sentiment model
+# if not os.path.isfile(sentiment_model_path + '.3'):
+#     # 情感分析语料模型训练
+#     text_train_sentiment()
+# else:
+#     logging.info("sentiment model is ready!")
 
-#加载word2vec model
-if not os.path.isfile(word2vec_model_path):
-    # 获得词向量训练语料
-    text_get_clear_word2vec_corpus(word2vec_txt_path)
-    # 训练word2vec模型
-    model_word2vec = text_train_word2vec_model(word2vec_txt_path, word2vec_model_path)
-else:
-    # 加载word2vec模型
-    #model_word2vec = text_load_word2vec_model(word2vec_model_path)
-    model_word2vec = gensim.models.KeyedVectors.load_word2vec_format(r'G:\毕设\数据集\微博\news_12g_baidubaike_20g_novel_90g_embedding_64.bin', binary=True)
-    remember_delete = 1
+# #加载word2vec model
+# if not os.path.isfile(word2vec_model_path):
+#     # 获得词向量训练语料
+#     text_get_clear_word2vec_corpus(word2vec_txt_path)
+#     # 训练word2vec模型
+#     model_word2vec = text_train_word2vec_model(word2vec_txt_path, word2vec_model_path)
+# else:
+#     # 加载word2vec模型
+#     #model_word2vec = text_load_word2vec_model(word2vec_model_path)
+#     model_word2vec = gensim.models.KeyedVectors.load_word2vec_format(r'G:\毕设\数据集\微博\news_12g_baidubaike_20g_novel_90g_embedding_64.bin', binary=True)
+#     remember_delete = 1
 
-#文本特征提取
-df_text = text_feature_extraction(df_text)
-#文本特征保存
-df_text.to_csv(text_csv_path,index=0)#不保留行索引
+# #文本特征提取
+# df_text = text_feature_extraction(df_text)
+# #文本特征保存
+# df_text.to_csv(text_csv_path,index=0)#不保留行索引
 
-end = time.time()
-logging.info("运行时间："+str(end-start))
-#*******************文本特征提取结束***************************
-
-
-#*******************用户特征提取开始***************************
-start = time.time()
-#原始数据读入
-df_user = user_data_read()
-#用户新特征列扩展
-new_user_features_list = ['folfans_ratio']
-df_user = user_insert_cols(df_user,new_user_features_list)
-#用户特征提取
-df_user = user_feature_extraction(df_user)
-#用户特征保存
-df_user.to_csv(user_csv_path,index=0)#不保留行索引
-
-end = time.time()
-logging.info("运行时间："+str(end-start))
-#*******************用户特征提取结束***************************
-
-#*******************图片特征提取开始***************************
-
-start = time.time()
-#原始数据读入
-df_image = image_data_read()
-#图片新特征列扩展
-new_image_features_list = ['h_first_moment','s_first_moment','v_first_moment',
-                           'h_second_moment','s_second_moment','v_second_moment',
-                           'h_third_moment','s_third_moment','v_third_moment',
-                           'tf_vgg19_class','tf_resnet50_class','image_width','image_height','image_kb','sim_image_word']
-for i in range(1,2049):
-    new_image_features_list.append('resnet_'+str(i))
-df_image = image_insert_cols(df_image,new_image_features_list)
-#pytorch ResNet 50网络
-model_resnet50 = net()
-model_resnet50.eval()
-model_resnet50 = model_resnet50.cuda()
-
-#tensorflow vgg19和resnet50模型
-model_tf_vgg19 = vgg19.VGG19(weights='imagenet')
-model_tf_resnet50 = resnet50.ResNet50(weights='imagenet')
-model_word2vec = gensim.models.KeyedVectors.load_word2vec_format(r'G:\毕设\数据集\微博\news_12g_baidubaike_20g_novel_90g_embedding_64.bin', binary=True)
-
-#获得vgg19和resnet50分类的图片top1可信度list
-list_vgg19_score, list_resnet50_score = image_get_score_list(image_class_vgg19_score_path, image_class_resnet50_score_path)
-#获得中文对照词典
-dict_image_class = image_get_class_cn_dict(cn_imagenet_class_path)
+# end = time.time()
+# logging.info("运行时间："+str(end-start))
+# #*******************文本特征提取结束***************************
 
 
-#获得文本特征中的微博原文
-df_text = pd.read_csv(text_csv_path, usecols=['text']) #只加载text列，提升速度，减小不必要的内存损耗
+# #*******************用户特征提取开始***************************
+# start = time.time()
+# #原始数据读入
+# df_user = user_data_read()
+# #用户新特征列扩展
+# new_user_features_list = ['folfans_ratio']
+# df_user = user_insert_cols(df_user,new_user_features_list)
+# #用户特征提取
+# df_user = user_feature_extraction(df_user)
+# #用户特征保存
+# df_user.to_csv(user_csv_path,index=0)#不保留行索引
 
-#图片特征提取
-df_image = image_feature_extraction(df_image)
-#图片特征保存
-df_image.to_csv(image_csv_path,index=0)#不保留行索引
-end = time.time()
-logging.info("运行时间："+str(end-start))
-#*******************图片特征提取结束***************************
+# end = time.time()
+# logging.info("运行时间："+str(end-start))
+# #*******************用户特征提取结束***************************
+
+# #*******************图片特征提取开始***************************
+
+# start = time.time()
+# #原始数据读入
+# df_image = image_data_read()
+# #图片新特征列扩展
+# new_image_features_list = ['h_first_moment','s_first_moment','v_first_moment',
+#                            'h_second_moment','s_second_moment','v_second_moment',
+#                            'h_third_moment','s_third_moment','v_third_moment',
+#                            'tf_vgg19_class','tf_resnet50_class','image_width','image_height','image_kb','sim_image_word']
+# for i in range(1,2049):
+#     new_image_features_list.append('resnet_'+str(i))
+# df_image = image_insert_cols(df_image,new_image_features_list)
+# #pytorch ResNet 50网络
+# model_resnet50 = net()
+# model_resnet50.eval()
+# model_resnet50 = model_resnet50.cuda()
+
+# #tensorflow vgg19和resnet50模型
+# model_tf_vgg19 = vgg19.VGG19(weights='imagenet')
+# model_tf_resnet50 = resnet50.ResNet50(weights='imagenet')
+# model_word2vec = gensim.models.KeyedVectors.load_word2vec_format(r'G:\毕设\数据集\微博\news_12g_baidubaike_20g_novel_90g_embedding_64.bin', binary=True)
+
+# #获得vgg19和resnet50分类的图片top1可信度list
+# list_vgg19_score, list_resnet50_score = image_get_score_list(image_class_vgg19_score_path, image_class_resnet50_score_path)
+# #获得中文对照词典
+# dict_image_class = image_get_class_cn_dict(cn_imagenet_class_path)
+
+
+# #获得文本特征中的微博原文
+# df_text = pd.read_csv(text_csv_path, usecols=['text']) #只加载text列，提升速度，减小不必要的内存损耗
+
+# #图片特征提取
+# df_image = image_feature_extraction(df_image)
+# #图片特征保存
+# df_image.to_csv(image_csv_path,index=0)#不保留行索引
+# end = time.time()
+# logging.info("运行时间："+str(end-start))
+# #*******************图片特征提取结束***************************
 # 2020-02-09 19:30:23,551 : INFO : 图片有问题Given groups=1, weight of size 64 3 7 7, expected input[1, 1, 224, 224] to have 3 channels, but got 1 channels instead
 # Loaded runtime CuDNN library: 7.5.1 but source was compiled with: 7.6.5.  CuDNN library major and minor version needs to match or have higher minor version in case of CuDNN 7.0 or later version. If using a binary install, upgrade your CuDNN library.  If building from sources, make sure the library loaded at runtime is compatible with the version specified during compile configuration.
+
+#新数据集的训练和测试
+train_rumor_txt_path = r'G:\test\tweets\train_rumor.txt'
+train_non_rumor_txt_path = r'G:\test\tweets\train_nonrumor.txt'
+test_rumor_txt_path = r'G:\test\tweets\test_rumor.txt'
+test_non_rumor_txt_path = r'G:\test\tweets\test_nonrumor.txt'
+social_feature_txt_path = r'G:\test\social_feature.txt'
+
+def get_train_csv(rumor_path, nonrumor_path, save_path):
+    features_list = ['id', 'user_name', 'tweet_url', 'user_url', 'publish_time',
+                     'original', 'retweet_count', 'comment_count', 'praise_count', 'user_id', 
+                    'user_authentication_type', 'user_fans_count', 'user_follow_count', 'user_weibo_count', 'publish_platform', 
+                    'piclist', 'text', 'label']
+    df = pd.DataFrame(columns=features_list)
+    print(df.shape)
+    with open(rumor_path,'r', encoding='UTF-8') as f:
+        list_rumor = f.readlines()
+        i = 1
+        list_content = []
+        for line in list_rumor:
+            if i == 1:    # 基础信息列
+                list_content.extend(line.split('|'))
+                i += 1
+            elif i == 2:  # 图片列
+                list_content.append(line.replace('|null',''))
+                i += 1
+            else:         # 微博正文
+                list_content.append(line)
+                list_content.append(0)
+                df.append(pd.DataFrame(data=[list_content],columns=features_list),ignore_index=True)
+                list_content.clear()
+                i = 1
+    return df
+
+df = get_train_csv(train_rumor_txt_path, train_non_rumor_txt_path, 'xxx')

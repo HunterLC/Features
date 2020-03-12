@@ -1,15 +1,22 @@
 from sklearn.feature_selection import RFECV
+from sklearn.decomposition import KernelPCA
 import pandas as pd
 import numpy as np
 from sklearn import metrics, model_selection
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.decomposition import PCA
+from sklearn.cross_decomposition import CCA
 import matplotlib.pyplot as plt
 import seaborn as sns
+from scipy.spatial.distance import pdist, squareform
+from scipy import exp
+import gc
+from numpy.linalg import eigh
 
 fusion_csv_path = r'G:\毕设\数据集\微博\fusion_news_features.csv'
 new_fusion_csv_path = r'G:\毕设\数据集\微博\fusion_features_0306.csv'
+new_0312_fusion_csv_path = r'G:\毕设\数据集\微博\fusion_features_0312.csv'
 fusion_no_object_csv_path = r'G:\毕设\数据集\微博\fusion_features_0306_no_object.csv'
 text_csv_path = r'G:\毕设\数据集\微博\text.csv'
 user_csv_path = r'G:\毕设\数据集\微博\user.csv'
@@ -88,18 +95,17 @@ def rf_classifier(df, label='label'):
                                        verbose=1,
                                        n_jobs=-1)
     # RFE递归特征消除算法进行特征选择
-    rfe_model_rf = selection_rfe(estimator, X_train, y_train)
-    # estimator = estimator.fit(X_train, y_train)
-    rf_pred = rfe_model_rf.predict(X_test)
+    # rfe_model_rf = selection_rfe(estimator, X_train, y_train)
+    estimator = estimator.fit(X_train, y_train)
+    rf_pred = estimator.predict(X_test)
     print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
     print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
     print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
     # 绘制ROC曲线，一般认为AUC大于0.8即算较好效果
-    draw_auc(rfe_model_rf, X_test, y_test)
+    draw_auc(estimator, X_test, y_test)
     # 绘制混淆矩阵热力图
     draw_confusion_matrix_heat_map(y_test, rf_pred)
-    save_selected_features(df, rfe_model_rf)
-    return df, rfe_model_rf
+    return df, estimator
 
 
 def selection_pca(df):
@@ -108,6 +114,15 @@ def selection_pca(df):
     # 降维
     low_dimensionality = pca.transform(df)
     return pca, pd.DataFrame(low_dimensionality)
+
+
+def selection_kpca(df):
+    kpca = KernelPCA(n_components=10, kernel='poly', degree=3, gamma=5, n_jobs=-1)
+    df = df[13200:33200]
+    kpca.fit(df)
+    X_skernpca = kpca.transform(df)
+    return kpca, pd.DataFrame(X_skernpca)
+
 
 def draw_auc(estimator, X_test, y_test):
     # 计算绘图数据
@@ -123,6 +138,7 @@ def draw_auc(estimator, X_test, y_test):
     plt.xlabel('specificity')
     plt.ylabel('sensitivity')
     plt.show()
+
 
 def selection_rfe(estimator, X_train, y_train):
     """
@@ -165,6 +181,7 @@ def selection_rfe(estimator, X_train, y_train):
     rfe_model_rf = rfe_model_rf.fit(X_train, y_train)
     return rfe_model_rf
 
+
 def draw_confusion_matrix_heat_map(y_test, rf_pred):
     # 构建混淆矩阵
     cm = pd.crosstab(rf_pred, y_test)
@@ -176,6 +193,53 @@ def draw_confusion_matrix_heat_map(y_test, rf_pred):
     plt.xlabel('Real Label')
     plt.ylabel('Predict Label')
     plt.show()
+
+
+def rbf_kernel_pca(X, gamma, n_components):
+    """
+    RBF kernel PCA implementation.
+
+    Parameters
+    ------------
+    X: {NumPy ndarray}, shape = [n_samples, n_features]
+
+    gamma: float
+      Tuning parameter of the RBF kernel
+
+    n_components: int
+      Number of principal components to return
+
+    Returns
+    ------------
+     X_pc: {NumPy ndarray}, shape = [n_samples, k_features]
+       Projected dataset
+
+    """
+    # Calculate pairwise squared Euclidean distances
+    # in the MxN dimensional dataset.
+    sq_dists = pdist(X, 'sqeuclidean')
+
+    # Convert pairwise distances into a square matrix.
+    mat_sq_dists = squareform(sq_dists)
+
+    # Compute the symmetric kernel matrix.
+    K = exp(-gamma * mat_sq_dists)
+
+    # Center the kernel matrix.
+    N = K.shape[0]
+    one_n = np.ones((N, N)) / N
+    K = K - one_n.dot(K) - K.dot(one_n) + one_n.dot(K).dot(one_n)
+
+    # Obtaining eigenpairs from the centered kernel matrix
+    # numpy.linalg.eigh returns them in sorted order
+    eigvals, eigvecs = eigh(K)
+
+    # Collect the top k eigenvectors (projected samples)
+    X_pc = np.column_stack((eigvecs[:, -i]
+                            for i in range(1, n_components + 1)))
+
+    return X_pc
+
 
 def save_selected_features(df, estimator):
     i = 0
@@ -194,6 +258,7 @@ def save_selected_features(df, estimator):
     with open("data_selection.txt", 'w+') as f:
         f.writelines(aa)
 
+
 def get_selected_features():
     my_words = []
     f = open('data_selection.txt', "r", encoding='UTF-8')
@@ -201,6 +266,7 @@ def get_selected_features():
         my_words.append(eachWord.strip())
     f.close()
     return my_words
+
 
 # #*********************************PCA处理之前******************************************
 # # 需要处理的列
@@ -223,10 +289,61 @@ def get_selected_features():
 # df = read_data_frame(fusion_csv_path, drop_cols=useless_list)
 # df, estimator = rf_classifier(df)
 
-#*********************************PCA处理之后******************************************
-# selected_features = get_selected_features()
-# selected_features.append('label')
-df = read_data_frame(fusion_no_object_csv_path, use_cols=None)
-# df, estimator = rf_classifier(df)
+# *********************************PCA处理之后******************************************
+selected_features = get_selected_features()
+selected_features.append('label')
+# use_list = ['text_length',
+#             'contains_exclammark',
+#             'num_exclammarks',
+#             'num_hashtags',
+#             'num_noun',
+#             'category',
+#             'user_fans_count',
+#             'user_weibo_count',
+#             'folfans_ratio',
+#             'user_description',
+#             'image_width',
+#             'image_height',
+#             'image_kb',
+#             'pca_color_moment1',
+#             'pca_net1',
+#             'pca_net3',
+#             'pca_net8',
+#             'label']
+# features_list = []
+# for i in range(1, 11):
+#     features_list.append('word2vec_' + str(i))
+# df_hah = pd.read_csv('G:/new_wtv.csv',names=features_list)
+# print(df_hah.shape)
+# df = read_data_frame(fusion_no_object_csv_path, use_cols=selected_features)[18200:20200].reset_index(drop=True)
+df = read_data_frame(fusion_no_object_csv_path, use_cols=selected_features)
+# # print(df.shape)
+# # df_new = pd.concat([df, df_hah],  axis=1)
+# # print(df_new.shape)
+df, estimator = rf_classifier(df)
+# print(df_r.shape)
 # save_selected_features(df, estimator)
 
+
+# # 需要处理的列
+# features_list = []
+# for i in range(1, 101):
+#     features_list.append('word2vec_' + str(i))
+# df = read_data_frame(new_0312_fusion_csv_path)
+# df.drop(df[df.score < 50].index, inplace=True)
+# kpca, df_new = selection_kpca(df)
+# kpca = rbf_kernel_pca(df, gamma=15, n_components=2)
+
+# 随机森林ACC：
+#  0.892
+# 随机森林F 1：
+#  0.8930325083565701
+# 随机森林AUC：
+#  0.8915698856304467
+
+# 随机森林ACC：
+#  0.9
+# 随机森林F 1：
+#  0.9003893097643098
+# 随机森林AUC：
+#  0.8936027293136057
