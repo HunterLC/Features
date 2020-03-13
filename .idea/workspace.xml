@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="15714133-8834-42cf-a36a-069dc63f951d" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/work/feature_selection.py" beforeDir="false" afterPath="$PROJECT_DIR$/work/feature_reduction.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -318,7 +316,7 @@
       <workItem from="1584023827402" duration="42000" />
       <workItem from="1584080414751" duration="5277000" />
       <workItem from="1584085757879" duration="257000" />
-      <workItem from="1584086276460" duration="597000" />
+      <workItem from="1584086276460" duration="1201000" />
     </task>
     <servers />
   </component>
