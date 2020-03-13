@@ -6,12 +6,11 @@ from sklearn import metrics, model_selection
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.decomposition import PCA
-from sklearn.cross_decomposition import CCA
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.spatial.distance import pdist, squareform
 from scipy import exp
-import gc
+import time
 from numpy.linalg import eigh
 
 fusion_csv_path = r'G:\毕设\数据集\微博\fusion_news_features.csv'
@@ -21,6 +20,7 @@ fusion_no_object_csv_path = r'G:\毕设\数据集\微博\fusion_features_0306_no
 text_csv_path = r'G:\毕设\数据集\微博\text.csv'
 user_csv_path = r'G:\毕设\数据集\微博\user.csv'
 image_csv_path = r'G:\毕设\数据集\微博\image.csv'
+selected_features_data_path = r'data_selection.txt'
 
 
 def decision_tree_classifier(X_train, y_train):
@@ -108,15 +108,15 @@ def rf_classifier(df, label='label'):
     return df, estimator
 
 
-def selection_pca(df):
-    pca = PCA(n_components='mle')  # mle代表自动选择最后保存的特征数量
+def extraction_pca(df, count=2):
+    pca = PCA(n_components=count)  # mle代表自动选择最后保存的特征数量
     pca.fit(df)
     # 降维
     low_dimensionality = pca.transform(df)
     return pca, pd.DataFrame(low_dimensionality)
 
 
-def selection_kpca(df):
+def extraction_kpca(df):
     kpca = KernelPCA(n_components=10, kernel='poly', degree=3, gamma=5, n_jobs=-1)
     df = df[13200:33200]
     kpca.fit(df)
@@ -195,7 +195,7 @@ def draw_confusion_matrix_heat_map(y_test, rf_pred):
     plt.show()
 
 
-def rbf_kernel_pca(X, gamma, n_components):
+def extraction_rbf_kernel_pca(X, gamma, n_components):
     """
     RBF kernel PCA implementation.
 
@@ -241,57 +241,96 @@ def rbf_kernel_pca(X, gamma, n_components):
     return X_pc
 
 
-def save_selected_features(df, estimator):
+def save_selected_features(df, estimator, save_path=selected_features_data_path):
+    """
+    保存特征选择后的特征列表
+    :param df: dataframe
+    :param estimator: 分类器
+    :return: 保存文件到指定位置
+    """
     i = 0
     j = 0
-    aa = []
+    features_list = []
     df_list = [x for x in df.columns if x not in ['label']]
     for item in df_list:
         try:
             if estimator.support_[i]:
-                aa.append(item + '\n')
+                features_list.append(item + '\n')
                 j += 1
         except:
             print('error')
         i += 1
     print(str(j))
-    with open("data_selection.txt", 'w+') as f:
-        f.writelines(aa)
+    with open(save_path, 'w+') as f:
+        f.writelines(features_list)
 
 
-def get_selected_features():
+def get_selected_features(path=selected_features_data_path):
+    """
+    加载特征选择后保留的特征列表
+    :return:
+    """
     my_words = []
-    f = open('data_selection.txt', "r", encoding='UTF-8')
+    f = open(path, "r", encoding='UTF-8')
     for eachWord in f.readlines():
         my_words.append(eachWord.strip())
     f.close()
     return my_words
 
 
-# #*********************************PCA处理之前******************************************
-# # 需要处理的列
-# features_list = []
-# # pca处理
-# # df = (df-df.mean())/(df.std()) # z-score标准化
-# # pca, df_new = selection_pca(df)
-# # print(list(pca.explained_variance_ratio_))
-# # print(pca.n_components_)
-# # df = read_data_frame(fusion_csv_path)
-#
-# # 不需要加载的列
-# useless_list = ['h_first_moment', 's_first_moment', 'v_first_moment',
-#                 'h_second_moment', 's_second_moment', 'v_second_moment',
-#                 'h_third_moment', 's_third_moment', 'v_third_moment']
-# for i in range(1, 2049):
-#     useless_list.append('resnet_' + str(i))
-#
-# # 数据读取
-# df = read_data_frame(fusion_csv_path, drop_cols=useless_list)
-# df, estimator = rf_classifier(df)
+def feature_pca(data_path=fusion_csv_path, pca_list=None):
+    # pca处理
+    if pca_list != None:
+        # 处理颜色矩color moment的9列
+        df_cm = read_data_frame(data_path, use_cols=pca_list[:9])
+        pca_cm, df_new_cm = extraction_pca(df_cm, count=2)
+        df_new_cm.columns = ['pca_color_moment1','pca_color_moment2']
+        print(list(pca_cm.explained_variance_ratio_)) # pca转换数据的可信率列表
+        print(pca_cm.n_components_)    # pca保留的特征列数
+        # 处理resnet的2048列
+        df_rn = read_data_frame(data_path, use_cols=pca_list[9:])
+        pca_rn, df_new_rn = extraction_pca(df_rn, count=10)
+        df_new_rn.columns = ['pca_net1', 'pca_net2', 'pca_net3', 'pca_net4', 'pca_net5',
+                             'pca_net6', 'pca_net7', 'pca_net8', 'pca_net9', 'pca_net10']
 
-# *********************************PCA处理之后******************************************
+        df = read_data_frame(data_path, drop_cols=pca_list)
+        # 特征拼接
+        df_pca = pd.concat([df, df_new_cm, df_new_rn], axis=1)
+        return df_pca
+
+
+# pca处理需要加载的列
+# pca_list = ['h_first_moment', 's_first_moment', 'v_first_moment',
+#             'h_second_moment', 's_second_moment', 'v_second_moment',
+#             'h_third_moment', 's_third_moment', 'v_third_moment']
+# for i in range(1, 2049):
+#     pca_list.append('resnet_' + str(i))
+# df = feature_pca(fusion_csv_path, pca_list=pca_list)
+
+#原始数据
+# original_start_time = time.time()  # 开始计时
+# df_original = pd.read_csv(fusion_csv_path)
+# original_read_time = time.time()
+# print('特征约简前的数据读取时间：' + str(original_read_time - original_start_time) + 's')
+# df_original, estimator_original = rf_classifier(df_original)
+# original_end_time = time.time()  #训练结束时间
+# print('特征约简前模型运行时间：' + str(original_end_time - original_read_time) + 's')
+# print('特征约简前全程运行时间：' + str(original_end_time - original_start_time) + 's')
+
+
+#获得 pca+特征选择 后的特征子集
 selected_features = get_selected_features()
 selected_features.append('label')
+reduction_start_time = time.time()  # 开始计时
+df_reduction = read_data_frame(fusion_no_object_csv_path, use_cols=selected_features)
+reduction_read_time = time.time()
+print('特征约简后的数据读取时间：' + str(reduction_read_time - reduction_start_time) + 's')
+df_reduction, estimator_reduction = rf_classifier(df_reduction)
+reduction_end_time = time.time()  #训练结束时间
+print('特征约简后模型运行时间：' + str(reduction_end_time - reduction_read_time) + 's')
+print('特征约简后全程运行时间：' + str(reduction_end_time - reduction_start_time) + 's')
+
+#测试KPCA降维word2vec的代码段
 # use_list = ['text_length',
 #             'contains_exclammark',
 #             'num_exclammarks',
@@ -316,24 +355,12 @@ selected_features.append('label')
 # df_hah = pd.read_csv('G:/new_wtv.csv',names=features_list)
 # print(df_hah.shape)
 # df = read_data_frame(fusion_no_object_csv_path, use_cols=selected_features)[18200:20200].reset_index(drop=True)
-df = read_data_frame(fusion_no_object_csv_path, use_cols=selected_features)
+# df = read_data_frame(fusion_no_object_csv_path, use_cols=selected_features)
 # # print(df.shape)
 # # df_new = pd.concat([df, df_hah],  axis=1)
 # # print(df_new.shape)
-df, estimator = rf_classifier(df)
+# df, estimator = rf_classifier(df)
 # print(df_r.shape)
-# save_selected_features(df, estimator)
-
-
-# # 需要处理的列
-# features_list = []
-# for i in range(1, 101):
-#     features_list.append('word2vec_' + str(i))
-# df = read_data_frame(new_0312_fusion_csv_path)
-# df.drop(df[df.score < 50].index, inplace=True)
-# kpca, df_new = selection_kpca(df)
-# kpca = rbf_kernel_pca(df, gamma=15, n_components=2)
-
 # 随机森林ACC：
 #  0.892
 # 随机森林F 1：

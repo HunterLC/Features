@@ -4,9 +4,7 @@
     <list default="true" id="15714133-8834-42cf-a36a-069dc63f951d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/work/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/work/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/work/feature_extraction.py" beforeDir="false" afterPath="$PROJECT_DIR$/work/feature_extraction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/work/feature_selection.py" beforeDir="false" afterPath="$PROJECT_DIR$/work/feature_selection.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/work/feature_selection.py" beforeDir="false" afterPath="$PROJECT_DIR$/work/feature_reduction.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +66,7 @@
       <recent name="E:\PythonCode\Features\example" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.feature_selection">
+  <component name="RunManager" selected="Python.feature_reduction (1)">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -113,20 +111,17 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="feature_preprocessing" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="feature_reduction (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/work" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/work/feature_preprocessing.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/work/feature_reduction.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -135,7 +130,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="feature_selection" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="feature_reduction" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -148,7 +143,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/work/feature_selection.py" />
+      <option name="SCRIPT_NAME" value="E:\PythonCode\Features\work\feature_reduction.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -203,11 +198,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.feature_selection" />
+        <item itemvalue="Python.feature_reduction (1)" />
+        <item itemvalue="Python.feature_reduction" />
         <item itemvalue="Python.kcca" />
         <item itemvalue="Python.feature_extraction" />
         <item itemvalue="Python.test" />
-        <item itemvalue="Python.feature_preprocessing" />
       </list>
     </recent_temporary>
   </component>
@@ -321,6 +316,9 @@
       <workItem from="1583921116808" duration="1941000" />
       <workItem from="1583990476241" duration="11777000" />
       <workItem from="1584023827402" duration="42000" />
+      <workItem from="1584080414751" duration="5277000" />
+      <workItem from="1584085757879" duration="257000" />
+      <workItem from="1584086276460" duration="597000" />
     </task>
     <servers />
   </component>
@@ -413,17 +411,17 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="289" y="121" key="com.intellij.execution.console.ConsoleHistoryController$MyBrowseAction$1/0.0.1536.824@0.0.1536.824" timestamp="1579366437431" />
-    <state x="461" y="272" key="com.intellij.ide.util.TipDialog" timestamp="1584023846930">
+    <state x="461" y="272" key="com.intellij.ide.util.TipDialog" timestamp="1584086283385">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
     <state x="461" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1582266772177" />
     <state x="461" y="251" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1577628183723" />
-    <state x="461" y="272" key="com.intellij.ide.util.TipDialog/0.30.1536.834@0.30.1536.834" timestamp="1584023846930" />
-    <state x="431" y="178" width="672" height="687" key="search.everywhere.popup" timestamp="1583393675160">
+    <state x="461" y="272" key="com.intellij.ide.util.TipDialog/0.30.1536.834@0.30.1536.834" timestamp="1584086283385" />
+    <state x="431" y="178" width="672" height="687" key="search.everywhere.popup" timestamp="1584082957877">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
     <state x="431" y="145" width="672" height="678" key="search.everywhere.popup/0.0.1536.824@0.0.1536.824" timestamp="1581846306215" />
-    <state x="431" y="178" width="672" height="687" key="search.everywhere.popup/0.30.1536.834@0.30.1536.834" timestamp="1583393675160" />
+    <state x="431" y="178" width="672" height="687" key="search.everywhere.popup/0.30.1536.834@0.30.1536.834" timestamp="1584082957877" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Features$cloud.coverage" NAME="cloud Coverage Results" MODIFIED="1577611563849" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/example" />
