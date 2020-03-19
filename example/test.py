@@ -449,9 +449,17 @@
 # text_csv_path = r'C:\Backup\桌面\test.csv'
 # df = pd.read_csv(text_csv_path) #只加载text列，提升速度，减小不必要的内存损耗
 
-aa = ['a','b','label']
-df_list = [x for x in aa if x not in ['label']]
-print(df_list)
+# aa = ['a','b','label']
+# df_list = [x for x in aa if x not in ['label']]
+# print(df_list)
 
+import pandas as pd
 
+df1 = pd.read_csv(r"G:/1.csv")
+df2 = pd.read_csv(r"G:/2.csv")
+for i in df1.columns:
+    for j in df2.columns:
+        if df1[i].to_list() == df2[j].to_list():
+            print(i)
+            break
 

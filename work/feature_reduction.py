@@ -1,4 +1,4 @@
-from sklearn.feature_selection import RFECV
+from sklearn.feature_selection import RFECV, SelectKBest, f_classif, chi2, mutual_info_classif
 from sklearn.decomposition import KernelPCA
 import pandas as pd
 import numpy as np
@@ -95,17 +95,17 @@ def rf_classifier(df, label='label'):
                                        verbose=1,
                                        n_jobs=-1)
     # RFE递归特征消除算法进行特征选择
-    # rfe_model_rf = selection_rfe(estimator, X_train, y_train)
-    estimator = estimator.fit(X_train, y_train)
-    rf_pred = estimator.predict(X_test)
+    rfe_model_rf = selection_rfe(estimator, X_train, y_train)
+    rfe_model_rf = rfe_model_rf.fit(X_train, y_train)
+    rf_pred = rfe_model_rf.predict(X_test)
     print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
     print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
     print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
     # 绘制ROC曲线，一般认为AUC大于0.8即算较好效果
-    draw_auc(estimator, X_test, y_test)
+    draw_auc(rfe_model_rf, X_test, y_test)
     # 绘制混淆矩阵热力图
     draw_confusion_matrix_heat_map(y_test, rf_pred)
-    return df, estimator
+    return df, rfe_model_rf
 
 
 def extraction_pca(df, count=2):
@@ -319,17 +319,44 @@ def feature_pca(data_path=fusion_csv_path, pca_list=None):
 
 
 #获得 pca+特征选择 后的特征子集
-selected_features = get_selected_features()
-selected_features.append('label')
-reduction_start_time = time.time()  # 开始计时
-df_reduction = read_data_frame(fusion_no_object_csv_path, use_cols=selected_features)
-reduction_read_time = time.time()
-print('特征约简后的数据读取时间：' + str(reduction_read_time - reduction_start_time) + 's')
-df_reduction, estimator_reduction = rf_classifier(df_reduction)
-reduction_end_time = time.time()  #训练结束时间
-print('特征约简后模型运行时间：' + str(reduction_end_time - reduction_read_time) + 's')
-print('特征约简后全程运行时间：' + str(reduction_end_time - reduction_start_time) + 's')
+# selected_features = get_selected_features()
+# selected_features.append('label')
+# reduction_start_time = time.time()  # 开始计时
+# df_reduction = read_data_frame(fusion_no_object_csv_path, use_cols=selected_features)
+# reduction_read_time = time.time()
+# print('特征约简后的数据读取时间：' + str(reduction_read_time - reduction_start_time) + 's')
+# df_reduction, estimator_reduction = rf_classifier(df_reduction)
+# reduction_end_time = time.time()  #训练结束时间
+# print('特征约简后模型运行时间：' + str(reduction_end_time - reduction_read_time) + 's')
+# print('特征约简后全程运行时间：' + str(reduction_end_time - reduction_start_time) + 's')
 
+# f_classif, chi2, mutual_info_classif
+def selection_filter(file_path):
+    df = pd.read_csv(file_path)
+    df.fillna(0, inplace=True)
+    y = df.label
+    X = df.drop('label', axis=1)
+    model = SelectKBest(f_classif, k=90)
+    X_new = model.fit_transform(X, y)
+    df_X_new = pd.DataFrame(X_new)
+    list = []
+    for i in X.columns:
+        for j in df_X_new.columns:
+            if np.sum(np.abs(X[i].values - df_X_new[j].values)) == 0:
+                list.append(i)
+                break
+    useful_list = sorted(set(X.columns.to_list()) - set(list), key = X.columns.to_list().index)
+    print(useful_list)
+    list.append('label')
+    return list
+
+filter_start_time = time.time()
+list = selection_filter(fusion_no_object_csv_path)
+df_reduction = pd.read_csv(fusion_no_object_csv_path, usecols=list)
+df_reduction, estimator_reduction = rf_classifier(df_reduction)
+save_selected_features(df_reduction, estimator_reduction, save_path=r'G:/111.txt')
+filter_end_time = time.time()
+print(str(filter_end_time-filter_start_time))
 #测试KPCA降维word2vec的代码段
 # use_list = ['text_length',
 #             'contains_exclammark',

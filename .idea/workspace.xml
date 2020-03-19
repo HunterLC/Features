@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="15714133-8834-42cf-a36a-069dc63f951d" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_statistics/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_statistics/statistics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/example/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/work/feature_reduction.py" beforeDir="false" afterPath="$PROJECT_DIR$/work/feature_reduction.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,28 +91,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="feature_extraction" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Features" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/work" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/work/feature_extraction.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="true" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="feature_reduction (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -172,6 +154,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="statistics" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Features" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/data_statistics" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data_statistics/statistics.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -197,10 +201,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.feature_reduction (1)" />
+        <item itemvalue="Python.test" />
+        <item itemvalue="Python.statistics" />
         <item itemvalue="Python.feature_reduction" />
         <item itemvalue="Python.kcca" />
-        <item itemvalue="Python.feature_extraction" />
-        <item itemvalue="Python.test" />
       </list>
     </recent_temporary>
   </component>
@@ -316,7 +320,13 @@
       <workItem from="1584023827402" duration="42000" />
       <workItem from="1584080414751" duration="5277000" />
       <workItem from="1584085757879" duration="257000" />
-      <workItem from="1584086276460" duration="1201000" />
+      <workItem from="1584086276460" duration="1501000" />
+      <workItem from="1584095350138" duration="364000" />
+      <workItem from="1584172066141" duration="270000" />
+      <workItem from="1584192897230" duration="2769000" />
+      <workItem from="1584253409544" duration="45000" />
+      <workItem from="1584597296276" duration="8690000" />
+      <workItem from="1584620630236" duration="1019000" />
     </task>
     <servers />
   </component>
@@ -409,12 +419,12 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="289" y="121" key="com.intellij.execution.console.ConsoleHistoryController$MyBrowseAction$1/0.0.1536.824@0.0.1536.824" timestamp="1579366437431" />
-    <state x="461" y="272" key="com.intellij.ide.util.TipDialog" timestamp="1584086283385">
+    <state x="461" y="272" key="com.intellij.ide.util.TipDialog" timestamp="1584620647086">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
     <state x="461" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1582266772177" />
     <state x="461" y="251" key="com.intellij.ide.util.TipDialog/0.0.1536.864@0.0.1536.864" timestamp="1577628183723" />
-    <state x="461" y="272" key="com.intellij.ide.util.TipDialog/0.30.1536.834@0.30.1536.834" timestamp="1584086283385" />
+    <state x="461" y="272" key="com.intellij.ide.util.TipDialog/0.30.1536.834@0.30.1536.834" timestamp="1584620647086" />
     <state x="431" y="178" width="672" height="687" key="search.everywhere.popup" timestamp="1584082957877">
       <screen x="0" y="30" width="1536" height="834" />
     </state>

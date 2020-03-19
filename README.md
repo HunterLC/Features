@@ -139,6 +139,21 @@ Features
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
 
 ## 更新日志
+### 2020-03-19
+1.添加Filter特征选择算法之单变量特征选择，快速进行特征筛选，再利用RFE进行选择，最终特征降至70
+```
+SelectKBest(f_classif, k=90) # 可选项f_classif, chi2, mutual_info_classif
+```
+
+>随机森林ACC：
+ 0.9551909119596087
+>
+>随机森林F 1：
+ 0.9551751739577907
+>
+>随机森林AUC：
+ 0.9556698393512464
+>
 ### 2020-03-13
 1.经过商量，决定先把整个特征工程的流程先走通，KPCA降维在后面返校后进行实验补充
 

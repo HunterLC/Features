@@ -27,7 +27,7 @@ import pandas_profiling
 # news_data.all
 
 
-user_csv_path = r'G:\毕设\数据集\微博\user.csv'
+user_csv_path = r'G:\毕设\数据集\微博\train.csv'
 def user_data_read():
     '''
     用户特征文件的读取
@@ -214,8 +214,6 @@ def get_user_gender(df_user):
     return response
 
 df_user = user_data_read()
-print("hah")
-
 # 数据集分析函数
-profile = df_user.profile_report(title='Titanic Dataset')
-profile.to_file(output_file='G:/report2.html')
+profile = df_user.profile_report(title='虚假新闻检测数据集')
+profile.to_file(output_file='G:/about.html')
