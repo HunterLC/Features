@@ -849,30 +849,68 @@ test_rumor_txt_path = r'G:\test\tweets\test_rumor.txt'
 test_non_rumor_txt_path = r'G:\test\tweets\test_nonrumor.txt'
 social_feature_txt_path = r'G:\test\social_feature.txt'
 
-def get_train_csv(rumor_path, nonrumor_path, save_path):
+def get_train_csv(rumor_path, label, save_path):
     features_list = ['id', 'user_name', 'tweet_url', 'user_url', 'publish_time',
                      'original', 'retweet_count', 'comment_count', 'praise_count', 'user_id', 
                     'user_authentication_type', 'user_fans_count', 'user_follow_count', 'user_weibo_count', 'publish_platform', 
                     'piclist', 'text', 'label']
-    df = pd.DataFrame(columns=features_list)
-    print(df.shape)
+    write_list = []
     with open(rumor_path,'r', encoding='UTF-8') as f:
         list_rumor = f.readlines()
         i = 1
         list_content = []
         for line in list_rumor:
             if i == 1:    # 基础信息列
-                list_content.extend(line.split('|'))
+                info_list = line.split('|')
+                info_list[-1] = info_list[-1].replace('\n','')
+                list_content.extend(info_list)
+                info_list.clear()
                 i += 1
             elif i == 2:  # 图片列
-                list_content.append(line.replace('|null',''))
+                list_content.append(line.replace('|null\n',''))
                 i += 1
             else:         # 微博正文
-                list_content.append(line)
-                list_content.append(0)
-                df.append(pd.DataFrame(data=[list_content],columns=features_list),ignore_index=True)
+                list_content.append(line.replace('\n','').replace(',','，'))
+                list_content.append(str(label)+'\n')
+                write_list.append(','.join(list_content))
                 list_content.clear()
                 i = 1
-    return df
+    
+    with open(save_path, 'w+', encoding='UTF-8') as fwrite:
+        fwrite.write(','.join(features_list)+'\n')
+        fwrite.writelines(write_list)
+    
+def polish_test_csv():
+    # 删除多余特征
+    # drop_list = ['id', 'user_name', 'tweet_url', 'user_url', 'publish_time', 'original','retweet_count','comment_count','praise_count','user_id','user_authentication_type','publish_platform','people','location','organization','words']
+    # df = pd.read_csv(r"G:/result_test.csv")
+    # df.drop(drop_list, axis=1, inplace=True)
+    # print(df.shape)
+    # df.to_csv(r"G:/result_origin.csv",index=0)#不保留行索引
+    df = pd.read_csv(r"G:/result_origin.csv")
+    # 处理piclist列，使其保持和原始train.csv数据列一样
+    i = 0
+    for index, row in df.iterrows():
+        # 获得piclist列
+        if not pd.isna(row['piclist']):
+            new_content_list = []
+            pic_list = row['piclist'].split('|')
+            for item in pic_list:
+                new_content_list.append(item.split('/')[-1])
+            df.at[i, 'piclist'] = '\t'.join(new_content_list)
+            new_content_list.clear()
+        i += 1
+    df.to_csv(r"G:/result_origin.csv",index=0)#不保留行索引
 
-df = get_train_csv(train_rumor_txt_path, train_non_rumor_txt_path, 'xxx')
+
+
+polish_test_csv()
+# get_train_csv(test_rumor_txt_path, 1, r"G:/test_data.csv")
+
+# df1 = pd.read_csv(r"G:/test_data.csv")
+# df2 = pd.read_csv(r"G:/social_feature.csv")
+# result = pd.merge(df1, df2, on="id")
+# result.to_csv(r"G:/result_test.csv",index=0)#不保留行索引
+# print(df1.shape)
+# print(result)
+# print(result.shape)

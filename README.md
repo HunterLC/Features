@@ -139,10 +139,28 @@ Features
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
 
 ## 更新日志
+### 2020-03-20
+1.添加Filter特征选择算法之单变量特征选择，快速进行特征筛选，再利用RFE进行选择，最终特征降至90,就我目测而言，mutual_info_classif效果一般
+```
+# 可选项f_classif, chi2, mutual_info_classif
+SelectKBest(mutual_info_classif, k=90)
+```
+>随机森林ACC：
+ 0.954033869780162
+>
+>随机森林F 1：
+ 0.9540141965244037
+>
+>随机森林AUC：
+ 0.954542756161971
+
+ 2.对新数据集进行提取和完善，用做测试集
+ 
 ### 2020-03-19
 1.添加Filter特征选择算法之单变量特征选择，快速进行特征筛选，再利用RFE进行选择，最终特征降至70
 ```
-SelectKBest(f_classif, k=90) # 可选项f_classif, chi2, mutual_info_classif
+# 可选项f_classif, chi2, mutual_info_classif
+SelectKBest(f_classif, k=90)
 ```
 
 >随机森林ACC：

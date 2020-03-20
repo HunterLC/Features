@@ -455,11 +455,11 @@
 
 import pandas as pd
 
-df1 = pd.read_csv(r"G:/1.csv")
-df2 = pd.read_csv(r"G:/2.csv")
-for i in df1.columns:
-    for j in df2.columns:
-        if df1[i].to_list() == df2[j].to_list():
-            print(i)
-            break
+# df1 = pd.read_csv(r"G:/1.csv")
+# df2 = pd.read_csv(r"G:/2.csv")
+# for i in df1.columns:
+#     for j in df2.columns:
+#         if df1[i].to_list() == df2[j].to_list():
+#             print(i)
+#             break
 

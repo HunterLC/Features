@@ -336,7 +336,7 @@ def selection_filter(file_path):
     df.fillna(0, inplace=True)
     y = df.label
     X = df.drop('label', axis=1)
-    model = SelectKBest(f_classif, k=90)
+    model = SelectKBest(mutual_info_classif, k=90)
     X_new = model.fit_transform(X, y)
     df_X_new = pd.DataFrame(X_new)
     list = []
@@ -354,7 +354,7 @@ filter_start_time = time.time()
 list = selection_filter(fusion_no_object_csv_path)
 df_reduction = pd.read_csv(fusion_no_object_csv_path, usecols=list)
 df_reduction, estimator_reduction = rf_classifier(df_reduction)
-save_selected_features(df_reduction, estimator_reduction, save_path=r'G:/111.txt')
+save_selected_features(df_reduction, estimator_reduction, save_path=r'G:/222.txt')
 filter_end_time = time.time()
 print(str(filter_end_time-filter_start_time))
 #测试KPCA降维word2vec的代码段
