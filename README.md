@@ -139,6 +139,16 @@ Features
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
 
 ## 更新日志
+### 2020-03-24
+1.添加了特征重要性排行
+![特征重要排行](https://github.com/HunterLC/Features/blob/master/image/feature/Figure_importance.png)
+
+### 2020-03-21
+1.本来想尝试新的测试集，但我随后发现真实事件的数据集缺少部分十分重要的特征信息，比如用户的微博、粉丝数等等，这种数据不能够自己编造或者提取到。
+
+2.测试了一下rfe的特征个数和性能，绘制了如下图：
+
+![特征个数及性能](https://github.com/HunterLC/Features/blob/master/image/feature/rfe_selected_feature.png)
 ### 2020-03-20
 1.添加Filter特征选择算法之单变量特征选择，快速进行特征筛选，再利用RFE进行选择，最终特征降至90,就我目测而言，mutual_info_classif效果一般
 ```
