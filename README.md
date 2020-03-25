@@ -139,6 +139,9 @@ Features
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
 
 ## 更新日志
+### 2020-03-25
+1.添加了所训练的sklearn模型的保存和加载
+
 ### 2020-03-24
 1.添加了特征重要性排行
 
@@ -228,7 +231,7 @@ SelectKBest(f_classif, k=90)
 1.在数据集层面将所有的object列转为数字编码，避免独热编码时出现冗余列。
   RFE，step=10,cv=10,将特征从144列降至94列，效果提升了 0.957 -> 0.958
 ```
-    gender_map = {'男': 1, '女': 0}
+    gender_map   = {'男': 1, '女': 0}
 
     category_map = {'社会生活': 1, '医药健康': 2, '文体娱乐': 3, '财经商业': 4,
                     '政治': 5, '教育考试': 6, '军事': 7, '科技': 8}

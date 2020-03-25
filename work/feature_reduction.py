@@ -12,6 +12,7 @@ from scipy.spatial.distance import pdist, squareform
 from scipy import exp
 import time
 from numpy.linalg import eigh
+from sklearn.externals import joblib
 
 fusion_csv_path = r'G:\毕设\数据集\微博\fusion_news_features.csv'
 new_fusion_csv_path = r'G:\毕设\数据集\微博\fusion_features_0306.csv'
@@ -21,6 +22,7 @@ text_csv_path = r'G:\毕设\数据集\微博\text.csv'
 user_csv_path = r'G:\毕设\数据集\微博\user.csv'
 image_csv_path = r'G:\毕设\数据集\微博\image.csv'
 selected_features_data_path = r'E:\PythonCode\Features\work\data_selection.txt'
+sklearn_model_path = r'E:\PythonCode\Features\util\train_model.m'
 
 
 def decision_tree_classifier(X_train, y_train):
@@ -32,6 +34,22 @@ def decision_tree_classifier(X_train, y_train):
     # model_dt = DecisionTreeClassifier(max_depth=params['max_depth'],min_samples_leaf=params['min_samples_leaf'],min_samples_split=params['min_samples_split'])
 
     return
+
+
+def save_model(model, model_path):
+    """
+    保存训练好的sklearn分类预测模型
+    """
+    joblib.dump(model, model_path)
+    print("模型已经保存在" + model_path)
+
+
+def load_model(model_path):
+    """
+    加载之前训练好的sklearn分类预测模型
+    """
+    model = joblib.load(model_path)
+    return model
 
 
 def rf_search_best(X_train, y_train):
@@ -97,6 +115,8 @@ def rf_classifier(df, label='label'):
     # RFE递归特征消除算法进行特征选择
     # rfe_model_rf = selection_rfe(estimator, X_train, y_train)
     estimator = estimator.fit(X_train, y_train)
+    # 保存模型
+    save_model(estimator, sklearn_model_path)
     rf_pred = estimator.predict(X_test)
     print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
     print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
@@ -396,14 +416,14 @@ def code_test_pca():
 #测试特征选择前后运行时间长短的代码段
 def code_test_runtime():
     #原始数据
-    # original_start_time = time.time()  # 开始计时
-    # df_original = pd.read_csv(fusion_csv_path)
-    # original_read_time = time.time()
-    # print('特征约简前的数据读取时间：' + str(original_read_time - original_start_time) + 's')
-    # df_original, estimator_original = rf_classifier(df_original)
-    # original_end_time = time.time()  #训练结束时间
-    # print('特征约简前模型运行时间：' + str(original_end_time - original_read_time) + 's')
-    # print('特征约简前全程运行时间：' + str(original_end_time - original_start_time) + 's')
+    original_start_time = time.time()  # 开始计时
+    df_original = pd.read_csv(fusion_csv_path)
+    original_read_time = time.time()
+    print('特征约简前的数据读取时间：' + str(original_read_time - original_start_time) + 's')
+    df_original, estimator_original = rf_classifier(df_original)
+    original_end_time = time.time()  #训练结束时间
+    print('特征约简前模型运行时间：' + str(original_end_time - original_read_time) + 's')
+    print('特征约简前全程运行时间：' + str(original_end_time - original_start_time) + 's')
 
     #获得 pca+特征选择 后的特征子集
     selected_features = get_selected_features()
@@ -417,7 +437,6 @@ def code_test_runtime():
     print('特征约简后模型运行时间：' + str(reduction_end_time - reduction_read_time) + 's')
     print('特征约简后全程运行时间：' + str(reduction_end_time - reduction_start_time) + 's')
 
-code_test_runtime()
 
 # filter + wrapper 特征选择方法综合进行代码段
 def code_test_filter_and_wrapper():
@@ -463,3 +482,24 @@ def code_test_sfm():
     importance = pd.Series(estimator.feature_importances_)
     importance.sort_values().plot(kind='barh')
     plt.show()
+
+
+# 测试模型保存和读取
+def code_test_load_model():
+    selected_features = get_selected_features()
+    selected_features.append('label')
+    df = pd.read_csv(fusion_no_object_csv_path, usecols=selected_features)
+    label = 'label'
+    feature_attr = [i for i in df.columns if i not in [label]]
+    label_attr = label
+    df.fillna(0, inplace=True)
+    X_train, X_test, y_train, y_test = model_selection.train_test_split(df.drop(label, axis=1),
+                                                                        df['label'],
+                                                                        test_size=0.25,
+                                                                        random_state=1234)
+    model = load_model(sklearn_model_path)
+    rf_pred = model.predict(X_test)
+    print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
+    print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
+    print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
+code_test_load_model()
