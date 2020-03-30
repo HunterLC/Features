@@ -113,18 +113,19 @@ def rf_classifier(df, label='label'):
                                        verbose=1,
                                        n_jobs=-1)
     # RFE递归特征消除算法进行特征选择
-    # rfe_model_rf = selection_rfe(estimator, X_train, y_train)
-    estimator = estimator.fit(X_train, y_train)
+    rfe_model_rf = selection_rfe(estimator, X_train, y_train)
+    rfe_model_rf = rfe_model_rf.fit(X_train, y_train)
     # 保存模型
-    save_model(estimator, sklearn_model_path)
-    rf_pred = estimator.predict(X_test)
+    # save_model(estimator, sklearn_model_path)
+    rf_pred = rfe_model_rf.predict(X_test)
     print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
     print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
     print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
     # 绘制ROC曲线，一般认为AUC大于0.8即算较好效果
-    draw_auc(estimator, X_test, y_test)
+    # draw_auc(estimator, X_test, y_test)
     # 绘制混淆矩阵热力图
-    draw_confusion_matrix_heat_map(y_test, rf_pred)
+    # draw_confusion_matrix_heat_map(y_test, rf_pred)
+
     # Plot number of features VS. cross-validation scores
     # plt.figure()
     # plt.xlabel("Number of features selected")
@@ -134,12 +135,12 @@ def rf_classifier(df, label='label'):
 
     # plt.figure(, dpi=100)
     # ax = plt.subplot(111)
-    plt.yticks(fontsize=5)
-    importance = pd.Series(estimator.feature_importances_, index=X_train.columns)
-    importance.sort_values().plot(kind='barh',figsize=(20, 2000))
+    # plt.yticks(fontsize=5)
+    # importance = pd.Series(estimator.feature_importances_, index=X_train.columns)
+    # importance.sort_values().plot(kind='barh',figsize=(20, 2000))
     
-    plt.show()
-    return df, estimator
+    # plt.show()
+    return df, rfe_model_rf
 
 
 def extraction_pca(df, count=2):
@@ -502,4 +503,18 @@ def code_test_load_model():
     print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
     print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
     print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
-code_test_load_model()
+
+#测试rfe、RFE+FILTER的时间
+def code_test_model_time():
+    #测试单纯RFE的时间
+    # rfe_start_time = time.time()
+    # df_rfe = read_data_frame(fusion_no_object_csv_path)
+    # rfe_read_time = time.time()
+    # print('数据读取时间：' + str(rfe_read_time - rfe_start_time) + 's')
+    # df_rfe, estimator_rfe= rf_classifier(df_rfe)
+    # rfe_end_time = time.time()
+    # print("单纯RFE进行特征选择的时间：" + str(rfe_end_time - rfe_start_time) + 's')
+
+    #测试RFE+FILTER的时间
+    code_test_filter_and_wrapper()
+code_test_model_time()

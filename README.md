@@ -139,6 +139,82 @@ Features
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
 
 ## 更新日志
+### 2020-03-30
+1.开启新测试数据集的提取
+先给出特征列表对照
+
+ 特征名称              | 意义                 | 数据类型   | 备注                                                                                    |
+| ------------------- |:--------------------:| --------:|:---------------------------------------------------------------------------------------- |
+|+ id                  | 微博账号标识          |   object  | 无                                                                                       |
+|+ text                | 微博正文              |   object  | 无                                                                                       |
+|+ text_length         | 微博正文长度          |    int    | 无                                                                                      |
+|+ contains_questmark  | 微博正文是否包含 ？    |    int    | 1：包含，0：不包含                                                                        |
+|+ num_questmarks      | ？ 的个数             |    int   | 无                                                                                       |
+|+ contains_exclammark | 微博正文是否包含 ！    |    int   | 1：包含，0：不包含                                                                        |
+|+ num_exclammarks     | ！ 的个数             |    int   | 无                                                                                      |
+|+ contains_hashtag    | 微博正文是否包含话题   |    int   | 1：包含，0：不包含                                                                        |
+|+ num_hashtags        | 话题个数              |    int   | 新浪微博话题格式为两个#，例如 #春节#                                                       |
+|+ contains_URL        | 微博正文是否包含链接   |    int   | 1：包含，0：不包含                                                                        |
+|+ num_URLs            | 链接个数              |    int   | 链接需包含http头的，例如http://www.baidu.com 计数1；不包含http头的例如www.baidu.com不计数     |
+|+ contains_mention    | 微博正文是否包含提及@  |    int   | 1：包含，0：不包含                                                                        |
+|+ num_mentions        | @ 的个数             |    int    | 无                                                                                      |
+|+ sentiment_score     | 情感分数             |    float  | 使用snownlp打分，取值0~1之间，越接近0越消极，越接近1越积极                                   |
+|+ num_noun            | 名词个数             |    int    | 无                                                                                      |
+|+ num_verb            | 动词个数             |    int    | 无                                                                                      |
+|+ num_pronoun         | 代词个数             |    int    | 无                                                                                      |
+|+ word2vec_1~64      | 词向量列1~64        |    float  | 采用word2vec构建词向量，每个正文利用jieba分词后计算词矩阵之和，并取平均值作为文本的词向量       |
+|+ category            | 微博新闻类属         |    object | 无                                                                                      |
+|+ label               | 真假新闻标签         |    int    | 0：真新闻 ，1:假新闻                                                                      |
+|+ num_possentiwords   | 积极词汇个数         |    int    | 无                                                                                      |
+|+ num_negsentiwords   | 消极词汇个数         |    int    | 无                                                                                      |
+|+ contains_firstorderpron | 是否包含第一人称  |   int     | 1:有，0：无          |
+|+ contains_secondorderpron| 是否包含第二人称  |   int     | 1:有，0：无          |
+|+ contains_thirdorderpron | 是否包含第三人称  |   int     | 1:有，0：无          |
+|+ user_gender       | 用户性别        |    object   | 男、女     |
+|+ user_follow_count | 用户关注数      |    float    | 无         |
+|+ user_fans_count   | 用户粉丝数      |    float    | 无         |
+|+ user_weibo_count  | 用户微博数      |    float    | 无         |
+|+ folfans_ratio     | 关注/粉丝比     |    float    | 无         |
+|+ user_location     | 用户所在地      |    float    | 无         |
+|+ user_description  | 用户个性签名    |    float    | 无         |
+|+ h_first_moment    | 色相一阶矩      |   float   | 无          |
+|+ s_first_moment    | 饱和度一阶矩    |    float   | 无          |
+|+ v_first_moment    | 亮度一阶矩      |    float    | 无         |
+|+ h_second_moment   | 色相二阶矩      |    float    | 无         |
+|+ s_second_moment   | 饱和度二阶矩    |    float    | 无         |
+|+ v_second_moment   | 亮度二阶矩      |    float    | 无         |
+|+ h_third_moment    | 色相三阶矩      |    float    | 无         |
+|+ s_third_moment    | 饱和度三阶矩    |    float    | 无         |
+|+ v_third_moment    | 亮度三阶矩      |    float    | 无         |
+| resnet_1~2048    | resnet50特征      |   float   | 无          |
+|+ sim_image_word  | 图文相似度  |   float        |采用词嵌入方式，减少中英翻译误差中的影响|
+|+ tf_vgg19_class | vgg19分类     |   object     | 无          |
+|+ tf_resnet_class| resnet50分类  |   object     | 无          |
+|+ image_width    | 图片宽度      |   int     | 无          |
+|+ image_height   | 图片高度      |   int     | 无          |
+|+ image_kb       | 图片物理大小  |   float   | 单位为kb     |
+
+### 2020-03-28
+1.统计filter+rfe进行特征选择的时间和单纯只用rfe的时间
+>filter+rfe
+>
+>随机森林ACC：0.9555064689176397
+>
+>随机森林F 1：0.9554910338022102
+>
+>随机森林AUC：0.9559837050155026
+>
+>filter+RFE进行特征选择的时间：734.2702012062073
+>
+>rfe
+>
+>随机森林ACC：0.9566635110970864
+>
+>随机森林F 1：0.9566459706584156
+>
+>随机森林AUC：0.9571642427590218
+>
+>单纯RFE进行特征选择的时间：1425.6536462306976s
 ### 2020-03-25
 1.添加了所训练的sklearn模型的保存和加载
 

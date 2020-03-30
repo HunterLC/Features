@@ -93,8 +93,8 @@ def text_feature_extraction(df_text):
     # df_text['text_length'] = df_text['text'].str.len()
     # #将情感分数列转为float
     # df_text['sentiment_score'] = df_text['sentiment_score'].astype(float)
-    # for j in range(1,101):
-    #     df_text['word2vec_'+str(j)] = df_text['word2vec_'+str(j)].astype(float)
+    for j in range(1,65):
+        df_text['word2vec_'+str(j)] = df_text['word2vec_'+str(j)].astype(float)
     # #其余数据统计
     i = 0
     for index, row in df_text.iterrows():
@@ -102,21 +102,31 @@ def text_feature_extraction(df_text):
         #获得需要处理的文本内容
         text_content = row['text']
         # #获得是否含有问号以及问号的数量
+        # if row['num_questmarks'] > 0:
+        #     df_text.at[i, 'contains_questmark'] = 1
         # df_text.at[i,'contains_questmark'], df_text.at[i,'num_questmarks'] = text_questmark(text_content)
         # #获得是否含有感叹号以及感叹号的数量
+        # if row['num_exclammarks'] > 0:
+        #     df_text.at[i, 'contains_exclammark'] = 1
         # df_text.at[i, 'contains_exclammark'], df_text.at[i, 'num_exclammarks'] = text_exclammark(text_content)
         # #获得是否含有hashtag以及hashtag的数量
+        # if row['num_hashtags'] > 0:
+        #     df_text.at[i, 'contains_hashtag'] = 1
         # df_text.at[i, 'contains_hashtag'], df_text.at[i, 'num_hashtags'] = text_hashtag(text_content)
         # #获得是否含有url以及url的数量
+        # if row['num_URLs'] > 0:
+        #     df_text.at[i, 'contains_URL'] = 1
         # df_text.at[i, 'contains_URL'], df_text.at[i, 'num_URLs'] = text_url(text_content)
         # #获得是否含有@以及@的数量
+        # if row['num_mentions'] > 0:
+        #     df_text.at[i, 'contains_mention'] = 1
         # df_text.at[i, 'contains_mention'], df_text.at[i, 'num_mentions'] = text_mention(text_content)
         # #获得文本情感分数
         # df_text.at[i, 'sentiment_score'] = text_sentiment_score(text_content)
         # #词性标注，统计名词、动词、代词数量并返回
         # df_text.at[i, 'num_noun'],df_text.at[i, 'num_verb'],df_text.at[i, 'num_pronoun'] = text_part_of_speech(text_content)
         # #计算每条微博正文的词向量均值
-        df_text.at[i,-107:-7] = text_compute_word2vec(text_content).tolist()
+        df_text.at[i,-64:] = text_compute_word2vec(text_content).tolist()
         # #获得每条微博的积极词汇数、消极词汇数
         # df_text.at[i, 'num_possentiwords'], df_text.at[i, 'num_negsentiwords'] = text_pos_neg_sentiwords(text_content)
         #获取新闻是否含有第一人称、第二人称、第三人称
@@ -167,6 +177,8 @@ def text_part_of_speech(text_content):
     :return: n名词数量,v动词数量,r代词数量
     """
     #选取所有的汉字
+    if pd.isna(text_content):
+        return 0,0,0
     words = pseg.cut("".join(re.findall(u"[\u4e00-\u9fa5]",text_content)))
     n = 0 #名词数量
     r = 0 #代词数量
@@ -367,15 +379,17 @@ def text_get_clear_word2vec_corpus(word2vec_txt_path):
     logging.info("清理word2vec语料文本结束")
 
 def text_compute_word2vec(text_content):
+    if pd.isna(text_content):
+        return np.zeros(64)
     raw_txt_list = jieba_clear_text("".join(re.findall(u"[\u4e00-\u9fa5]", text_content))).split(' ')
     text_word2vec_score_list = []
     for word in raw_txt_list:
         try:
             #自己训练的词库用这一句
-            text_word2vec_score_list.append(model_word2vec.wv[word])
-            # text_word2vec_score_list.append(model_word2vec[word])
+            # text_word2vec_score_list.append(model_word2vec.wv[word])
+            text_word2vec_score_list.append(model_word2vec[word])
         except KeyError:
-            text_word2vec_score_list.append(np.zeros(100))
+            text_word2vec_score_list.append(np.zeros(64))
     result_mean_array = np.mean(np.array(text_word2vec_score_list),axis=0)
     return result_mean_array
 
@@ -455,7 +469,7 @@ def image_insert_cols(df_image,new_features_list):
 def image_feature_extraction(df_image):
     logging.info("开始图片特征提取...")
     #将第三列到最后列转为float
-    # df_image.iloc[:,2:] = df_image.iloc[:,2:].astype(float)
+    # df_image.iloc[:,-1:] = df_image.iloc[:,-1:].astype(float)
     # df_image.iloc[:, -2:] = df_image.iloc[:, -2:].astype(object)
     # return df_image
     df_image['sim_image_word'] = df_image['sim_image_word'].astype(float)
@@ -471,24 +485,26 @@ def image_feature_extraction(df_image):
         else:
             image_list = row['piclist'].split('\t')
             # 计算 颜色矩
-            filename1 = 'G:/train/rumor_pic/' + image_list[0]
-            filename2 = 'G:/train/truth_pic/' + image_list[0]
+            # filename1 = 'G:/train/rumor_pic/' + image_list[0]
+            # filename2 = 'G:/train/truth_pic/' + image_list[0]
+            filename1 = 'G:/test/rumor_images/' + image_list[0]
+            filename2 = 'G:/test/nonrumor_images/' + image_list[0]
             filename= ''
             if (os.path.isfile(filename1)):
                 filename = filename1
             else:
                 filename = filename2
             #计算颜色矩
-            df_image.at[i, 2:11] = image_color_moments(filename)
+            # df_image.at[i, -9:] = image_color_moments(filename)
             #计算深度学习特征 ---PyTorch ResNet50 CNN
-            try:
-                df_image.at[i, 11:-5] = image_resnet_cnn(filename,model_resnet50)
-            except Exception as e:
-                logging.info("图片有问题"+str(e))
-            df_image['tf_vgg19_class'] = image_get_class(filename)
-            # 获得图片的宽度、高度、k物理大小kb
-            df_image.at[i, 'image_width'], df_image.at[i, 'image_height'], df_image.at[i, 'image_kb'] = image_get_width_height_kb(filename)
-            #计算图文相似度，当存在多张图片的时候采用第一张图片作为该博文的代表图片
+            # try:
+            #     df_image.at[i, 11:-5] = image_resnet_cnn(filename,model_resnet50)
+            # except Exception as e:
+            #     logging.info("图片有问题"+str(e))
+            # df_image['tf_vgg19_class'] = image_get_class(filename)
+            # # 获得图片的宽度、高度、k物理大小kb
+            # df_image.at[i, 'image_width'], df_image.at[i, 'image_height'], df_image.at[i, 'image_kb'] = image_get_width_height_kb(filename)
+            # #计算图文相似度，当存在多张图片的时候采用第一张图片作为该博文的代表图片
             df_image.at[i, 'sim_image_word'] = image_get_img_word_sim(i, row['tf_vgg19_class'], row['tf_resnet50_class'])
             i += 1
     logging.info("图片特征提取结束...")
@@ -503,7 +519,9 @@ def image_get_img_word_sim(index, vgg19_class_name, resnet50_class_name):
     c_j即第j个词汇(图片分类名)的可信度
     """
     #微博正文
-    text_content = df_text['text'][index] 
+    text_content = df_text['text'][index]
+    if pd.isna(text_content):
+        return 0
     #去除停用词和英文单词并分词为list
     list_clear_weibo_text = jieba_clear_text("".join(re.findall(u"[\u4e00-\u9fa5]", text_content))).split(' ')
     #获得微博正文的词频
@@ -570,7 +588,10 @@ def image_get_score_list(image_class_vgg19_score_path, image_class_resnet50_scor
     return list_vgg19_score, list_resnet50_score
 
 def image_get_width_height_kb(img_path):
-    im = Image.open(img_path)  # 返回一个Image对象
+    try:
+        im = Image.open(img_path)  # 返回一个Image对象
+    except:
+        return 0, 0, 0
     fsize = os.path.getsize(img_path)
     fsize = fsize / float(1024)
     return im.size[0], im.size[1], round(fsize, 2)
@@ -728,7 +749,7 @@ def image_get_class_cn_dict(cn_imagenet_class_path):
     fn.close()
     return dic
 
-logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+
 
 # #*******************文本特征提取开始***************************
 # #原始数据的读入
@@ -848,7 +869,9 @@ train_non_rumor_txt_path = r'G:\test\tweets\train_nonrumor.txt'
 test_rumor_txt_path = r'G:\test\tweets\test_rumor.txt'
 test_non_rumor_txt_path = r'G:\test\tweets\test_nonrumor.txt'
 social_feature_txt_path = r'G:\test\social_feature.txt'
+test_csv_path = r"G:/result_origin.csv"
 
+#将原始数据集提取为需要数据内容的csv文件
 def get_train_csv(rumor_path, label, save_path):
     features_list = ['id', 'user_name', 'tweet_url', 'user_url', 'publish_time',
                      'original', 'retweet_count', 'comment_count', 'praise_count', 'user_id', 
@@ -879,7 +902,9 @@ def get_train_csv(rumor_path, label, save_path):
     with open(save_path, 'w+', encoding='UTF-8') as fwrite:
         fwrite.write(','.join(features_list)+'\n')
         fwrite.writelines(write_list)
-    
+# get_train_csv(test_rumor_txt_path, 1, r"G:/test_data.csv")
+
+#删除新数据集csv文件不需要的列，并规范化命名，与原始数据集命名相同
 def polish_test_csv():
     # 删除多余特征
     # drop_list = ['id', 'user_name', 'tweet_url', 'user_url', 'publish_time', 'original','retweet_count','comment_count','praise_count','user_id','user_authentication_type','publish_platform','people','location','organization','words']
@@ -902,15 +927,119 @@ def polish_test_csv():
         i += 1
     df.to_csv(r"G:/result_origin.csv",index=0)#不保留行索引
 
+#将社交特征与测试集csv融合起来
+def new_csv_fusion():
+    df1 = pd.read_csv(r"G:/test_data.csv")
+    df2 = pd.read_csv(r"G:/social_feature.csv")
+    result = pd.merge(df1, df2, on="id")
+    result.to_csv(r"G:/result_test.csv", index=0)  # 不保留行索引
+    print(df1.shape)
+    print(result)
+    print(result.shape)
+
+#补充文本特征
+def get_text_feature():
+    # 原始数据的读入
+    df_text = pd.read_csv(test_csv_path)
+
+    start = time.time()
+
+    # 读入停用词表、积极词汇表、消极词汇表
+    stopwords = get_stopwords_list()
+    possentiwords = get_possentiwords_list()
+    negsentiwords = get_negsentiwords_list()
+
+    # 微博文本扩展特征数据列
+    new_text_features_list = ['contains_questmark', 'contains_exclammark', 'contains_hashtag', 'contains_URL',
+                              'contains_mention', 'num_noun', 'num_verb', 'num_pronoun', 'category']
+    # 浪费时间
+    for i in range(1, 65):
+        new_text_features_list.append('word2vec_' + str(i))
+    df_text = text_insert_cols(df_text, new_text_features_list)
+
+    # # 加载word2vec model
+    # if not os.path.isfile(word2vec_model_path):
+    #     # 获得词向量训练语料
+    #     text_get_clear_word2vec_corpus(word2vec_txt_path)
+    #     # 训练word2vec模型
+    #     model_word2vec = text_train_word2vec_model(word2vec_txt_path, word2vec_model_path)
+    # else:
+    #     # 加载word2vec模型
+    #     # model_word2vec = text_load_word2vec_model(word2vec_model_path)
+    #     model_word2vec = gensim.models.KeyedVectors.load_word2vec_format(
+    #         r'G:\毕设\数据集\微博\news_12g_baidubaike_20g_novel_90g_embedding_64.bin', binary=True)
+    #     remember_delete = 1
+
+    # 文本特征提取
+    # df_text = text_feature_extraction(df_text)
+    # 文本特征保存
+    df_text.to_csv(test_csv_path, index=0)  # 不保留行索引
+
+    end = time.time()
+    logging.info("运行时间：" + str(end - start))
+
+#补充用户特征
+def get_user_feature():
+    start = time.time()
+    # 原始数据读入
+    df_user = pd.read_csv(test_csv_path)
+    # 用户新特征列扩展
+    new_user_features_list = ['folfans_ratio', 'user_gender', 'user_location', 'user_description']
+    df_user = user_insert_cols(df_user, new_user_features_list)
+    # 用户特征提取
+    df_user = user_feature_extraction(df_user)
+    # 用户特征保存
+    df_user.to_csv(test_csv_path, index=0)  # 不保留行索引
+
+    end = time.time()
+    logging.info("运行时间：" + str(end - start))
+
+#补充图片特征
+def get_image_feature(test_csv_path):
+    start = time.time()
+    # 原始数据读入
+    df_image = pd.read_csv(test_csv_path)
+    stopwords = get_stopwords_list()
+    # 图片新特征列扩展
+    # new_image_features_list = ['h_first_moment','s_first_moment','v_first_moment',
+    #                            'h_second_moment','s_second_moment','v_second_moment',
+    #                            'h_third_moment','s_third_moment','v_third_moment',
+    #                            'tf_vgg19_class','tf_resnet50_class','image_width','image_height','image_kb','sim_image_word']
+    new_image_features_list = ['sim_image_word']
+    # for i in range(1,2049):
+    #     new_image_features_list.append('resnet_'+str(i))
+    df_image = image_insert_cols(df_image, new_image_features_list)
+    # pytorch ResNet 50网络
+    # model_resnet50 = net()
+    # model_resnet50.eval()
+    # model_resnet50 = model_resnet50.cuda()
+
+    # tensorflow vgg19和resnet50模型
+    # model_tf_vgg19 = vgg19.VGG19(weights='imagenet')
+    # model_tf_resnet50 = resnet50.ResNet50(weights='imagenet')
+    model_word2vec = gensim.models.KeyedVectors.load_word2vec_format(
+        r'G:\毕设\数据集\微博\news_12g_baidubaike_20g_novel_90g_embedding_64.bin', binary=True)
+
+    # 获得vgg19和resnet50分类的图片top1可信度list
+    list_vgg19_score, list_resnet50_score = image_get_score_list(r'G:\test_image_class_vgg19.txt',
+                                                                 r'G:\test_image_class_resnet50.txt')
+    # 获得中文对照词典
+    dict_image_class = image_get_class_cn_dict(cn_imagenet_class_path)
+
+    # 获得文本特征中的微博原文
+    df_text = pd.read_csv(test_csv_path, usecols=['text'])  # 只加载text列，提升速度，减小不必要的内存损耗
+
+    # 图片特征提取
+    df_image = image_feature_extraction(df_image)
+    # 图片特征保存
+    df_image.to_csv(test_csv_path, index=0)  # 不保留行索引
+    end = time.time()
+    logging.info("运行时间：" + str(end - start))
+    
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
 
-polish_test_csv()
-# get_train_csv(test_rumor_txt_path, 1, r"G:/test_data.csv")
 
-# df1 = pd.read_csv(r"G:/test_data.csv")
-# df2 = pd.read_csv(r"G:/social_feature.csv")
-# result = pd.merge(df1, df2, on="id")
-# result.to_csv(r"G:/result_test.csv",index=0)#不保留行索引
-# print(df1.shape)
-# print(result)
-# print(result.shape)
+
+
+

@@ -26,14 +26,14 @@ import pandas_profiling
 # #查看所有数据 38471 rows x 11 columns
 # news_data.all
 
-
+fusion_no_object_csv_path = r'G:\毕设\数据集\微博\fusion_features_0306_no_object.csv'
 user_csv_path = r'G:\毕设\数据集\微博\train.csv'
 def user_data_read():
     '''
     用户特征文件的读取
     :return: 用户特征文件
     '''
-    df_user = pd.read_csv(user_csv_path)
+    df_user = pd.read_csv(fusion_no_object_csv_path)
     return df_user
 
 def get_user_location(df_user):
@@ -216,4 +216,4 @@ def get_user_gender(df_user):
 df_user = user_data_read()
 # 数据集分析函数
 profile = df_user.profile_report(title='虚假新闻检测数据集')
-profile.to_file(output_file='G:/about.html')
+profile.to_file(output_file='G:/111.html')
