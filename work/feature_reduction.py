@@ -113,18 +113,18 @@ def rf_classifier(df, label='label'):
                                        verbose=1,
                                        n_jobs=-1)
     # RFE递归特征消除算法进行特征选择
-    rfe_model_rf = selection_rfe(estimator, X_train, y_train)
-    rfe_model_rf = rfe_model_rf.fit(X_train, y_train)
+    # rfe_model_rf = selection_rfe(estimator, X_train, y_train)
+    estimator = estimator.fit(X_train, y_train)
     # 保存模型
     # save_model(estimator, sklearn_model_path)
-    rf_pred = rfe_model_rf.predict(X_test)
+    rf_pred = estimator.predict(X_test)
     print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
     print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
     print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
     # 绘制ROC曲线，一般认为AUC大于0.8即算较好效果
     # draw_auc(estimator, X_test, y_test)
     # 绘制混淆矩阵热力图
-    # draw_confusion_matrix_heat_map(y_test, rf_pred)
+    draw_confusion_matrix_heat_map(y_test, rf_pred)
 
     # Plot number of features VS. cross-validation scores
     # plt.figure()
@@ -140,7 +140,7 @@ def rf_classifier(df, label='label'):
     # importance.sort_values().plot(kind='barh',figsize=(20, 2000))
     
     # plt.show()
-    return df, rfe_model_rf
+    return df, estimator
 
 
 def extraction_pca(df, count=2):
@@ -221,12 +221,18 @@ def draw_confusion_matrix_heat_map(y_test, rf_pred):
     # 构建混淆矩阵
     cm = pd.crosstab(rf_pred, y_test)
     # 将混淆矩阵构造成数据框，并加上字段名和行名称，用于行和列的含义说明
-    # cm = pd.DataFrame(cm, columns=['fake', 'true'], index=['fake', 'true'])
+    cm.columns = ['真实新闻','虚假新闻']
+    cm.index = ['真实新闻','虚假新闻']
+    sns.set(font_scale=1.5)
+    # plt.rc('font', family='Times New Roman', size=12)
     # 绘制热力图
-    sns.heatmap(cm, annot=True, cmap='GnBu', fmt='d')
+    sns.heatmap(cm, annot=True, cmap='GnBu', fmt='d', annot_kws={'size':25})
+    # 解决中文显示问题
+    plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
     # 添加x轴和y轴的标签
-    plt.xlabel('Real Label')
-    plt.ylabel('Predict Label')
+    plt.xlabel('实际标签')
+    plt.ylabel('预测标签')
     plt.show()
 
 
@@ -517,4 +523,13 @@ def code_test_model_time():
 
     #测试RFE+FILTER的时间
     code_test_filter_and_wrapper()
-code_test_model_time()
+
+original_start_time = time.time()  # 开始计时
+df_original = pd.read_csv(fusion_csv_path)
+original_read_time = time.time()
+print('特征约简前的数据读取时间：' + str(original_read_time - original_start_time) + 's')
+df_original, estimator_original = rf_classifier(df_original)
+original_end_time = time.time()  # 训练结束时间
+print('特征约简前模型运行时间：' + str(original_end_time - original_read_time) + 's')
+print('特征约简前全程运行时间：' + str(original_end_time - original_start_time) + 's')
+

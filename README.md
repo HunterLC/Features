@@ -139,6 +139,40 @@ Features
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
 
 ## 更新日志
+### 2020-04-02
+1.按照会议内容调整热力图细节，放大矩阵数字大小，横纵坐标标签清晰化
+```
+def draw_confusion_matrix_heat_map(y_test, rf_pred):
+    # 构建混淆矩阵
+    cm = pd.crosstab(rf_pred, y_test)
+    # 将混淆矩阵构造成数据框，并加上字段名和行名称，用于行和列的含义说明
+    cm.columns = ['真实新闻','虚假新闻']
+    cm.index = ['真实新闻','虚假新闻']
+    sns.set(font_scale=1.5)
+    # plt.rc('font', family='Times New Roman', size=12)
+    # 绘制热力图
+    sns.heatmap(cm, annot=True, cmap='GnBu', fmt='d', annot_kws={'size':25})
+    # 解决中文显示问题
+    plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
+    # 添加x轴和y轴的标签
+    plt.xlabel('实际标签')
+    plt.ylabel('预测标签')
+    plt.show()
+```
+Filter+RFE处理后的数据集性能
+
+![优化热力图细节](https://github.com/HunterLC/Features/blob/master/image/feature/heatmap_0402.png)
+
+同时测试了原数据集的效果
+
+![优化热力图细节](https://github.com/HunterLC/Features/blob/master/image/feature/heatmap_0402_origin.png)
+>随机森林ACC：0.9196381613547913
+>
+>随机森林F 1：0.9193688844569208
+>
+>随机森林AUC：0.9207483442811507
+>
 ### 2020-03-30
 1.开启新测试数据集的提取
 先给出特征列表对照
