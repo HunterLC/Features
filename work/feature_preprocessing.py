@@ -7,6 +7,7 @@ new_fusion_csv_path = r'G:\毕设\数据集\微博\fusion_features_0306.csv'
 text_csv_path = r'G:\毕设\数据集\微博\text.csv'
 user_csv_path = r'G:\毕设\数据集\微博\user.csv'
 image_csv_path = r'G:\毕设\数据集\微博\image.csv'
+fusion_csv_path_0404 = r'G:\毕设\数据集\微博\fusion_news_features_0404.csv'
 
 def get_save_index():
     df_user = pd.read_csv(user_csv_path, usecols=['user_gender'])
@@ -16,22 +17,22 @@ def get_save_index():
 
 def features_preprocessor(df):
     #获取需要保留的index行
-    save_index = get_save_index()
-    #剔除 455 行用户特征缺少严重的行
-    df = df[save_index]
+    # save_index = get_save_index()
+    # #剔除 455 行用户特征缺少严重的行
+    # df = df[save_index]
     #用户数据预处理
-    df['user_follow_count'].fillna(df['user_follow_count'].mean(), inplace=True)#平均值补充用户关注数
-    df['user_fans_count'].fillna(df['user_fans_count'].mean(), inplace=True)  # 平均值补充用户粉丝数
-    df['user_weibo_count'].fillna(0, inplace=True)  # 0补充用户发博数
-    df['user_location'].fillna('无', inplace=True)#用户地址缺失用 无 替代
-    df['user_location'] = df['user_location'].apply(lambda x:x[0:2])# 用户地址统一用前两个字表示
+    # df['user_follow_count'].fillna(df['user_follow_count'].mean(), inplace=True)#平均值补充用户关注数
+    # df['user_fans_count'].fillna(df['user_fans_count'].mean(), inplace=True)  # 平均值补充用户粉丝数
+    # df['user_weibo_count'].fillna(0, inplace=True)  # 0补充用户发博数
+    # df['user_location'].fillna('无', inplace=True)#用户地址缺失用 无 替代
+    # df['user_location'] = df['user_location'].apply(lambda x:x[0:2])# 用户地址统一用前两个字表示
     i = 0
     for index, row in df.iterrows():
         #关注粉丝比
-        try:
-            df.at[i, 'folfans_ratio'] = row['user_follow_count'] / row['user_fans_count']
-        except:
-            df.at[i, 'folfans_ratio'] = 0
+        # try:
+        #     df.at[i, 'folfans_ratio'] = row['user_follow_count'] / row['user_fans_count']
+        # except:
+        #     df.at[i, 'folfans_ratio'] = 0
             #用户描述，0代表没有描述，1代表有描述
         if pd.isna(row['user_description']):
             df.at[i, 'user_description'] = 0
@@ -63,11 +64,11 @@ def delete_df_object(df):
     return df
 
 # 特征的预处理
-# df = pd.read_csv(fusion_csv_path)
-# df = features_preprocessor(df)
-# df.to_csv(fusion_csv_path,index=0)#不保留行索引
+df = pd.read_csv(fusion_csv_path_0404)
+df = features_preprocessor(df)
+df.to_csv(fusion_csv_path_0404,index=0)#不保留行索引
 
 #特征去除object
-df = pd.read_csv(new_fusion_csv_path)
-df = delete_df_object(df)
-df.to_csv(fusion_no_object_csv_path,index=0)#不保留行索引
+# df = pd.read_csv(fusion_csv_path_0404)
+# df = delete_df_object(df)
+# df.to_csv(fusion_csv_path_0404,index=0)#不保留行索引

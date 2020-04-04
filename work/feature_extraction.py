@@ -219,6 +219,8 @@ def text_sentiment_score(text_content):
     :param text_content: 处理对象文本
     :return: sentiment_score.sentiments 情感分数
     """
+    if pd.isna(text_content):
+        return 0
     #去除停用词
     new_text_content = jieba_clear_text(text_content)
     try:
@@ -231,7 +233,9 @@ def jieba_clear_text(text):
     """
     jieba分词，并使用自定义停用词表去除停用词以及长度为1的词
     """
-    raw_result = "$".join(jieba.cut(text))
+    text_n= "".join(re.findall(u"[\u4e00-\u9fa5]", text))
+
+    raw_result = "$".join(jieba.cut(text_n))
     myword_list = []
     #去除停用词
     for myword in raw_result.split('$'):
@@ -469,10 +473,10 @@ def image_insert_cols(df_image,new_features_list):
 def image_feature_extraction(df_image):
     logging.info("开始图片特征提取...")
     #将第三列到最后列转为float
-    # df_image.iloc[:,-1:] = df_image.iloc[:,-1:].astype(float)
+    df_image.iloc[:,-2048:] = df_image.iloc[:,-2048:].astype(float)
     # df_image.iloc[:, -2:] = df_image.iloc[:, -2:].astype(object)
     # return df_image
-    df_image['sim_image_word'] = df_image['sim_image_word'].astype(float)
+    # df_image['sim_image_word'] = df_image['sim_image_word'].astype(float)
     #其余数据统计
     i = 0
     image_name = []
@@ -497,15 +501,15 @@ def image_feature_extraction(df_image):
             #计算颜色矩
             # df_image.at[i, -9:] = image_color_moments(filename)
             #计算深度学习特征 ---PyTorch ResNet50 CNN
-            # try:
-            #     df_image.at[i, 11:-5] = image_resnet_cnn(filename,model_resnet50)
-            # except Exception as e:
-            #     logging.info("图片有问题"+str(e))
+            try:
+                df_image.at[i, -2048:] = image_resnet_cnn(filename,model_resnet50)
+            except Exception as e:
+                logging.info("图片有问题"+str(e))
             # df_image['tf_vgg19_class'] = image_get_class(filename)
             # # 获得图片的宽度、高度、k物理大小kb
             # df_image.at[i, 'image_width'], df_image.at[i, 'image_height'], df_image.at[i, 'image_kb'] = image_get_width_height_kb(filename)
             # #计算图文相似度，当存在多张图片的时候采用第一张图片作为该博文的代表图片
-            df_image.at[i, 'sim_image_word'] = image_get_img_word_sim(i, row['tf_vgg19_class'], row['tf_resnet50_class'])
+            # df_image.at[i, 'sim_image_word'] = image_get_img_word_sim(i, row['tf_vgg19_class'], row['tf_resnet50_class'])
             i += 1
     logging.info("图片特征提取结束...")
     return df_image
@@ -662,25 +666,28 @@ def image_resnet_cnn(img_path, net):
     )
 
     #读入图片并进行统一转换
-    img = Image.open(img_path)
-    img = transform(img)
-    logging.info(img.shape)
+    try:
+        img = Image.open(img_path)
+        img = transform(img)
+        logging.info(img.shape)
 
-    x = Variable(torch.unsqueeze(img, dim=0).float(), requires_grad=False)
-    logging.info(x.shape)
+        x = Variable(torch.unsqueeze(img, dim=0).float(), requires_grad=False)
+        logging.info(x.shape)
 
-    #启用GPU加速
-    if torch.cuda.is_available():
-        x = x.cuda()
-        net = net.cuda()
+        # 启用GPU加速
+        if torch.cuda.is_available():
+            x = x.cuda()
+            net = net.cuda()
 
-    #转回CPU，不然可能出错
-    y = net(x).cpu()
-    y = torch.squeeze(y)
-    cnn_features = y.data.numpy().tolist()
-    logging.info(y.shape)
+        # 转回CPU，不然可能出错
+        y = net(x).cpu()
+        y = torch.squeeze(y)
+        cnn_features = y.data.numpy().tolist()
+        logging.info(y.shape)
+        return cnn_features
+    except:
+        return np.zeros(2048).tolist()
 
-    return cnn_features
 
 def image_get_class(img_path):
     img_array = []
@@ -1037,9 +1044,11 @@ def get_image_feature(test_csv_path):
     logging.info("运行时间：" + str(end - start))
     
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
-
-
-
-
-
-
+fusion_csv_path_0404 = r'G:\毕设\数据集\微博\fusion_news_features_0404.csv'
+start = time.time()
+# 原始数据读入
+df_image = pd.read_csv(fusion_csv_path_0404)
+df_image.drop(['id', 'tf_vgg19_class', 'tf_resnet50_class'], axis=1,inplace=True)
+df_image.to_csv(fusion_csv_path_0404, index=0)  # 不保留行索引
+end = time.time()
+logging.info("运行时间：" + str(end - start))

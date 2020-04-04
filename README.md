@@ -139,6 +139,23 @@ Features
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
 
 ## 更新日志
+### 2020-04-04
+1.完成新测试集特征的提取
+
+2.对新数据集重新提取情感繁分数，删除无关列
+```
+# 删除无关列
+start = time.time()
+# 原始数据读入
+df_image = pd.read_csv(test_csv_path)
+df_image.drop(['piclist', 'text', 'tf_vgg19_class', 'tf_resnet50_class'], axis=1,inplace=True)
+df_image.to_csv(test_csv_path, index=0)  # 不保留行索引
+end = time.time()
+logging.info("运行时间：" + str(end - start))
+```
+3.对新数据集进行PCA处理颜色矩和resnet50列特征,经过1 2 3处理后命名为 result_origin_ready.csv
+4.对原始数据集进行word2vec64维缩减
+
 ### 2020-04-02
 1.按照会议内容调整热力图细节，放大矩阵数字大小，横纵坐标标签清晰化
 ```
@@ -220,7 +237,7 @@ Filter+RFE处理后的数据集性能
 |+ h_third_moment    | 色相三阶矩      |    float    | 无         |
 |+ s_third_moment    | 饱和度三阶矩    |    float    | 无         |
 |+ v_third_moment    | 亮度三阶矩      |    float    | 无         |
-| resnet_1~2048    | resnet50特征      |   float   | 无          |
+|+ resnet_1~2048    | resnet50特征      |   float   | 无          |
 |+ sim_image_word  | 图文相似度  |   float        |采用词嵌入方式，减少中英翻译误差中的影响|
 |+ tf_vgg19_class | vgg19分类     |   object     | 无          |
 |+ tf_resnet_class| resnet50分类  |   object     | 无          |

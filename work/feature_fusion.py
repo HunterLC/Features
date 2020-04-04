@@ -6,6 +6,9 @@ text_csv_path = r'G:\毕设\数据集\微博\text.csv'
 user_csv_path = r'G:\毕设\数据集\微博\user.csv'
 image_csv_path = r'G:\毕设\数据集\微博\image.csv'
 fusion_csv_path = r'G:\毕设\数据集\微博\fusion_news_features.csv'
+text_csv_path_0404 = r'G:\毕设\数据集\微博\text_0404.csv'
+fusion_csv_path_0404 = r'G:\毕设\数据集\微博\fusion_news_features_0404.csv'
+
 
 def origin_data_read(text_csv_path,user_csv_path,image_csv_path):
     '''
@@ -38,8 +41,17 @@ def features_fusion(df_text,df_user,df_image):
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 start = time.time()
 #原始数据的读入
-df_text,df_user,df_image = origin_data_read(text_csv_path,user_csv_path,image_csv_path)
+df_text,df_user,df_image = origin_data_read(text_csv_path_0404,user_csv_path,image_csv_path)
 df_result = features_fusion(df_text,df_user,df_image)
-df_result.to_csv(fusion_csv_path,index=0)#不保留行索引
+df_result.to_csv(fusion_csv_path_0404,index=0)#不保留行索引
 end = time.time()
 logging.info("运行时间："+str(end-start))
+
+# 微博文本扩展特征数据列
+# df = pd.read_csv(text_csv_path)
+# new_text_features_list = []
+# # 浪费时间
+# for i in range(1, 101):
+#     new_text_features_list.append('word2vec_' + str(i))
+# df.drop(new_text_features_list,axis=1,inplace=True)
+# df.to_csv(text_csv_path_0404,index=0)
