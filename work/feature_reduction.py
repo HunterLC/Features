@@ -2,6 +2,7 @@ from sklearn.feature_selection import RFECV, SelectKBest, f_classif, chi2, mutua
 from sklearn.decomposition import KernelPCA
 import pandas as pd
 import numpy as np
+from numpy import sort
 from sklearn import metrics, model_selection
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
@@ -13,6 +14,7 @@ from scipy import exp
 import time
 from numpy.linalg import eigh
 from sklearn.externals import joblib
+from xgboost import XGBClassifier
 
 fusion_csv_path = r'G:\毕设\数据集\微博\fusion_news_features.csv'
 new_fusion_csv_path = r'G:\毕设\数据集\微博\fusion_features_0306.csv'
@@ -464,41 +466,6 @@ def code_test_filter_and_wrapper():
     filter_end_time = time.time()
     print(str(filter_end_time-filter_start_time))
       
-#测试selected from model特征选择方法代码段
-def code_test_sfm():
-    df = pd.read_csv(fusion_no_object_csv_path)
-    label = 'label'
-    feature_attr = [i for i in df.columns if i not in [label]]
-    label_attr = label
-    df.fillna(0, inplace=True)
-    # 特征预处理
-    obj_attrs = []
-    for attr in feature_attr:
-        if df.dtypes[attr] == np.dtype(object):  # 添加离散数据列
-            obj_attrs.append(attr)
-    if len(obj_attrs) > 0:
-        df = pd.get_dummies(df, columns=obj_attrs)  # 转为哑变量
-
-    X_train, X_test, y_train, y_test = model_selection.train_test_split(df.drop(label, axis=1),
-                                                                        df['label'],
-                                                                        test_size=0.25,
-                                                                        random_state=1234)
-    #GBDT作为基模型的特征选择
-    estimator = GradientBoostingClassifier().fit(X_train, y_train)
-    print("feature_importances_ :",estimator.feature_importances_)
-    gdbt_model = SelectFromModel(estimator,prefit=True)
-    X_new = gdbt_model.transform(X_train)
-    estimator = GradientBoostingClassifier().fit(X_new, y_train)
-    X_new_test = gdbt_model.transform(X_test)
-    rf_pred = estimator.predict(X_new_test)
-    print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
-    print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
-    print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
-    print("X_new 共有 %s 个特征"%X_new.shape[1])
-    importance = pd.Series(estimator.feature_importances_)
-    importance.sort_values().plot(kind='barh')
-    plt.show()
-
 
 # 测试模型保存和读取
 def code_test_load_model():
@@ -572,4 +539,49 @@ def code_test_new():
     reduction_end_time = time.time()  # 训练结束时间
     print('特征约简后模型运行时间：' + str(reduction_end_time - reduction_read_time) + 's')
     print('特征约简后全程运行时间：' + str(reduction_end_time - reduction_start_time) + 's')
-code_test_new()
+
+#测试selected from model特征选择方法代码段
+def code_test_sfm():
+    df = pd.read_csv(fusion_no_object_csv_path)
+    label = 'label'
+    feature_attr = [i for i in df.columns if i not in [label]]
+    label_attr = label
+    df.fillna(0, inplace=True)
+    # 特征预处理
+    obj_attrs = []
+    for attr in feature_attr:
+        if df.dtypes[attr] == np.dtype(object):  # 添加离散数据列
+            obj_attrs.append(attr)
+    if len(obj_attrs) > 0:
+        df = pd.get_dummies(df, columns=obj_attrs)  # 转为哑变量
+
+    X_train, X_test, y_train, y_test = model_selection.train_test_split(df.drop(label, axis=1),
+                                                                        df['label'],
+                                                                        test_size=0.25,
+                                                                        random_state=1234)
+    # xgboost算法
+    model = XGBClassifier()
+    model.fit(X_train,y_train)
+    rf_pred = model.predict(X_test)
+    print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
+    print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
+    print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
+    print("feature_importances_ :",model.feature_importances_)
+    thresholds = sort(model.feature_importances_)
+    for thresh in thresholds:
+        selection = SelectFromModel(model, threshold=thresh, prefit=True)  # threshold_ ：采用的阈值
+        # prefit ：布尔，默认为False，是否为训练完的模型,如果是False的话则先fit，再transform
+        select_X_train = selection.transform(X_train)
+        selection_model = XGBClassifier()
+        selection_model.fit(select_X_train, y_train)
+        select_X_test = selection.transform(X_test)
+        y_pred = selection_model.predict(select_X_test)
+        accuracy = metrics.accuracy_score(y_test, y_pred)
+        print("Thresh=%.3f,n=%d,Accuracy:%.2f%%" % (thresh, select_X_train.shape[1], accuracy * 100.0))
+
+    # print("X_new 共有 %s 个特征"%X_new.shape[1])
+    # importance = pd.Series(estimator.feature_importances_)
+    # importance.sort_values().plot(kind='barh')
+    # plt.show()
+
+code_test_sfm()
