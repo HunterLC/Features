@@ -28,6 +28,7 @@ sklearn_model_path = r'E:\PythonCode\Features\util\train_model.m'
 test_csv_path = r"G:/result_origin.csv"
 test_ready_csv_path = r"G:/result_origin_ready.csv"
 fusion_csv_path_0404 = r'G:\毕设\数据集\微博\fusion_news_features_0404.csv'
+fusion_csv_path_0404_origin = r'G:\毕设\数据集\微博\fusion_news_features_0404_origin.csv'
 
 
 def decision_tree_classifier(X_train, y_train):
@@ -85,7 +86,7 @@ def read_data_frame(data_file, use_cols=None, drop_cols=None):
     return df
 
 
-def rf_classifier(df, df_test, label='label'):
+def rf_classifier(df, label='label'):
     # 删除列（axis=1指定，默认为行），并将原数据置换为新数据（inplace=True指定，默认为False）
     # df.drop(['id', 'tf_vgg19_class', 'tf_resnet50_class'], axis=1,inplace=True)
     # df_1 = pd.read_csv('colorf.csv', names=['pca_color_moment1', 'pca_color_moment2'])
@@ -104,14 +105,14 @@ def rf_classifier(df, df_test, label='label'):
     if len(obj_attrs) > 0:
         df = pd.get_dummies(df, columns=obj_attrs)  # 转为哑变量
 
-    # X_train, X_test, y_train, y_test = model_selection.train_test_split(df.drop(label, axis=1),
-    #                                                                     df['label'],
-    #                                                                     test_size=0.25,
-    #                                                                     random_state=1234)
-    X_train = df.drop(label, axis=1)
-    X_test = df_test.drop(label, axis=1)
-    y_train = df['label']
-    y_test = df_test['label']
+    X_train, X_test, y_train, y_test = model_selection.train_test_split(df.drop(label, axis=1),
+                                                                        df['label'],
+                                                                        test_size=0.25,
+                                                                        random_state=1234)
+    # X_train = df.drop(label, axis=1)
+    # X_test = df_test.drop(label, axis=1)
+    # y_train = df['label']
+    # y_test = df_test['label']
     # 构造随机森林的分类器
     estimator = RandomForestClassifier(max_depth=20,
                                        min_samples_leaf=4,
@@ -122,16 +123,16 @@ def rf_classifier(df, df_test, label='label'):
                                        verbose=1,
                                        n_jobs=-1)
     # RFE递归特征消除算法进行特征选择
-    # rfe_model_rf = selection_rfe(estimator, X_train, y_train)
-    estimator = estimator.fit(X_train, y_train)
+    rfe_model_rf = selection_rfe(estimator, X_train, y_train)
+    # estimator = estimator.fit(X_train, y_train)
     # 保存模型
     # save_model(estimator, sklearn_model_path)
-    rf_pred = estimator.predict(X_test)
+    rf_pred = rfe_model_rf.predict(X_test)
     print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
     print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
     print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
     # 绘制ROC曲线，一般认为AUC大于0.8即算较好效果
-    draw_auc(estimator, X_test, y_test)
+    draw_auc(rfe_model_rf, X_test, y_test)
     # 绘制混淆矩阵热力图
     draw_confusion_matrix_heat_map(y_test, rf_pred)
 
@@ -149,7 +150,7 @@ def rf_classifier(df, df_test, label='label'):
     # importance.sort_values().plot(kind='barh',figsize=(20, 2000))
     
     # plt.show()
-    return df, estimator
+    return df, rfe_model_rf
 
 
 def extraction_pca(df, count=2):
@@ -337,7 +338,7 @@ def selection_filter(file_path):
     df.fillna(0, inplace=True)
     y = df.label
     X = df.drop('label', axis=1)
-    model = SelectKBest(f_classif, k=90)
+    model = SelectKBest(f_classif, k=88)
     X_new = model.fit_transform(X, y)
     df_X_new = pd.DataFrame(X_new)
     list = []
@@ -431,30 +432,6 @@ def code_test_pca():
         pca_list.append('resnet_' + str(i))
     df = feature_pca(fusion_csv_path, pca_list=pca_list)
 
-#测试特征选择前后运行时间长短的代码段
-def code_test_runtime():
-    #原始数据
-    original_start_time = time.time()  # 开始计时
-    df_original = pd.read_csv(fusion_csv_path)
-    original_read_time = time.time()
-    print('特征约简前的数据读取时间：' + str(original_read_time - original_start_time) + 's')
-    df_original, estimator_original = rf_classifier(df_original)
-    original_end_time = time.time()  #训练结束时间
-    print('特征约简前模型运行时间：' + str(original_end_time - original_read_time) + 's')
-    print('特征约简前全程运行时间：' + str(original_end_time - original_start_time) + 's')
-
-    #获得 pca+特征选择 后的特征子集
-    selected_features = get_selected_features()
-    selected_features.append('label')
-    reduction_start_time = time.time()  # 开始计时
-    df_reduction = read_data_frame(fusion_no_object_csv_path, use_cols=selected_features)
-    reduction_read_time = time.time()
-    print('特征约简后的数据读取时间：' + str(reduction_read_time - reduction_start_time) + 's')
-    df_reduction, estimator_reduction = rf_classifier(df_reduction)
-    reduction_end_time = time.time()  #训练结束时间
-    print('特征约简后模型运行时间：' + str(reduction_end_time - reduction_read_time) + 's')
-    print('特征约简后全程运行时间：' + str(reduction_end_time - reduction_start_time) + 's')
-
 
 # filter + wrapper 特征选择方法综合进行代码段
 def code_test_filter_and_wrapper():
@@ -518,13 +495,6 @@ def code_test_model_time():
 # df = feature_pca(fusion_csv_path_0404, pca_list=pca_list)
 # df.to_csv(fusion_csv_path_0404,index=0)
 
-# filter_start_time = time.time()
-# list = selection_filter(fusion_csv_path_0404)
-# df_reduction = pd.read_csv(fusion_csv_path_0404, usecols=list)
-# df_reduction, estimator_reduction = rf_classifier(df_reduction)
-# save_selected_features(df_reduction, estimator_reduction, save_path=r'G:/0404.txt')
-# filter_end_time = time.time()
-# print(str(filter_end_time-filter_start_time))
 
 def code_test_new():
     selected_features = get_selected_features(path=r'G:/0404.txt')
@@ -584,4 +554,44 @@ def code_test_sfm():
     # importance.sort_values().plot(kind='barh')
     # plt.show()
 
-code_test_sfm()
+#测试特征选择前后运行时间长短的代码段
+def code_test_runtime():
+    # #原始数据
+    # original_start_time = time.time()  # 开始计时
+    # df_original = pd.read_csv(fusion_csv_path_0404_origin)
+    # original_read_time = time.time()
+    # print('特征约简前的数据读取时间：' + str(original_read_time - original_start_time) + 's')
+    # df_original, estimator_original = rf_classifier(df_original)
+    # original_end_time = time.time()  #训练结束时间
+    # print('特征约简前模型运行时间：' + str(original_end_time - original_read_time) + 's')
+    # print('特征约简前全程运行时间：' + str(original_end_time - original_start_time) + 's')
+
+    #获得 pca+特征选择 后的特征子集
+    selected_features = get_selected_features(path=r'G:/0404.txt')
+    selected_features.append('label')
+    reduction_start_time = time.time()  # 开始计时
+    df_reduction = read_data_frame(fusion_csv_path_0404, use_cols=selected_features)
+    reduction_read_time = time.time()
+    print('特征约简后的数据读取时间：' + str(reduction_read_time - reduction_start_time) + 's')
+    df_reduction, estimator_reduction = rf_classifier(df_reduction)
+    reduction_end_time = time.time()  #训练结束时间
+    print('特征约简后模型运行时间：' + str(reduction_end_time - reduction_read_time) + 's')
+    print('特征约简后全程运行时间：' + str(reduction_end_time - reduction_start_time) + 's')
+
+
+# filter_start_time = time.time()
+# # list = selection_filter(fusion_csv_path_0404)
+# df_reduction = pd.read_csv(fusion_csv_path_0404)
+# print(df_reduction.shape)
+# df_reduction, estimator_reduction = rf_classifier(df_reduction)
+# save_selected_features(df_reduction, estimator_reduction, save_path=r'G:/0404_rfe_0406.txt')
+# filter_end_time = time.time()
+# print(str(filter_end_time-filter_start_time))
+filter_start_time = time.time()
+list = selection_filter(fusion_csv_path_0404)
+df_reduction = pd.read_csv(fusion_csv_path_0404, usecols=list)
+df_reduction, estimator_reduction = rf_classifier(df_reduction)
+save_selected_features(df_reduction, estimator_reduction, save_path=r'G:/0404_filter_rfe_0406.txt')
+filter_end_time = time.time()
+print(str(filter_end_time-filter_start_time))
+

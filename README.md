@@ -139,6 +139,57 @@ Features
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
 
 ## 更新日志
+### 2020-04-06
+1.罪过，提取新数据集的时候我忘记了保存未经特征选择的数据集，还好有那个100维w2v完整的数据集，因此可以在它上面删除那100w2v，然后提取新的64维，并按照预处理的删除那445行index，concat起来就是新的结果
+
+2.测试原数据集和特征选择后的时间性能对比
+
+原数据集
+```
+特征约简前的数据读取时间：36.96369194984436s
+特征约简前模型运行时间：119.37581896781921s
+特征约简前全程运行时间：156.33951091766357s
+随机森林ACC：0.9019669717050595
+随机森林F 1：0.901790121612329
+随机森林AUC：0.9028155033878457
+```
+![0406原数据集ROC](https://github.com/HunterLC/Features/blob/master/image/feature/roc_0404_origin_0406.png)
+
+![0406原数据集热力图](https://github.com/HunterLC/Features/blob/master/image/feature/heatmap_0404_origin_0406.png)
+
+Filter+RFE数据集
+```
+特征约简后的数据读取时间：1.4999802112579346s
+特征约简后模型运行时间：8.606698513031006s
+特征约简后全程运行时间：10.10667872428894s
+随机森林ACC：0.9445671610392342
+随机森林F 1：0.9445533051217928
+随机森林AUC：0.9449984953041004
+```
+![0406Filter+RFE数据集ROC](https://github.com/HunterLC/Features/blob/master/image/feature/roc_0404_0406.png)
+
+![0406Filter+RFE数据集热力图](https://github.com/HunterLC/Features/blob/master/image/feature/heatmap_0404_0406.png)
+3.特征选择时间对比
+单纯使用RFE
+```
+随机森林ACC：0.9418323340696328
+随机森林F 1：0.9418190883997918
+随机森林AUC：0.9422521928762498
+特征个数：108->88
+共计时间：450.77246856689453
+```
+![0406RFE数据集热力图](https://github.com/HunterLC/Features/blob/master/image/feature/heatmap_0404_rfe_0406.png)
+
+Filter+RFE
+```
+随机森林ACC：0.9403597349321553
+随机森林F 1：0.9403502325005774
+随机森林AUC：0.9407435349206761
+特征个数：108->68
+共计时间：340.9696593284607
+```
+![0406Filter+RFE数据集热力图](https://github.com/HunterLC/Features/blob/master/image/feature/heatmap_0404_filter_rfe_0406.png)
+
 ### 2020-04-05
 1.尝试xgboost结合SelectFromModel
 ```

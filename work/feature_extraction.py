@@ -1044,11 +1044,18 @@ def get_image_feature(test_csv_path):
     logging.info("运行时间：" + str(end - start))
     
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+fusion_csv_path = r'G:\毕设\数据集\微博\fusion_news_features.csv'
+fusion_csv_path_0404_origin = r'G:\毕设\数据集\微博\fusion_news_features_0404_origin.csv'
 fusion_csv_path_0404 = r'G:\毕设\数据集\微博\fusion_news_features_0404.csv'
 start = time.time()
 # 原始数据读入
-df_image = pd.read_csv(fusion_csv_path_0404)
-df_image.drop(['id', 'tf_vgg19_class', 'tf_resnet50_class'], axis=1,inplace=True)
-df_image.to_csv(fusion_csv_path_0404, index=0)  # 不保留行索引
+df_image = pd.read_csv(fusion_csv_path_0404_origin)
+new_text_features_list = []
+# 浪费时间
+for i in range(1, 65):
+    new_text_features_list.append('word2vec_' + str(i))
+df_1 = pd.read_csv(fusion_csv_path_0404,usecols=new_text_features_list)
+df = pd.concat([df_image, df_1], axis=1)
+df.to_csv(fusion_csv_path_0404_origin, index=0)  # 不保留行索引
 end = time.time()
 logging.info("运行时间：" + str(end - start))

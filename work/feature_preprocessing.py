@@ -18,7 +18,7 @@ def get_save_index():
 def features_preprocessor(df):
     #获取需要保留的index行
     # save_index = get_save_index()
-    # #剔除 455 行用户特征缺少严重的行
+    # #剔除 445 行用户特征缺少严重的行
     # df = df[save_index]
     #用户数据预处理
     # df['user_follow_count'].fillna(df['user_follow_count'].mean(), inplace=True)#平均值补充用户关注数
