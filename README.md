@@ -169,6 +169,7 @@ Filter+RFE数据集
 ![0406Filter+RFE数据集ROC](https://github.com/HunterLC/Features/blob/master/image/feature/roc_0404_0406.png)
 
 ![0406Filter+RFE数据集热力图](https://github.com/HunterLC/Features/blob/master/image/feature/heatmap_0404_0406.png)
+
 3.特征选择时间对比
 单纯使用RFE
 ```
@@ -178,7 +179,7 @@ Filter+RFE数据集
 特征个数：108->88
 共计时间：450.77246856689453
 ```
-![0406RFE数据集热力图](https://github.com/HunterLC/Features/blob/master/image/feature/heatmap_0404_rfe_0406.png)
+![0406RFE数据集热力图](https://github.com/HunterLC/Features/blob/master/image/feature/heatmap_0404_rfe_only_0406.png)
 
 Filter+RFE
 ```
