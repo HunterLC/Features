@@ -139,6 +139,32 @@ Features
 ![预测截图3](https://github.com/HunterLC/Features/blob/master/image/feature/result_rf.png)
 
 ## 更新日志
+### 2020-04-10
+1.测试删除了132条相同微博内容的虚假新闻之后的原始数据集（0404_origin_no_dup）效果
+
+2.测试删除了132条相同微博内容的虚假新闻之后的数据集（0404_no_dup）两种特征选择算法的时间
+
+单纯RFE
+```
+随机森林ACC：0.9475406375343044
+随机森林F 1：0.9475207770416302
+随机森林AUC：0.9476567196160323
+特征个数：108->108
+花费时间：436.9608919620514s
+```
+![0410no_dup F数据集热力图](https://github.com/HunterLC/Features/blob/master/image/feature/heatmap_0404_no_dup_rfe_0410.png)
+
+Filter+RFE
+```
+随机森林ACC：0.9435296601224403
+随机森林F 1：0.9435082811212719
+随机森林AUC：0.9436456304829761
+特征个数：108->68
+花费时间：343.72684717178345s
+```
+![0410no_dup F+R数据集热力图](https://github.com/HunterLC/Features/blob/master/image/feature/heatmap_0404_no_dup_filter_rfe_0410.png)
+### 2020-04-09
+1.去除虚假新闻中132列高度相似的微博文本
 ### 2020-04-06
 1.罪过，提取新数据集的时候我忘记了保存未经特征选择的数据集，还好有那个100维w2v完整的数据集，因此可以在它上面删除那100w2v，然后提取新的64维，并按照预处理的删除那445行index，concat起来就是新的结果
 
@@ -171,6 +197,7 @@ Filter+RFE数据集
 ![0406Filter+RFE数据集热力图](https://github.com/HunterLC/Features/blob/master/image/feature/heatmap_0404_0406.png)
 
 3.特征选择时间对比
+
 单纯使用RFE
 ```
 随机森林ACC：0.9418323340696328

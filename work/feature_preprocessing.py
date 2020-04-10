@@ -2,17 +2,23 @@ import pandas as pd
 import numpy as np
 
 fusion_csv_path = r'G:\毕设\数据集\微博\fusion_news_features.csv'
+train_csv_path = r'G:\毕设\数据集\微博\train.csv'
 fusion_no_object_csv_path = r'G:\毕设\数据集\微博\fusion_features_0306_no_object.csv'
 new_fusion_csv_path = r'G:\毕设\数据集\微博\fusion_features_0306.csv'
 text_csv_path = r'G:\毕设\数据集\微博\text.csv'
 user_csv_path = r'G:\毕设\数据集\微博\user.csv'
 image_csv_path = r'G:\毕设\数据集\微博\image.csv'
 fusion_csv_path_0404 = r'G:\毕设\数据集\微博\fusion_news_features_0404.csv'
+fusion_csv_path_0404_no_dup = r'G:\毕设\数据集\微博\fusion_news_features_0404_no_dup.csv'
+fusion_csv_path_0404_origin = r'G:\毕设\数据集\微博\fusion_news_features_0404_origin.csv'
+fusion_csv_path_0404_origin_no_dup = r'G:\毕设\数据集\微博\fusion_news_features_0404_origin_no_dup.csv'
 
 def get_save_index():
     df_user = pd.read_csv(user_csv_path, usecols=['user_gender'])
     # 保留user_gender列中的非空行，非空为True，空行为False
     save_index = df_user.isnull().sum(axis=1) == 0
+    print(save_index)
+    print(type(save_index))
     return save_index
 
 def features_preprocessor(df):
@@ -64,11 +70,34 @@ def delete_df_object(df):
     return df
 
 # 特征的预处理
-df = pd.read_csv(fusion_csv_path_0404)
-df = features_preprocessor(df)
-df.to_csv(fusion_csv_path_0404,index=0)#不保留行索引
-
-#特征去除object
 # df = pd.read_csv(fusion_csv_path_0404)
-# df = delete_df_object(df)
+# df = features_preprocessor(df)
 # df.to_csv(fusion_csv_path_0404,index=0)#不保留行索引
+
+# 特征去除object
+# df = pd.read_csv(fusion_csv_path_0404_no_dup)
+# df = delete_df_object(df)
+# df.to_csv(fusion_csv_path_0404_no_dup,index=0)#不保留行索引
+
+def delete_dup(df):
+    i = 0
+    flag = 0
+    for index, row in df.iterrows():
+        if row['id'] == 'f98cb2e1aed7ab5ad052cad51af8efb0':
+            if flag == 0:
+                flag = 1
+            else:
+                df.at[i, 'label'] = 2
+        i += 1
+    return df
+
+# 去除132的重复列
+# df = pd.read_csv(r'G:/train_hahha.csv')
+# df_y = pd.read_csv(fusion_csv_path_0404_origin_no_dup)
+# df_y = df_y[df.label!=2]
+# df_y.to_csv(fusion_csv_path_0404_origin_no_dup,index=0)#不保留行索引
+
+#创建新的0404无重复数据集
+# df = pd.read_csv(fusion_csv_path_0404_origin_no_dup)
+# df.drop(['id', 'tf_vgg19_class', 'tf_resnet50_class'], axis=1,inplace=True)
+# df.to_csv(fusion_csv_path_0404_no_dup,index=0)#不保留行索引

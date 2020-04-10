@@ -453,7 +453,6 @@
 # df_list = [x for x in aa if x not in ['label']]
 # print(df_list)
 
-import pandas as pd
 
 # df1 = pd.read_csv(r"G:/1.csv")
 # df2 = pd.read_csv(r"G:/2.csv")
@@ -462,4 +461,6 @@ import pandas as pd
 #         if df1[i].to_list() == df2[j].to_list():
 #             print(i)
 #             break
+
+import pandas as pd
 

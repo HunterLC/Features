@@ -28,7 +28,9 @@ sklearn_model_path = r'E:\PythonCode\Features\util\train_model.m'
 test_csv_path = r"G:/result_origin.csv"
 test_ready_csv_path = r"G:/result_origin_ready.csv"
 fusion_csv_path_0404 = r'G:\毕设\数据集\微博\fusion_news_features_0404.csv'
+fusion_csv_path_0404_no_dup = r'G:\毕设\数据集\微博\fusion_news_features_0404_no_dup.csv'
 fusion_csv_path_0404_origin = r'G:\毕设\数据集\微博\fusion_news_features_0404_origin.csv'
+fusion_csv_path_0404_origin_no_dup = r'G:\毕设\数据集\微博\fusion_news_features_0404_origin_no_dup.csv'
 
 
 def decision_tree_classifier(X_train, y_train):
@@ -88,7 +90,7 @@ def read_data_frame(data_file, use_cols=None, drop_cols=None):
 
 def rf_classifier(df, label='label'):
     # 删除列（axis=1指定，默认为行），并将原数据置换为新数据（inplace=True指定，默认为False）
-    # df.drop(['id', 'tf_vgg19_class', 'tf_resnet50_class'], axis=1,inplace=True)
+    df.drop(['id', 'tf_vgg19_class', 'tf_resnet50_class'], axis=1,inplace=True)
     # df_1 = pd.read_csv('colorf.csv', names=['pca_color_moment1', 'pca_color_moment2'])
     # df_2 = pd.read_csv('10_resnet.csv', names=['pca_net1', 'pca_net2', 'pca_net3', 'pca_net4', 'pca_net5',
     #                                            'pca_net6', 'pca_net7', 'pca_net8', 'pca_net9', 'pca_net10'])
@@ -123,16 +125,16 @@ def rf_classifier(df, label='label'):
                                        verbose=1,
                                        n_jobs=-1)
     # RFE递归特征消除算法进行特征选择
-    rfe_model_rf = selection_rfe(estimator, X_train, y_train)
-    # estimator = estimator.fit(X_train, y_train)
+    # rfe_model_rf = selection_rfe(estimator, X_train, y_train)
+    estimator = estimator.fit(X_train, y_train)
     # 保存模型
     # save_model(estimator, sklearn_model_path)
-    rf_pred = rfe_model_rf.predict(X_test)
+    rf_pred = estimator.predict(X_test)
     print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
     print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
     print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
     # 绘制ROC曲线，一般认为AUC大于0.8即算较好效果
-    draw_auc(rfe_model_rf, X_test, y_test)
+    draw_auc(estimator, X_test, y_test)
     # 绘制混淆矩阵热力图
     draw_confusion_matrix_heat_map(y_test, rf_pred)
 
@@ -150,7 +152,7 @@ def rf_classifier(df, label='label'):
     # importance.sort_values().plot(kind='barh',figsize=(20, 2000))
     
     # plt.show()
-    return df, rfe_model_rf
+    return df, estimator
 
 
 def extraction_pca(df, count=2):
@@ -430,7 +432,8 @@ def code_test_pca():
             'h_third_moment', 's_third_moment', 'v_third_moment']
     for i in range(1, 2049):
         pca_list.append('resnet_' + str(i))
-    df = feature_pca(fusion_csv_path, pca_list=pca_list)
+    df = feature_pca(fusion_csv_path_0404_no_dup, pca_list=pca_list)
+    return df
 
 
 # filter + wrapper 特征选择方法综合进行代码段
@@ -512,7 +515,7 @@ def code_test_new():
 
 #测试selected from model特征选择方法代码段
 def code_test_sfm():
-    df = pd.read_csv(fusion_no_object_csv_path)
+    df = pd.read_csv(fusion_csv_path_0404)
     label = 'label'
     feature_attr = [i for i in df.columns if i not in [label]]
     label_attr = label
@@ -537,22 +540,38 @@ def code_test_sfm():
     print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
     print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
     print("feature_importances_ :",model.feature_importances_)
-    thresholds = sort(model.feature_importances_)
-    for thresh in thresholds:
-        selection = SelectFromModel(model, threshold=thresh, prefit=True)  # threshold_ ：采用的阈值
-        # prefit ：布尔，默认为False，是否为训练完的模型,如果是False的话则先fit，再transform
-        select_X_train = selection.transform(X_train)
-        selection_model = XGBClassifier()
-        selection_model.fit(select_X_train, y_train)
-        select_X_test = selection.transform(X_test)
-        y_pred = selection_model.predict(select_X_test)
-        accuracy = metrics.accuracy_score(y_test, y_pred)
-        print("Thresh=%.3f,n=%d,Accuracy:%.2f%%" % (thresh, select_X_train.shape[1], accuracy * 100.0))
+    selection = SelectFromModel(model,prefit=True)  # threshold_ ：采用的阈值
+    # prefit ：布尔，默认为False，是否为训练完的模型,如果是False的话则先fit，再transform
+    select_X_train = selection.transform(X_train)
+    selection_model = XGBClassifier()
+    selection_model.fit(select_X_train, y_train)
+    select_X_test = selection.transform(X_test)
+    y_pred = selection_model.predict(select_X_test)
+    accuracy = metrics.accuracy_score(y_test, y_pred)
+    print("n=%d,Accuracy:%.2f%%" % (select_X_train.shape[1], accuracy * 100.0))
+    print('xgboost ACC：\n', metrics.accuracy_score(y_test, y_pred))
+    print('xgboost F 1：\n', metrics.f1_score(y_test, y_pred, average='weighted'))
+    print('xgboost AUC：\n', metrics.roc_auc_score(y_test, y_pred))
+    # thresholds = sort(model.feature_importances_)
+    # for thresh in thresholds:
+    #     selection = SelectFromModel(model, threshold=thresh, prefit=True)  # threshold_ ：采用的阈值
+    #     # prefit ：布尔，默认为False，是否为训练完的模型,如果是False的话则先fit，再transform
+    #     select_X_train = selection.transform(X_train)
+    #     selection_model = XGBClassifier()
+    #     selection_model.fit(select_X_train, y_train)
+    #     select_X_test = selection.transform(X_test)
+    #     y_pred = selection_model.predict(select_X_test)
+    #     accuracy = metrics.accuracy_score(y_test, y_pred)
+    #     print("Thresh=%.3f,n=%d,Accuracy:%.2f%%" % (thresh, select_X_train.shape[1], accuracy * 100.0))
+    #     print('xgboost ACC：\n', metrics.accuracy_score(y_test, y_pred))
+    #     print('xgboost F 1：\n', metrics.f1_score(y_test, y_pred, average='weighted'))
+    #     print('xgboost AUC：\n', metrics.roc_auc_score(y_test, y_pred))
 
     # print("X_new 共有 %s 个特征"%X_new.shape[1])
     # importance = pd.Series(estimator.feature_importances_)
     # importance.sort_values().plot(kind='barh')
     # plt.show()
+
 
 #测试特征选择前后运行时间长短的代码段
 def code_test_runtime():
@@ -579,19 +598,34 @@ def code_test_runtime():
     print('特征约简后全程运行时间：' + str(reduction_end_time - reduction_start_time) + 's')
 
 
+#测试RFE过程的时间，包含特征的保存
 # filter_start_time = time.time()
-# # list = selection_filter(fusion_csv_path_0404)
-# df_reduction = pd.read_csv(fusion_csv_path_0404)
+# # list = selection_filter(fusion_csv_path_0404_no_dup)
+# df_reduction = pd.read_csv(fusion_csv_path_0404_no_dup)
 # print(df_reduction.shape)
 # df_reduction, estimator_reduction = rf_classifier(df_reduction)
-# save_selected_features(df_reduction, estimator_reduction, save_path=r'G:/0404_rfe_0406.txt')
+# save_selected_features(df_reduction, estimator_reduction, save_path=r'G:/0404_rfe_no_dup_0410.txt')
 # filter_end_time = time.time()
 # print(str(filter_end_time-filter_start_time))
+
+
+#测试Filter+RFE过程的时间，包含特征的保存
+# filter_start_time = time.time()
+# list = selection_filter(fusion_csv_path_0404_no_dup)
+# df_reduction = pd.read_csv(fusion_csv_path_0404_no_dup, usecols=list)
+# df_reduction, estimator_reduction = rf_classifier(df_reduction)
+# save_selected_features(df_reduction, estimator_reduction, save_path=r'G:/0404_filter_rfe_no_dup_0410.txt')
+# filter_end_time = time.time()
+# print(str(filter_end_time-filter_start_time))
+
+def code_test_pca_origin_no_dup():
+    df = code_test_pca()
+    df.to_csv(fusion_csv_path_0404_no_dup, index=0)
+
 filter_start_time = time.time()
-list = selection_filter(fusion_csv_path_0404)
-df_reduction = pd.read_csv(fusion_csv_path_0404, usecols=list)
+df_reduction = pd.read_csv(fusion_csv_path_0404_origin_no_dup)
+print(df_reduction.shape)
 df_reduction, estimator_reduction = rf_classifier(df_reduction)
-save_selected_features(df_reduction, estimator_reduction, save_path=r'G:/0404_filter_rfe_0406.txt')
 filter_end_time = time.time()
 print(str(filter_end_time-filter_start_time))
 
