@@ -15,6 +15,8 @@ import time
 from numpy.linalg import eigh
 from sklearn.externals import joblib
 from xgboost import XGBClassifier
+from feature_selection_ga import FeatureSelectionGA
+# import fitness_function as ff
 
 fusion_csv_path = r'G:\毕设\数据集\微博\fusion_news_features.csv'
 new_fusion_csv_path = r'G:\毕设\数据集\微博\fusion_features_0306.csv'
@@ -90,7 +92,7 @@ def read_data_frame(data_file, use_cols=None, drop_cols=None):
 
 def rf_classifier(df, label='label'):
     # 删除列（axis=1指定，默认为行），并将原数据置换为新数据（inplace=True指定，默认为False）
-    df.drop(['id', 'tf_vgg19_class', 'tf_resnet50_class'], axis=1,inplace=True)
+    # df.drop(['id', 'tf_vgg19_class', 'tf_resnet50_class'], axis=1,inplace=True)
     # df_1 = pd.read_csv('colorf.csv', names=['pca_color_moment1', 'pca_color_moment2'])
     # df_2 = pd.read_csv('10_resnet.csv', names=['pca_net1', 'pca_net2', 'pca_net3', 'pca_net4', 'pca_net5',
     #                                            'pca_net6', 'pca_net7', 'pca_net8', 'pca_net9', 'pca_net10'])
@@ -515,7 +517,9 @@ def code_test_new():
 
 #测试selected from model特征选择方法代码段
 def code_test_sfm():
-    df = pd.read_csv(fusion_csv_path_0404)
+    selected_features = get_selected_features(path=r'G:/0404_filter_rfe_no_dup_0410.txt')
+    selected_features.append('label')
+    df = pd.read_csv(fusion_csv_path_0404_no_dup,usecols=selected_features)
     label = 'label'
     feature_attr = [i for i in df.columns if i not in [label]]
     label_attr = label
@@ -572,6 +576,7 @@ def code_test_sfm():
     # importance.sort_values().plot(kind='barh')
     # plt.show()
 
+# code_test_sfm()
 
 #测试特征选择前后运行时间长短的代码段
 def code_test_runtime():
@@ -622,10 +627,88 @@ def code_test_pca_origin_no_dup():
     df = code_test_pca()
     df.to_csv(fusion_csv_path_0404_no_dup, index=0)
 
-filter_start_time = time.time()
-df_reduction = pd.read_csv(fusion_csv_path_0404_origin_no_dup)
-print(df_reduction.shape)
-df_reduction, estimator_reduction = rf_classifier(df_reduction)
-filter_end_time = time.time()
-print(str(filter_end_time-filter_start_time))
+
+class CustomFitnessFunctionClass:
+    def __init__(self, n_total_features, n_splits=5, alpha=0.01, *args, **kwargs):
+        """
+            Parameters
+            -----------
+            n_total_features :int
+            	Total number of features N_t.
+            n_splits :int, default = 5
+                Number of splits for cv
+            alpha :float, default = 0.01
+                Tradeoff between the classifier performance P and size of
+                feature subset N_f with respect to the total number of features
+                N_t.
+
+            verbose: 0 or 1
+        """
+        self.n_splits = n_splits
+        self.alpha = alpha
+        self.n_total_features = n_total_features
+
+    def calculate_fitness(self, model, x, y):
+        alpha = self.alpha
+        total_features = self.n_total_features
+
+        cv_set = np.repeat(-1., x.shape[0])
+        skf = StratifiedKFold(n_splits=self.n_splits)
+        for train_index, test_index in skf.split(x, y):
+            x_train, x_test = x[train_index], x[test_index]
+            y_train, y_test = y[train_index], y[test_index]
+            if x_train.shape[0] != y_train.shape[0]:
+                raise Exception()
+            model.fit(x_train, y_train)
+            predicted_y = model.predict(x_test)
+            cv_set[test_index] = predicted_y
+
+        P = accuracy_score(y, cv_set)
+        fitness = (alpha * (1.0 - P) + (1.0 - alpha) * (1.0 - (x.shape[1]) / total_features))
+        return fitness
+
+def selection_ga():
+    # selected_features = get_selected_features(path=r'G:/0404_filter_rfe_no_dup_0410.txt')
+    # selected_features.append('label')
+    df = pd.read_csv(fusion_csv_path_0404_no_dup)
+    label = 'label'
+    feature_attr = [i for i in df.columns if i not in [label]]
+    label_attr = label
+    df.fillna(0, inplace=True)
+    # 特征预处理
+    obj_attrs = []
+    for attr in feature_attr:
+        if df.dtypes[attr] == np.dtype(object):  # 添加离散数据列
+            obj_attrs.append(attr)
+    if len(obj_attrs) > 0:
+        df = pd.get_dummies(df, columns=obj_attrs)  # 转为哑变量
+
+    X_train, X_test, y_train, y_test = model_selection.train_test_split(df.drop(label, axis=1),
+                                                                        df['label'],
+                                                                        test_size=0.25,
+                                                                        random_state=1234)
+
+    model = RandomForestClassifier(max_depth=20,
+                                       min_samples_leaf=4,
+                                       min_samples_split=6,
+                                       n_estimators=100,
+                                       bootstrap=True,
+                                       max_features='sqrt',
+                                       verbose=1,
+                                       n_jobs=-1)
+    ff = CustomFitnessFunctionClass(n_total_features=X_train.shape[1], n_splits=3, alpha=0.05)
+    fsga = FeatureSelectionGA(model, X_train, y_train, ff_obj=ff)
+    pop = fsga.generate(100)
+    print(pop)
+
+selection_ga()
+
+# filter_start_time = time.time()
+# selected_features = get_selected_features(path=r'G:/0404_filter_rfe_no_dup_0410.txt')
+# selected_features.append('label')
+# df_reduction = pd.read_csv(fusion_csv_path_0404_no_dup,usecols=selected_features)
+# print(df_reduction.shape)
+# df_reduction, estimator_reduction = rf_classifier(df_reduction)
+# filter_end_time = time.time()
+# print(str(filter_end_time-filter_start_time))
 

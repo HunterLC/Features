@@ -462,5 +462,15 @@
 #             print(i)
 #             break
 
-import pandas as pd
 
+with open(r'E:\PythonCode\Features\util\word2vec_corpus.txt', "r", encoding='UTF-8') as f:
+    chinese_text = f.readlines()
+    text_1 = chinese_text[0:19188]
+    print(len(text_1))
+    text_2 = chinese_text[19188:]
+    print(len(text_2))
+    text_2_new =[]
+    for item in text_2:
+        if item.find('锦绣') == -1:
+            text_2_new.append(item)
+    print(len(text_2_new))
