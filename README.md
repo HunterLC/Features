@@ -141,7 +141,12 @@ Features
 ## 更新日志
 ### 2020-04-19
 1.添加特征相关性热力图
+
 ![特征相关性热力图](https://github.com/HunterLC/Features/blob/master/image/feature/feature_corr.png)
+
+2.重新绘制特征重要性分数图
+
+![特征重要性分数图](https://github.com/HunterLC/Features/blob/master/image/feature/feature_importance_0419.png)
 
 ### 2020-04-10
 1.测试删除了132条相同微博内容的虚假新闻之后的原始数据集（0404_origin_no_dup）效果

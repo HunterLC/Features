@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="15714133-8834-42cf-a36a-069dc63f951d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/image/feature/feature_corr.png" beforeDir="false" afterPath="$PROJECT_DIR$/image/feature/feature_corr.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/work/feature_reduction.py" beforeDir="false" afterPath="$PROJECT_DIR$/work/feature_reduction.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -339,7 +339,7 @@
       <workItem from="1586499347226" duration="3808000" />
       <workItem from="1586757029688" duration="1345000" />
       <workItem from="1586759975269" duration="1615000" />
-      <workItem from="1587272183242" duration="4893000" />
+      <workItem from="1587272183242" duration="6819000" />
     </task>
     <servers />
   </component>

@@ -136,27 +136,27 @@ def rf_classifier(df, label='label'):
     print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
     print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
     # 绘制ROC曲线，一般认为AUC大于0.8即算较好效果
-    draw_auc(estimator, X_test, y_test)
+    # draw_auc(estimator, X_test, y_test)
     # 绘制混淆矩阵热力图
-    draw_confusion_matrix_heat_map(y_test, rf_pred)
+    # draw_confusion_matrix_heat_map(y_test, rf_pred)
     # 绘制特征相关性热力图
-    draw_correlation(df.drop(label, axis=1))
+    # draw_correlation(df.drop(label, axis=1))
 
-    # Plot number of features VS. cross-validation scores
-    # plt.figure()
-    # plt.xlabel("Number of features selected")
-    # plt.ylabel("Cross validation score (nb of correct classifications)")
-    # plt.plot(range(1, len(estimator.grid_scores_) + 1), rfe_model_rf.grid_scores_)
-    # plt.show()
-
-    # plt.figure(, dpi=100)
-    # ax = plt.subplot(111)
-    # plt.yticks(fontsize=5)
-    # importance = pd.Series(estimator.feature_importances_, index=X_train.columns)
-    # importance.sort_values().plot(kind='barh',figsize=(20, 2000))
-    
-    # plt.show()
+    # 绘制特征重要性
+    draw_importance(estimator, X_train)
     return df, estimator
+
+def draw_importance(estimator, X_train):
+    plt.subplots(figsize=(100, 80))
+    importance = pd.Series(estimator.feature_importances_, index=X_train.columns)
+    importance.sort_values().plot(kind='barh')
+    # 解决中文显示问题
+    plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
+    plt.title('特征重要性分数图', fontsize=100)
+    plt.xticks(fontsize=70)
+    plt.yticks(fontsize=70)
+    plt.savefig('G:/feature_importance_0419.png')
 
 
 def extraction_pca(df, count=2):
