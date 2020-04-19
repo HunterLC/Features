@@ -139,6 +139,8 @@ def rf_classifier(df, label='label'):
     draw_auc(estimator, X_test, y_test)
     # 绘制混淆矩阵热力图
     draw_confusion_matrix_heat_map(y_test, rf_pred)
+    # 绘制特征相关性热力图
+    draw_correlation(df.drop(label, axis=1))
 
     # Plot number of features VS. cross-validation scores
     # plt.figure()
@@ -163,6 +165,20 @@ def extraction_pca(df, count=2):
     # 降维
     low_dimensionality = pca.transform(df)
     return pca, pd.DataFrame(low_dimensionality)
+
+
+def draw_correlation(train_data):
+    correlation = train_data.corr()
+    plt.subplots(figsize=(60, 40))
+    sns.set(font_scale=1.5)
+    sns.heatmap(correlation, vmax=1,cmap="RdBu_r", annot_kws={'size':10})
+    # 解决中文显示问题
+    plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
+
+    # plt.show()
+    plt.title('特征相关性分析图')
+    plt.savefig('G:/feature_corr.png')
 
 
 def extraction_kpca(df):
@@ -701,14 +717,13 @@ def selection_ga():
     pop = fsga.generate(100)
     print(pop)
 
-selection_ga()
 
-# filter_start_time = time.time()
-# selected_features = get_selected_features(path=r'G:/0404_filter_rfe_no_dup_0410.txt')
-# selected_features.append('label')
-# df_reduction = pd.read_csv(fusion_csv_path_0404_no_dup,usecols=selected_features)
-# print(df_reduction.shape)
-# df_reduction, estimator_reduction = rf_classifier(df_reduction)
-# filter_end_time = time.time()
-# print(str(filter_end_time-filter_start_time))
+filter_start_time = time.time()
+selected_features = get_selected_features(path=r'G:/0404_filter_rfe_no_dup_0410.txt')
+selected_features.append('label')
+df_reduction = pd.read_csv(fusion_csv_path_0404_no_dup,usecols=selected_features)
+print(df_reduction.shape)
+df_reduction, estimator_reduction = rf_classifier(df_reduction)
+filter_end_time = time.time()
+print(str(filter_end_time-filter_start_time))
 
