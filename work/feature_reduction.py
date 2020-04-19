@@ -169,15 +169,17 @@ def extraction_pca(df, count=2):
 
 def draw_correlation(train_data):
     correlation = train_data.corr()
-    plt.subplots(figsize=(60, 40))
-    sns.set(font_scale=1.5)
-    sns.heatmap(correlation, vmax=1,cmap="RdBu_r", annot_kws={'size':10})
+    plt.subplots(figsize=(100, 80))
+    sns.set(font_scale=15)
+    sns.heatmap(correlation, vmax=1,cmap="RdBu_r", annot_kws={'size':50})
     # 解决中文显示问题
     plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
     plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
 
     # plt.show()
     plt.title('特征相关性分析图')
+    plt.xticks(fontsize=65)
+    plt.yticks(fontsize=65)
     plt.savefig('G:/feature_corr.png')
 
 
