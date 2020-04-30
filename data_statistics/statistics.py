@@ -570,8 +570,88 @@ def draw_4_4_3():
     axes.set_ylim([60,100])
     plt.title(u'')
     plt.show()
+
+def draw_4_7():
+    label_list = ['完整特征集', 'X2-RFE-RF选择的特征子集']
+    num_list1 = [158.670, 8.412]
+    x = range(len(num_list1))
+    # 解决中文显示问题
+    plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
+    """
+    绘制条形图
+    left:长条形中点横坐标
+    height:长条形高度
+    width:长条形宽度，默认值0.8
+    label:为后面设置legend准备
+    """
+    rects1 = plt.bar(x=x, height=num_list1, width=0.4, alpha=0.8, color='steelblue')
+    """
+    设置x轴刻度显示值
+    参数一：中点坐标
+    参数二：显示值
+    """
+    plt.xticks([index + 0 for index in x], label_list)
+    # 编辑文本
+    for rect in rects1:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    plt.legend(fontsize=20)
+    # 设置刻度字体大小
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.xlabel('特征集类别', fontsize=15)
+    plt.ylabel('分类运行时间', fontsize=15)
+    plt.title(u'')
+    plt.show()
+
+def draw_4_9():
+    label_list = ['完整特征集', 'X2-RFE-RF选择的特征子集']
+    num_list1 = [90.395, 94.300]
+    num_list2 = [90.373, 94.298]
+    num_list3 = [90.421, 94.311]
+    x = range(len(num_list1))
+    # 解决中文显示问题
+    plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
+    """
+    绘制条形图
+    left:长条形中点横坐标
+    height:长条形高度
+    width:长条形宽度，默认值0.8
+    label:为后面设置legend准备
+    """
+    rects1 = plt.bar(x=x, height=num_list1, width=0.2, alpha=0.8, color='steelblue', label="ACC")
+    rects2 = plt.bar(x=[i + 0.2 for i in x], height=num_list2, width=0.2, color='indianred', label="F1")
+    rects3 = plt.bar(x=[i + 0.4 for i in x], height=num_list3, width=0.2, color='green', label="AUC")
+    """
+    设置x轴刻度显示值
+    参数一：中点坐标
+    参数二：显示值
+    """
+    plt.xticks([index + 0.2 for index in x], label_list)
+    # 编辑文本
+    for rect in rects1:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    for rect in rects2:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    for rect in rects3:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    plt.legend(fontsize=10)
+    # 设置刻度字体大小
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.xlabel('特征集类别', fontsize=15)
+    plt.ylabel('随机森林指标百分比', fontsize=15)
+    plt.title(u'')
+    axes = plt.gca()
+    axes.set_ylim([90, 100])
+    plt.show()
 # draw_gender_true_fake(pd.read_csv(user_csv_path,usecols=['userGender','label']))
 # draw_fol_cdf(pd.read_csv(user_csv_path,usecols=['userFollowCount','label']))
 # draw_fans_cdf(pd.read_csv(user_csv_path,usecols=['userFansCount','label']))
 # draw_weibo_cdf(pd.read_csv(user_csv_path,usecols=['userWeiboCount','label']))
-draw_4_4_3()
+draw_4_9()
