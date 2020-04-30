@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import json
 import pandas_profiling
+import matplotlib.pyplot as plt
 
 
 # #数据集读入
@@ -213,7 +214,364 @@ def get_user_gender(df_user):
                 "gender": ','.join(list_gender)}
     return response
 
-df_user = user_data_read()
-# 数据集分析函数
-profile = df_user.profile_report(title='虚假新闻检测数据集')
-profile.to_file(output_file='G:/111.html')
+# df_user = user_data_read()
+# # 数据集分析函数
+# profile = df_user.profile_report(title='虚假新闻检测数据集')
+# profile.to_file(output_file='G:/111.html')
+
+def draw_gender_true_fake(df):
+    m_t = 0
+    m_f = 0
+    w_t = 0
+    w_f = 0
+    u_t = 0
+    u_f = 0
+    for index, row in df.iterrows():
+        if row['userGender'] == '男':
+            if row['label'] == 0:
+                m_t += 1
+            else:
+                m_f += 1
+        elif row['userGender'] == '女':
+            if row['label'] == 0:
+                w_t += 1
+            else:
+                w_f += 1
+        elif pd.isna(row['userGender']):
+            if row['label'] == 0:
+                u_t += 1
+            else:
+                u_f += 1
+    print(str(m_t))
+    print(str(m_f))
+    print(str(w_t))
+    print(str(w_f))
+    print(str(u_t))
+    print(str(u_f))
+    label_list = ['男', '女', '未知']
+    num_list1 = [13484, 5378, 324]
+    num_list2 = [9123, 10041, 121]
+    x = range(len(num_list1))
+    # 解决中文显示问题
+    plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
+    """
+    绘制条形图
+    left:长条形中点横坐标
+    height:长条形高度
+    width:长条形宽度，默认值0.8
+    label:为后面设置legend准备
+    """
+    rects1 = plt.bar(x=x, height=num_list1, width=0.4, alpha=0.8, color='steelblue', label="真实新闻")
+    rects2 = plt.bar(x=[i + 0.4 for i in x], height=num_list2, width=0.4, color='indianred', label="虚假新闻")
+    """
+    设置x轴刻度显示值
+    参数一：中点坐标
+    参数二：显示值
+    """
+    plt.xticks([index + 0.2 for index in x], label_list)
+    # 编辑文本
+    for rect in rects1:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    for rect in rects2:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    plt.legend(fontsize=20)
+    # 设置刻度字体大小
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.xlabel('性别', fontsize=15)
+    plt.ylabel('样本数', fontsize=15)
+    plt.title(u'')
+    plt.show()
+
+def draw_fol_cdf(df):
+    df.fillna(0, inplace=True)
+    t_list = []
+    f_list = []
+    temp1 = []
+    temp2 = []
+    for index, row in df.iterrows():
+        if row['label'] == 0: # 真新闻
+            temp1.append(float(row['userFollowCount']))
+        else:
+            temp2.append(float(row['userFollowCount']))
+    temp1.sort()
+    temp2.sort()
+    count1 = len(temp1)
+    count2 = len(temp2)
+    for i in range(count1):
+        t_list.append((i+1)/count1)
+    for j in range(count2):
+        f_list.append((j + 1) / count2)
+        # 解决中文显示问题
+    plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
+    plt.plot(temp1, t_list, linewidth=2, alpha=0.8, linestyle='-', color='steelblue', label="真实新闻")
+    plt.plot(temp2, f_list, linewidth=2, alpha=0.8, linestyle='-', color='indianred', label="虚假新闻")
+    plt.legend(fontsize=20)
+    # 设置刻度字体大小
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.xlabel('关注数', fontsize=15)
+    plt.ylabel('CDF值', fontsize=15)
+    plt.show()
+
+def draw_fans_cdf(df):
+    df.fillna(0, inplace=True)
+    t_list = []
+    f_list = []
+    temp1 = []
+    temp2 = []
+    for index, row in df.iterrows():
+        if row['label'] == 0: # 真新闻
+            temp1.append(float(row['userFansCount']))
+        else:
+            temp2.append(float(row['userFansCount']))
+    temp1.sort()
+    temp2.sort()
+    count1 = len(temp1)
+    count2 = len(temp2)
+    for i in range(count1):
+        t_list.append((i+1)/count1)
+    for j in range(count2):
+        f_list.append((j + 1) / count2)
+        # 解决中文显示问题
+    plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
+    plt.plot(temp1, t_list, linewidth=2, alpha=0.8, linestyle='-', color='steelblue', label="真实新闻")
+    plt.plot(temp2, f_list, linewidth=2, alpha=0.8, linestyle='-', color='indianred', label="虚假新闻")
+    plt.legend(fontsize=20)
+    # 设置刻度字体大小
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.xlabel('粉丝数', fontsize=15)
+    plt.ylabel('CDF值', fontsize=15)
+    plt.show()
+
+def draw_weibo_cdf(df):
+    df.fillna(0, inplace=True)
+    t_list = []
+    f_list = []
+    temp1 = []
+    temp2 = []
+    for index, row in df.iterrows():
+        if row['label'] == 0: # 真新闻
+            temp1.append(float(row['userWeiboCount']))
+        else:
+            temp2.append(float(row['userWeiboCount']))
+    temp1.sort()
+    temp2.sort()
+    count1 = len(temp1)
+    count2 = len(temp2)
+    for i in range(count1):
+        t_list.append((i+1)/count1)
+    for j in range(count2):
+        f_list.append((j + 1) / count2)
+        # 解决中文显示问题
+    plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
+    plt.plot(temp1, t_list, linewidth=2, alpha=0.8, linestyle='-', color='steelblue', label="真实新闻")
+    plt.plot(temp2, f_list, linewidth=2, alpha=0.8, linestyle='-', color='indianred', label="虚假新闻")
+    plt.legend(fontsize=20)
+    # 设置刻度字体大小
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.xlabel('发博数', fontsize=15)
+    plt.ylabel('CDF值', fontsize=15)
+    plt.show()
+
+def draw_4_3():
+    label_list = ['FO', 'WPR', 'EXB','X2-RFE-RF']
+    num_list1 = [75.662, 436.961, 688.478, 343.727]
+    x = range(len(num_list1))
+    # 解决中文显示问题
+    plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
+    """
+    绘制条形图
+    left:长条形中点横坐标
+    height:长条形高度
+    width:长条形宽度，默认值0.8
+    label:为后面设置legend准备
+    """
+    rects1 = plt.bar(x=x, height=num_list1, width=0.4, alpha=0.8, color='steelblue')
+    """
+    设置x轴刻度显示值
+    参数一：中点坐标
+    参数二：显示值
+    """
+    plt.xticks([index + 0 for index in x], label_list)
+    # 编辑文本
+    for rect in rects1:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    plt.legend(fontsize=20)
+    # 设置刻度字体大小
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.xlabel('特征选择算法类别', fontsize=15)
+    plt.ylabel('算法运行时间', fontsize=15)
+    plt.title(u'')
+    plt.show()
+
+def draw_4_4_1():
+    label_list = ['决策树', 'KNN', '随机森林']
+    num_list1 = [88.452, 77.372, 93.245]
+    num_list2 = [89.223, 78.161, 94.754]
+    num_list3 = [89.452, 78.342, 94.564]
+    num_list4 = [89.403, 78.541, 94.353]
+    x = range(len(num_list1))
+    # 解决中文显示问题
+    plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
+    """
+    绘制条形图
+    left:长条形中点横坐标
+    height:长条形高度
+    width:长条形宽度，默认值0.8
+    label:为后面设置legend准备
+    """
+    rects1 = plt.bar(x=x, height=num_list1, width=0.2, alpha=0.8, color='steelblue', label="FO")
+    rects2 = plt.bar(x=[i + 0.2 for i in x], height=num_list2, width=0.2, color='indianred', label="WPR")
+    rects3 = plt.bar(x=[i + 0.4 for i in x], height=num_list3, width=0.2, color='green', label="EXB")
+    rects4 = plt.bar(x=[i + 0.6 for i in x], height=num_list4, width=0.2, color='grey', label="X2-RFE-RF")
+    """
+    设置x轴刻度显示值
+    参数一：中点坐标
+    参数二：显示值
+    """
+    plt.xticks([index + 0.3 for index in x], label_list)
+    # 编辑文本
+    for rect in rects1:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    for rect in rects2:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    for rect in rects3:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    for rect in rects4:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    plt.legend(fontsize=10)
+    # 设置刻度字体大小
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.xlabel('分类模型', fontsize=15)
+    plt.ylabel('ACC百分比', fontsize=15)
+    plt.title(u'')
+    axes = plt.gca()
+    axes.set_ylim([60, 100])
+    plt.show()
+
+
+def draw_4_4_2():
+    label_list = ['决策树', 'KNN', '随机森林']
+    num_list1 = [88.451, 77.369, 93.243]
+    num_list2 = [89.223, 78.144, 94.752]
+    num_list3 = [89.453, 78.343, 94.560]
+    num_list4 = [89.403, 78.512, 94.351]
+    x = range(len(num_list1))
+    # 解决中文显示问题
+    plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
+    """
+    绘制条形图
+    left:长条形中点横坐标
+    height:长条形高度
+    width:长条形宽度，默认值0.8
+    label:为后面设置legend准备
+    """
+    rects1 = plt.bar(x=x, height=num_list1, width=0.2, alpha=0.8, color='steelblue', label="FO")
+    rects2 = plt.bar(x=[i + 0.2 for i in x], height=num_list2, width=0.2, color='indianred', label="WPR")
+    rects3 = plt.bar(x=[i + 0.4 for i in x], height=num_list3, width=0.2, color='green', label="EXB")
+    rects4 = plt.bar(x=[i + 0.6 for i in x], height=num_list4, width=0.2, color='grey', label="X2-RFE-RF")
+    """
+    设置x轴刻度显示值
+    参数一：中点坐标
+    参数二：显示值
+    """
+    plt.xticks([index + 0.3 for index in x], label_list)
+    # 编辑文本
+    for rect in rects1:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    for rect in rects2:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    for rect in rects3:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    for rect in rects4:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    plt.legend(fontsize=10)
+    # 设置刻度字体大小
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.xlabel('分类模型', fontsize=15)
+    plt.ylabel('F1值百分比', fontsize=15)
+    axes = plt.gca()
+    axes.set_ylim([60,100])
+    plt.title(u'')
+    plt.show()
+
+
+def draw_4_4_3():
+    label_list = ['决策树', 'KNN', '随机森林']
+    num_list1 = [88.453, 77.370, 93.252]
+    num_list2 = [89.223, 78.147, 94.767]
+    num_list3 = [89.457, 78.345, 94.579]
+    num_list4 = [89.404, 78.522, 94.365]
+    x = range(len(num_list1))
+    # 解决中文显示问题
+    plt.rcParams['font.sans-serif'] = ['KaiTi']  # 指定默认字体
+    plt.rcParams['axes.unicode_minus'] = False  # 解决保存图像是负号'-'显示为方块的问题
+    """
+    绘制条形图
+    left:长条形中点横坐标
+    height:长条形高度
+    width:长条形宽度，默认值0.8
+    label:为后面设置legend准备
+    """
+    rects1 = plt.bar(x=x, height=num_list1, width=0.2, alpha=0.8, color='steelblue', label="FO")
+    rects2 = plt.bar(x=[i + 0.2 for i in x], height=num_list2, width=0.2, color='indianred', label="WPR")
+    rects3 = plt.bar(x=[i + 0.4 for i in x], height=num_list3, width=0.2, color='green', label="EXB")
+    rects4 = plt.bar(x=[i + 0.6 for i in x], height=num_list4, width=0.2, color='grey', label="X2-RFE-RF")
+    """
+    设置x轴刻度显示值
+    参数一：中点坐标
+    参数二：显示值
+    """
+    plt.xticks([index + 0.3 for index in x], label_list)
+    # 编辑文本
+    for rect in rects1:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    for rect in rects2:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    for rect in rects3:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    for rect in rects4:
+        height = rect.get_height()
+        plt.text(rect.get_x() + rect.get_width() / 2, height + 1, str(height), ha="center", va="bottom")
+    plt.legend(fontsize=10)
+    # 设置刻度字体大小
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.xlabel('分类模型', fontsize=15)
+    plt.ylabel('AUC百分比', fontsize=15)
+    axes = plt.gca()
+    axes.set_ylim([60,100])
+    plt.title(u'')
+    plt.show()
+# draw_gender_true_fake(pd.read_csv(user_csv_path,usecols=['userGender','label']))
+# draw_fol_cdf(pd.read_csv(user_csv_path,usecols=['userFollowCount','label']))
+# draw_fans_cdf(pd.read_csv(user_csv_path,usecols=['userFansCount','label']))
+# draw_weibo_cdf(pd.read_csv(user_csv_path,usecols=['userWeiboCount','label']))
+draw_4_4_3()

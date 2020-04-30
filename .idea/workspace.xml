@@ -4,6 +4,7 @@
     <list default="true" id="15714133-8834-42cf-a36a-069dc63f951d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_statistics/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_statistics/statistics.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/work/feature_reduction.py" beforeDir="false" afterPath="$PROJECT_DIR$/work/feature_reduction.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -174,7 +175,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="imagetoword" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="statistics" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -182,12 +183,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/example" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/data_statistics" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/example/imagetoword.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data_statistics/statistics.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -199,10 +200,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.feature_reduction (1)" />
+        <item itemvalue="Python.statistics" />
         <item itemvalue="Python.feature_preprocessing" />
         <item itemvalue="Python.feature_extraction" />
         <item itemvalue="Python.feature_fusion" />
-        <item itemvalue="Python.imagetoword" />
       </list>
     </recent_temporary>
   </component>
@@ -339,7 +340,15 @@
       <workItem from="1586499347226" duration="3808000" />
       <workItem from="1586757029688" duration="1345000" />
       <workItem from="1586759975269" duration="1615000" />
-      <workItem from="1587272183242" duration="6819000" />
+      <workItem from="1587272183242" duration="7421000" />
+      <workItem from="1587282230898" duration="231000" />
+      <workItem from="1587979118343" duration="5837000" />
+      <workItem from="1587985604768" duration="475000" />
+      <workItem from="1588135471125" duration="11000" />
+      <workItem from="1588166497706" duration="6472000" />
+      <workItem from="1588173897406" duration="5899000" />
+      <workItem from="1588229638713" duration="1224000" />
+      <workItem from="1588231009146" duration="522000" />
     </task>
     <servers />
   </component>
@@ -360,10 +369,6 @@
     </option>
   </component>
   <component name="WindowStateProjectService">
-    <state x="361" y="74" key="#Notifications" timestamp="1579363067031">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="361" y="74" key="#Notifications/0.0.1536.824@0.0.1536.824" timestamp="1579363067031" />
     <state x="498" y="256" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1582961369064">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
@@ -419,26 +424,17 @@
     <state x="272" y="104" key="SettingsEditor" timestamp="1583818909491">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
-    <state x="272" y="73" key="SettingsEditor/0.0.1536.824@0.0.1536.824" timestamp="1578987943117" />
     <state x="272" y="104" key="SettingsEditor/0.30.1536.834@0.30.1536.834" timestamp="1583818909491" />
-    <state width="775" height="419" key="XDebugger.FullValuePopup" timestamp="1579364660341">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state width="775" height="419" key="XDebugger.FullValuePopup/0.0.1536.824@0.0.1536.824" timestamp="1579364660341" />
-    <state x="289" y="121" key="com.intellij.execution.console.ConsoleHistoryController$MyBrowseAction$1" timestamp="1579366437431">
-      <screen x="0" y="0" width="1536" height="824" />
-    </state>
-    <state x="289" y="121" key="com.intellij.execution.console.ConsoleHistoryController$MyBrowseAction$1/0.0.1536.824@0.0.1536.824" timestamp="1579366437431" />
-    <state x="461" y="272" key="com.intellij.ide.util.TipDialog" timestamp="1586759975931">
+    <state x="461" y="272" key="com.intellij.ide.util.TipDialog" timestamp="1588231028923">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
     <state x="461" y="239" key="com.intellij.ide.util.TipDialog/0.0.1536.824@0.0.1536.824" timestamp="1582266772177" />
-    <state x="461" y="272" key="com.intellij.ide.util.TipDialog/0.30.1536.834@0.30.1536.834" timestamp="1586759975931" />
-    <state x="431" y="178" width="672" height="687" key="search.everywhere.popup" timestamp="1586005453354">
+    <state x="461" y="272" key="com.intellij.ide.util.TipDialog/0.30.1536.834@0.30.1536.834" timestamp="1588231028923" />
+    <state x="431" y="178" width="672" height="687" key="search.everywhere.popup" timestamp="1588230267977">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
     <state x="431" y="145" width="672" height="678" key="search.everywhere.popup/0.0.1536.824@0.0.1536.824" timestamp="1581846306215" />
-    <state x="431" y="178" width="672" height="687" key="search.everywhere.popup/0.30.1536.834@0.30.1536.834" timestamp="1586005453354" />
+    <state x="431" y="178" width="672" height="687" key="search.everywhere.popup/0.30.1536.834@0.30.1536.834" timestamp="1588230267977" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Features$cloud.coverage" NAME="cloud Coverage Results" MODIFIED="1577611563849" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/example" />

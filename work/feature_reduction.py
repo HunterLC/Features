@@ -6,6 +6,9 @@ from numpy import sort
 from sklearn import metrics, model_selection
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn import svm
+from sklearn import neighbors
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -92,7 +95,7 @@ def read_data_frame(data_file, use_cols=None, drop_cols=None):
 
 def rf_classifier(df, label='label'):
     # 删除列（axis=1指定，默认为行），并将原数据置换为新数据（inplace=True指定，默认为False）
-    # df.drop(['id', 'tf_vgg19_class', 'tf_resnet50_class'], axis=1,inplace=True)
+    # df.drop(['id'], axis=1,inplace=True)
     # df_1 = pd.read_csv('colorf.csv', names=['pca_color_moment1', 'pca_color_moment2'])
     # df_2 = pd.read_csv('10_resnet.csv', names=['pca_net1', 'pca_net2', 'pca_net3', 'pca_net4', 'pca_net5',
     #                                            'pca_net6', 'pca_net7', 'pca_net8', 'pca_net9', 'pca_net10'])
@@ -136,14 +139,14 @@ def rf_classifier(df, label='label'):
     print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
     print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
     # 绘制ROC曲线，一般认为AUC大于0.8即算较好效果
-    # draw_auc(estimator, X_test, y_test)
+    draw_auc(estimator, X_test, y_test)
     # 绘制混淆矩阵热力图
-    # draw_confusion_matrix_heat_map(y_test, rf_pred)
+    draw_confusion_matrix_heat_map(y_test, rf_pred)
     # 绘制特征相关性热力图
     # draw_correlation(df.drop(label, axis=1))
 
     # 绘制特征重要性
-    draw_importance(estimator, X_train)
+    # draw_importance(estimator, X_train)
     return df, estimator
 
 def draw_importance(estimator, X_train):
@@ -202,7 +205,7 @@ def draw_auc(estimator, X_test, y_test):
     plt.plot(fpr, tpr, color='black', lw=1)
     plt.plot([0, 1], [0, 1], color='red', linestyle='--')
     plt.text(0.5, 0.3, 'ROC Curve (area = %0.2f)' % roc_auc)
-    plt.xlabel('specificity')
+    plt.xlabel('1-specificity')
     plt.ylabel('sensitivity')
     plt.show()
 
@@ -357,10 +360,21 @@ def selection_filter(file_path):
     f_classif, chi2, mutual_info_classif
     """
     df = pd.read_csv(file_path)
+    delete_list = ['id']
+    df.drop(delete_list, axis=1, inplace=True)
+    feature_attr = [i for i in df.columns if i not in ['label']]
     df.fillna(0, inplace=True)
+    # 特征预处理
+    obj_attrs = []
+    for attr in feature_attr:
+        if df.dtypes[attr] == np.dtype(object):  # 添加离散数据列
+            obj_attrs.append(attr)
+    if len(obj_attrs) > 0:
+        df = pd.get_dummies(df, columns=obj_attrs)  # 转为哑变量
+
     y = df.label
     X = df.drop('label', axis=1)
-    model = SelectKBest(f_classif, k=88)
+    model = SelectKBest(f_classif, k=108)
     X_new = model.fit_transform(X, y)
     df_X_new = pd.DataFrame(X_new)
     list = []
@@ -535,10 +549,13 @@ def code_test_new():
 
 #测试selected from model特征选择方法代码段
 def code_test_sfm():
-    selected_features = get_selected_features(path=r'G:/0404_filter_rfe_no_dup_0410.txt')
-    selected_features.append('label')
-    df = pd.read_csv(fusion_csv_path_0404_no_dup,usecols=selected_features)
+    # selected_features = get_selected_features(path=r'G:/0404_filter_rfe_no_dup_0410.txt')
+    # selected_features.append('label')
+    # df = pd.read_csv(fusion_csv_path_0404_no_dup,usecols=selected_features)
+    df = pd.read_csv(fusion_csv_path_0404_origin_no_dup)
     label = 'label'
+    delete_list = ['id']
+    df.drop(delete_list, axis=1, inplace=True)
     feature_attr = [i for i in df.columns if i not in [label]]
     label_attr = label
     df.fillna(0, inplace=True)
@@ -555,7 +572,9 @@ def code_test_sfm():
                                                                         test_size=0.25,
                                                                         random_state=1234)
     # xgboost算法
-    model = XGBClassifier()
+    model = XGBClassifier(max_depth=20,
+                                       n_estimators=100,
+                                       n_jobs=-1)
     model.fit(X_train,y_train)
     rf_pred = model.predict(X_test)
     print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
@@ -565,11 +584,20 @@ def code_test_sfm():
     selection = SelectFromModel(model,prefit=True)  # threshold_ ：采用的阈值
     # prefit ：布尔，默认为False，是否为训练完的模型,如果是False的话则先fit，再transform
     select_X_train = selection.transform(X_train)
-    selection_model = XGBClassifier()
+    selection_model = RandomForestClassifier(max_depth=20,
+                                       min_samples_leaf=4,
+                                       min_samples_split=6,
+                                       n_estimators=100,
+                                       bootstrap=True,
+                                       max_features='sqrt',
+                                       verbose=1,
+                                       n_jobs=-1)
+
     selection_model.fit(select_X_train, y_train)
     select_X_test = selection.transform(X_test)
     y_pred = selection_model.predict(select_X_test)
     accuracy = metrics.accuracy_score(y_test, y_pred)
+    print("X_new 共有 %s 个特征" % select_X_train.shape[1])
     print("n=%d,Accuracy:%.2f%%" % (select_X_train.shape[1], accuracy * 100.0))
     print('xgboost ACC：\n', metrics.accuracy_score(y_test, y_pred))
     print('xgboost F 1：\n', metrics.f1_score(y_test, y_pred, average='weighted'))
@@ -721,11 +749,73 @@ def selection_ga():
 
 
 filter_start_time = time.time()
-selected_features = get_selected_features(path=r'G:/0404_filter_rfe_no_dup_0410.txt')
-selected_features.append('label')
-df_reduction = pd.read_csv(fusion_csv_path_0404_no_dup,usecols=selected_features)
+# selected_features = get_selected_features(path=r'G:/0404_filter_rfe_no_dup_0410.txt')
+# selected_features.append('label')
+# df_reduction = pd.read_csv(fusion_csv_path_0404_origin_no_dup,usecols=selected_features)
+df_reduction = pd.read_csv(fusion_csv_path_0404_origin_no_dup)
 print(df_reduction.shape)
 df_reduction, estimator_reduction = rf_classifier(df_reduction)
 filter_end_time = time.time()
 print(str(filter_end_time-filter_start_time))
+
+# 测试FO算法时间以及子集大小
+# filter_start_time = time.time()
+# list = selection_filter(fusion_csv_path_0404_origin_no_dup)
+# print("特征子集大小："+str(len(list)))
+# for item in list:
+#     item = item + '\n'
+# with open(r'G:/FO_0404_no_dup_0429.txt', 'w+') as f:
+#     f.writelines(list)
+# filter_end_time = time.time()
+# print("运行时间："+str(filter_end_time-filter_start_time))
+
+# 测试EXB算法时间以及子集大小
+# filter_start_time = time.time()
+# code_test_sfm()
+# # print("特征子集大小："+str(len(list)))
+# # # for item in list:
+# # #     item = item + '\n'
+# # with open(r'G:/EXB_0404_no_dup_0429.txt', 'w+') as f:
+# #     f.writelines(list)
+# filter_end_time = time.time()
+# print("运行时间："+str(filter_end_time-filter_start_time))
+
+#其余 算法测试指标
+# filter_start_time = time.time()
+# # selected_features = get_selected_features(path=r'G:/0404_filter_rfe_no_dup_0410.txt')
+# selected_features = get_selected_features(path=r'G:/0404_rfe_no_dup_0410.txt')
+# selected_features.append('label')
+# df = pd.read_csv(fusion_csv_path_0404_no_dup,usecols=selected_features)
+# print(df.shape)
+# label = 'label'
+# # delete_list = ['id']
+# # df.drop(delete_list, axis=1, inplace=True)
+# feature_attr = [i for i in df.columns if i not in [label]]
+# label_attr = label
+# df.fillna(0, inplace=True)
+# # 特征预处理
+# obj_attrs = []
+# for attr in feature_attr:
+#     if df.dtypes[attr] == np.dtype(object):  # 添加离散数据列
+#         obj_attrs.append(attr)
+# if len(obj_attrs) > 0:
+#     df = pd.get_dummies(df, columns=obj_attrs)  # 转为哑变量
+#
+# X_train, X_test, y_train, y_test = model_selection.train_test_split(df.drop(label, axis=1),
+#                                                                     df['label'],
+#                                                                     test_size=0.25,
+#                                                                     random_state=1234)
+# # 决策树算法
+# model = DecisionTreeClassifier(max_depth=20, min_samples_leaf=4,
+#                                       min_samples_split=6)
+# #KNN
+# # model = neighbors.KNeighborsClassifier(n_neighbors=3)
+# model.fit(X_train, y_train)
+# rf_pred = model.predict(X_test)
+# print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
+# print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
+# print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
+#
+# filter_end_time = time.time()
+# print(str(filter_end_time-filter_start_time))
 
