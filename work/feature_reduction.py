@@ -749,73 +749,80 @@ def selection_ga():
 
 
 filter_start_time = time.time()
-# selected_features = get_selected_features(path=r'G:/0404_filter_rfe_no_dup_0410.txt')
-# selected_features.append('label')
-# df_reduction = pd.read_csv(fusion_csv_path_0404_origin_no_dup,usecols=selected_features)
-df_reduction = pd.read_csv(fusion_csv_path_0404_origin_no_dup)
+selected_features = get_selected_features(path=r'G:/0404_filter_rfe_no_dup_0410.txt')
+selected_features.append('label')
+df_reduction = pd.read_csv(fusion_csv_path_0404_no_dup,usecols=selected_features)
+# df_reduction = pd.read_csv(fusion_csv_path_0404_origin_no_dup)
 print(df_reduction.shape)
 df_reduction, estimator_reduction = rf_classifier(df_reduction)
 filter_end_time = time.time()
 print(str(filter_end_time-filter_start_time))
 
 # 测试FO算法时间以及子集大小
-# filter_start_time = time.time()
-# list = selection_filter(fusion_csv_path_0404_origin_no_dup)
-# print("特征子集大小："+str(len(list)))
-# for item in list:
-#     item = item + '\n'
-# with open(r'G:/FO_0404_no_dup_0429.txt', 'w+') as f:
-#     f.writelines(list)
-# filter_end_time = time.time()
-# print("运行时间："+str(filter_end_time-filter_start_time))
+def test_FO():
+    filter_start_time = time.time()
+    list = selection_filter(fusion_csv_path_0404_origin_no_dup)
+    print("特征子集大小：" + str(len(list)))
+    for item in list:
+        item = item + '\n'
+    with open(r'G:/FO_0404_no_dup_0429.txt', 'w+') as f:
+        f.writelines(list)
+    filter_end_time = time.time()
+    print("运行时间：" + str(filter_end_time - filter_start_time))
+
 
 # 测试EXB算法时间以及子集大小
-# filter_start_time = time.time()
-# code_test_sfm()
-# # print("特征子集大小："+str(len(list)))
-# # # for item in list:
-# # #     item = item + '\n'
-# # with open(r'G:/EXB_0404_no_dup_0429.txt', 'w+') as f:
-# #     f.writelines(list)
-# filter_end_time = time.time()
-# print("运行时间："+str(filter_end_time-filter_start_time))
+def test_EXB():
+    filter_start_time = time.time()
+    code_test_sfm()
+    # print("特征子集大小："+str(len(list)))
+    # # for item in list:
+    # #     item = item + '\n'
+    # with open(r'G:/EXB_0404_no_dup_0429.txt', 'w+') as f:
+    #     f.writelines(list)
+    filter_end_time = time.time()
+    print("运行时间：" + str(filter_end_time - filter_start_time))
+
 
 #其余 算法测试指标
-# filter_start_time = time.time()
-# # selected_features = get_selected_features(path=r'G:/0404_filter_rfe_no_dup_0410.txt')
-# selected_features = get_selected_features(path=r'G:/0404_rfe_no_dup_0410.txt')
-# selected_features.append('label')
-# df = pd.read_csv(fusion_csv_path_0404_no_dup,usecols=selected_features)
-# print(df.shape)
-# label = 'label'
-# # delete_list = ['id']
-# # df.drop(delete_list, axis=1, inplace=True)
-# feature_attr = [i for i in df.columns if i not in [label]]
-# label_attr = label
-# df.fillna(0, inplace=True)
-# # 特征预处理
-# obj_attrs = []
-# for attr in feature_attr:
-#     if df.dtypes[attr] == np.dtype(object):  # 添加离散数据列
-#         obj_attrs.append(attr)
-# if len(obj_attrs) > 0:
-#     df = pd.get_dummies(df, columns=obj_attrs)  # 转为哑变量
-#
-# X_train, X_test, y_train, y_test = model_selection.train_test_split(df.drop(label, axis=1),
-#                                                                     df['label'],
-#                                                                     test_size=0.25,
-#                                                                     random_state=1234)
-# # 决策树算法
-# model = DecisionTreeClassifier(max_depth=20, min_samples_leaf=4,
-#                                       min_samples_split=6)
-# #KNN
-# # model = neighbors.KNeighborsClassifier(n_neighbors=3)
-# model.fit(X_train, y_train)
-# rf_pred = model.predict(X_test)
-# print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
-# print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
-# print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
-#
-# filter_end_time = time.time()
-# print(str(filter_end_time-filter_start_time))
+def test_DT_KNN():
+    filter_start_time = time.time()
+    # selected_features = get_selected_features(path=r'G:/0404_filter_rfe_no_dup_0410.txt')
+    selected_features = get_selected_features(path=r'G:/0404_rfe_no_dup_0410.txt')
+    selected_features.append('label')
+    df = pd.read_csv(fusion_csv_path_0404_no_dup, usecols=selected_features)
+    print(df.shape)
+    label = 'label'
+    # delete_list = ['id']
+    # df.drop(delete_list, axis=1, inplace=True)
+    feature_attr = [i for i in df.columns if i not in [label]]
+    label_attr = label
+    df.fillna(0, inplace=True)
+    # 特征预处理
+    obj_attrs = []
+    for attr in feature_attr:
+        if df.dtypes[attr] == np.dtype(object):  # 添加离散数据列
+            obj_attrs.append(attr)
+    if len(obj_attrs) > 0:
+        df = pd.get_dummies(df, columns=obj_attrs)  # 转为哑变量
+
+    X_train, X_test, y_train, y_test = model_selection.train_test_split(df.drop(label, axis=1),
+                                                                        df['label'],
+                                                                        test_size=0.25,
+                                                                        random_state=1234)
+    # 决策树算法
+    model = DecisionTreeClassifier(max_depth=20, min_samples_leaf=4,
+                                   min_samples_split=6)
+    # KNN
+    # model = neighbors.KNeighborsClassifier(n_neighbors=3)
+    model.fit(X_train, y_train)
+    rf_pred = model.predict(X_test)
+    print('随机森林ACC：\n', metrics.accuracy_score(y_test, rf_pred))
+    print('随机森林F 1：\n', metrics.f1_score(y_test, rf_pred, average='weighted'))
+    print('随机森林AUC：\n', metrics.roc_auc_score(y_test, rf_pred))
+
+    filter_end_time = time.time()
+    print(str(filter_end_time - filter_start_time))
+
+
 

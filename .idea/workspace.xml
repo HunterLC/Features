@@ -3,7 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="15714133-8834-42cf-a36a-069dc63f951d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_statistics/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_statistics/statistics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/util/train_model.m" beforeDir="false" afterPath="$PROJECT_DIR$/util/train_model.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/work/feature_reduction.py" beforeDir="false" afterPath="$PROJECT_DIR$/work/feature_reduction.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +66,7 @@
       <recent name="E:\PythonCode\Features\example" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.statistics">
+  <component name="RunManager" selected="Python.feature_reduction (1)">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -158,9 +159,6 @@
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/work" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -180,6 +178,9 @@
       <module name="Features" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/data_statistics" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -197,8 +198,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.statistics" />
         <item itemvalue="Python.feature_reduction (1)" />
+        <item itemvalue="Python.statistics" />
         <item itemvalue="Python.feature_preprocessing" />
         <item itemvalue="Python.feature_extraction" />
         <item itemvalue="Python.feature_fusion" />
@@ -348,6 +349,7 @@
       <workItem from="1588229638713" duration="1224000" />
       <workItem from="1588231009146" duration="522000" />
       <workItem from="1588232274826" duration="1904000" />
+      <workItem from="1589355258185" duration="816000" />
     </task>
     <servers />
   </component>
